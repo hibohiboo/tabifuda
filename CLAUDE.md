@@ -39,6 +39,7 @@ docs/
 - 運用・進め方 → docs/agent-operations.md
 - 横断方針(権限・ログ・UGC・削除)に触れる → docs/design/cross-cutting.md
 - 手法・構造の是非を判断する → docs/adr/0001-methodology.md
+- CI/ワークフローに触れる → docs/adr/0003-ci-pipeline.md
 
 ## コマンド
 
