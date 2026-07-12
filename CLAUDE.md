@@ -48,7 +48,7 @@ cargo clippy --workspace -- -D warnings
 cargo fmt --all
 ```
 
-(pnpm系はP3以降に追記)
+(pnpm系はP3以降に追記。パッケージマネージャの選定根拠は docs/adr/0002-package-manager.md 参照)
 
 ## Rust規約
 
