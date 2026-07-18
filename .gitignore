@@ -11,3 +11,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Claude Code (マシン固有のローカル設定のみ除外。settings.json/memory はgit管理)
+.claude/settings.local.json

@@ -1,8 +1,8 @@
 [package]
-name = "tabifuda-engine-cli"
+name = "tabifuda-cli"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "tabifuda-engine-cli"
+name = "tabifuda-cli"
 path = "src/main.rs"

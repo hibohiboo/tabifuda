@@ -34,7 +34,15 @@
    スクリプト実行機構を持たない。これは意図したセキュリティ特性であり、
    「シナリオに自由なスクリプトを」という将来要望が来たら
    この文書を根拠にトレードオフを議論する
-3. 長さ上限を型レベルで設ける(free_text等)。DoSと保存コストの上限
+3. 長さ上限を型レベルで設ける(free_text等)。DoSと保存コストの上限。
+   機構は `BoundedString<const MAX: usize>` newtype(custom Deserialize で
+   crate 境界越しに境界を強制。`try_new` は Result で panic なし。用途別上限を
+   型に持たせる)。段階適用(2026-07-18決定。レビューL2):
+   - **実行時の自由入力**(`PlayCard.free_text`=C2、`Propose.text`=C3、
+     `ScenarioPatch.note`=C4)から先に適用する(DoS面が最も切実)
+   - **作者データ**(カード名・text・narration・title・author)は P2
+     (テンプレシナリオ+シナリオlint登場時)に段階適用する
+   - 上限値(chars/bytes の基準含む)は導入サイクルで確定する
 4. 公開コンテンツ(シナリオ、公開冒険記)の通報・非公開化は将来要望
    メモ側に追記(P4以降の運用機能)
 

@@ -1,3 +1,23 @@
 {
-  "plansDirectory": "docs/tasks/plans"
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "plansDirectory": "docs/tasks/plans",
+  "autoMemoryEnabled": true,
+  "language": "japanese",
+  "permissions": {
+    "allow": [
+      "Bash(cargo build *)",
+      "Bash(cargo check *)",
+      "Bash(cargo clippy *)",
+      "Bash(cargo fmt *)",
+      "Bash(cargo test *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git status)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)"
+    ]
+  }
 }

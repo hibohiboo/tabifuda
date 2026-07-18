@@ -1,12 +1,12 @@
 # CLAUDE.md
 
-カード制TRPG(CardWirth風)のモノレポ。Rustコア+TS Web+コンソール版。
+**Tabifuda(旅札)**。カード制TRPG(CardWirth風)のモノレポ。Rustコア+TS Web+コンソール版。
 
 ## 最重要ルール
 
 1. **設計文書が正、実装が従。** 仕様は docs/ にある。実装前に必ず該当文書を読む。
    仕様を変える実装をする場合、先に設計文書を更新してから実装する。
-2. **crates/core は純粋に保つ。** IO・時刻取得・乱数生成・グローバル状態を持ち込まない。
+2. **crates/tabifuda-core は純粋に保つ。** IO・時刻取得・乱数生成・グローバル状態を持ち込まない。
    乱数が必要な場合は結果を引数/イベントとして外から与える(リプレイ決定性のため)。
 3. **すべての進行はイベント。** 状態を直接書き換える近道を作らない。
    変更は必ず `decide(state, command) -> Result<Vec<Event>, RuleError>` と
@@ -17,9 +17,9 @@
 
 ```
 crates/
-  core/         ルール・状態機械(純粋。serde可、IO不可)
-  engine-cli/   コンソール版(coreの薄いフロント)
-  engine-wasm/  wasm-bindgenラッパー(P3〜)
+  tabifuda-core/  ルール・状態機械(純粋。serde可、IO不可)
+  tabifuda-cli/   コンソール版(tabifuda-coreの薄いフロント)
+  tabifuda-wasm/  wasm-bindgenラッパー(P3〜)
 apps/
   web/          TS+WASMフロントエンド(P3〜)
   api/          Hono on Lambda(P4〜)
@@ -40,6 +40,7 @@ docs/
 - 横断方針(権限・ログ・UGC・削除)に触れる → docs/design/cross-cutting.md
 - 手法・構造の是非を判断する → docs/adr/0001-methodology.md
 - CI/ワークフローに触れる → docs/adr/0003-ci-pipeline.md
+- .claude/ の設定(settings・plans・memory)に触れる → docs/adr/0004-claude-config.md
 
 ## コマンド
 
@@ -56,7 +57,7 @@ cargo fmt --all
 - Effect / Condition / Event / Command / PatchOp の各enumは追加前提。
   `#[non_exhaustive]` を付け、serdeは種別名を含むタグ付き表現にする
 - ID型はnewtypeで包む(生Stringを引き回さない)
-- coreの公開APIにpanicを含めない。エラーは `RuleError` / `PatchError` で返す
+- tabifuda-coreの公開APIにpanicを含めない。エラーは `RuleError` / `PatchError` で返す
 - テスト: decideの各Commandに正常系+拒否系(Paused中のPlayCard等)を必ず対で書く
 
 ## 用語(揺らさない)
@@ -71,7 +72,7 @@ cargo fmt --all
 
 ## やらないこと
 
-- crates/core への IO・async・乱数の導入
+- crates/tabifuda-core への IO・async・乱数の導入
 - 設計文書を更新せずに仕様へ影響する変更を入れること
 - Event列の過去改変(追記のみ。修正は打ち消しイベントで表現)
 - 未使用の将来要望(タグ効果、判定、ターン制戦闘)の先回り実装
