@@ -19,7 +19,7 @@
 
 | # | 項目 | 状態 | ブロック先 | 決定内容 |
 |---|---|---|---|---|
-| 1 | H1: Target の意味論 | 未着手 | C2 | — |
+| 1 | H1: Target の意味論 | 議論中 | C2 | — |
 | 2 | M3: コレクション型と id の正 | 未着手 | C2/C5 | — |
 | 3 | L2: 文字列長上限の投入時期 | 未着手 | C2 | — |
 | 4 | H2: role 信頼モデルと Actor 形状 | 未着手 | C3 | — |
@@ -43,7 +43,13 @@
 
 **決定**: (未定)
 
-**反映先**: domain-model.md「カード」節(Target定義と解決規則)、card.rs / scenario.rs
+**経緯**:
+- 2026-07-18 議論開始。前提理解のため、PO向け解説文書
+  docs/design/domain-guide.md を作成(§4 に Target の概念と本論点の背景を平易に記載)。
+  文書の地図 docs/README.md も同時に整備
+
+**反映先**: domain-model.md「カード」節(Target定義と解決規則)、card.rs / scenario.rs、
+domain-guide.md §4(決定後に解説を更新)
 
 ---
 
@@ -106,3 +112,4 @@ cross-cutting.md「認可は core に委ねる」に反する。`Session.roles` 
 ## 更新履歴
 
 - 2026-07-18: 文書作成。全4項目「未着手」
+- 2026-07-18: #1 H1 を「議論中」へ。前提資料として domain-guide.md / docs/README.md を作成
