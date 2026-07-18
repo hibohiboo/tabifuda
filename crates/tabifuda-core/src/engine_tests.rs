@@ -190,6 +190,7 @@ fn fixture_session(hand_card: &str) -> Session {
         hands,
         table: vec![],
         pending_proposal: None,
+        proposal_seq: 0,
     }
 }
 
@@ -683,6 +684,381 @@ fn play_card_records_modify_stat_as_effect_applied_without_mutating_state() {
     }
     // ModifyStatの数値解決はC2スコープ外。stateは変化しない。
     assert_eq!(state.unwrap().party[0].stats, stats_before);
+}
+
+// ---- Propose ----
+
+fn text(s: &str) -> crate::primitives::BoundedString<4096> {
+    crate::primitives::BoundedString::try_new(s).unwrap()
+}
+
+#[test]
+fn propose_accepts_for_owning_player_and_transitions_to_paused() {
+    let session = fixture_session("advance");
+    let events = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::Propose {
+            by: chr("ch1"),
+            text: text("もっと近道を探したい"),
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        events,
+        vec![Event::ProposalSubmitted {
+            id: crate::ids::ProposalId("proposal-0".to_string()),
+            by: chr("ch1"),
+            text: text("もっと近道を探したい"),
+        }]
+    );
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    assert_eq!(
+        session.status,
+        SessionStatus::Paused {
+            proposal: crate::ids::ProposalId("proposal-0".to_string())
+        }
+    );
+    assert_eq!(session.pending_proposal.unwrap().by, chr("ch1"));
+    assert_eq!(session.proposal_seq, 1);
+}
+
+#[test]
+fn propose_accepts_for_gm_on_behalf_of_any_character() {
+    let session = fixture_session("advance");
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::Propose {
+            by: chr("ch1"),
+            text: text("提案"),
+        },
+    );
+    assert!(result.is_ok());
+}
+
+#[test]
+fn propose_rejects_for_player_of_other_character() {
+    let session = fixture_session("advance");
+    let result = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::Propose {
+            by: chr("ch2"),
+            text: text("提案"),
+        },
+    );
+    assert_eq!(result, Err(RuleError::Forbidden));
+}
+
+#[test]
+fn propose_rejects_when_paused() {
+    let mut session = fixture_session("advance");
+    session.status = SessionStatus::Paused {
+        proposal: crate::ids::ProposalId("p1".to_string()),
+    };
+    let result = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::Propose {
+            by: chr("ch1"),
+            text: text("提案"),
+        },
+    );
+    assert_eq!(result, Err(RuleError::SessionPaused));
+}
+
+#[test]
+fn propose_rejects_when_ended() {
+    let mut session = fixture_session("advance");
+    session.status = SessionStatus::Ended(Outcome::Victory);
+    let result = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::Propose {
+            by: chr("ch1"),
+            text: text("提案"),
+        },
+    );
+    assert_eq!(result, Err(RuleError::SessionEnded));
+}
+
+// ---- JudgeProposal ----
+
+fn paused_session(proposal_id: &str) -> Session {
+    let mut session = fixture_session("advance");
+    session.status = SessionStatus::Paused {
+        proposal: crate::ids::ProposalId(proposal_id.to_string()),
+    };
+    session.pending_proposal = Some(crate::session::Proposal {
+        id: crate::ids::ProposalId(proposal_id.to_string()),
+        by: chr("ch1"),
+        text: text("提案"),
+    });
+    session
+}
+
+#[test]
+fn judge_proposal_rejected_returns_to_running() {
+    let session = paused_session("p1");
+    let events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal: crate::ids::ProposalId("p1".to_string()),
+            accepted: false,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        events,
+        vec![Event::ProposalJudged {
+            id: crate::ids::ProposalId("p1".to_string()),
+            accepted: false,
+        }]
+    );
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    assert_eq!(session.status, SessionStatus::Running);
+    assert!(session.pending_proposal.is_none());
+}
+
+#[test]
+fn judge_proposal_accepted_returns_to_running() {
+    let session = paused_session("p1");
+    let events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal: crate::ids::ProposalId("p1".to_string()),
+            accepted: true,
+        },
+    )
+    .unwrap();
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    assert_eq!(session.status, SessionStatus::Running);
+    assert!(session.pending_proposal.is_none());
+}
+
+#[test]
+fn judge_proposal_rejects_for_player() {
+    let session = paused_session("p1");
+    let result = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::JudgeProposal {
+            proposal: crate::ids::ProposalId("p1".to_string()),
+            accepted: true,
+        },
+    );
+    assert_eq!(result, Err(RuleError::Forbidden));
+}
+
+#[test]
+fn judge_proposal_rejects_when_no_pending_proposal() {
+    let session = fixture_session("advance"); // Running、pending無し
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal: crate::ids::ProposalId("p1".to_string()),
+            accepted: true,
+        },
+    );
+    assert_eq!(result, Err(RuleError::ProposalNotFound));
+}
+
+#[test]
+fn judge_proposal_rejects_mismatched_id() {
+    let session = paused_session("p1");
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal: crate::ids::ProposalId("other".to_string()),
+            accepted: true,
+        },
+    );
+    assert_eq!(result, Err(RuleError::ProposalNotFound));
+}
+
+#[test]
+fn judge_proposal_rejects_when_ended() {
+    let mut session = paused_session("p1");
+    session.status = SessionStatus::Ended(Outcome::Victory);
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal: crate::ids::ProposalId("p1".to_string()),
+            accepted: true,
+        },
+    );
+    assert_eq!(result, Err(RuleError::SessionEnded));
+}
+
+// ---- GmAdvance ----
+
+#[test]
+fn gm_advance_accepts_for_gm_and_enters_scene() {
+    let session = fixture_session("advance");
+    let events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::GmAdvance { to: scn("s2") },
+    )
+    .unwrap();
+    assert_eq!(
+        events,
+        vec![Event::SceneEntered {
+            scene: scn("s2"),
+            narration: "s2の描写".to_string(),
+        }]
+    );
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    assert_eq!(state.unwrap().scene, scn("s2"));
+}
+
+#[test]
+fn gm_advance_allowed_while_paused() {
+    let session = paused_session("p1");
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::GmAdvance { to: scn("s2") },
+    );
+    assert!(result.is_ok());
+}
+
+#[test]
+fn gm_advance_rejects_for_player() {
+    let session = fixture_session("advance");
+    let result = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::GmAdvance { to: scn("s2") },
+    );
+    assert_eq!(result, Err(RuleError::Forbidden));
+}
+
+#[test]
+fn gm_advance_rejects_missing_scene() {
+    let session = fixture_session("advance");
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::GmAdvance { to: scn("nowhere") },
+    );
+    assert_eq!(result, Err(RuleError::SceneNotFound));
+}
+
+#[test]
+fn gm_advance_rejects_when_ended() {
+    let mut session = fixture_session("advance");
+    session.status = SessionStatus::Ended(Outcome::Victory);
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::GmAdvance { to: scn("s2") },
+    );
+    assert_eq!(result, Err(RuleError::SessionEnded));
+}
+
+// ---- 状態機械: 全遷移の通し ----
+
+#[test]
+fn state_machine_running_propose_paused_judge_reject_running() {
+    let session = fixture_session("advance");
+    assert_eq!(session.status, SessionStatus::Running);
+
+    let propose_events = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::Propose {
+            by: chr("ch1"),
+            text: text("提案"),
+        },
+    )
+    .unwrap();
+    let mut state = Some(session);
+    for event in &propose_events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    assert!(matches!(session.status, SessionStatus::Paused { .. }));
+
+    let SessionStatus::Paused { proposal } = session.status.clone() else {
+        unreachable!()
+    };
+    let judge_events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal,
+            accepted: false,
+        },
+    )
+    .unwrap();
+    let mut state = Some(session);
+    for event in &judge_events {
+        state = apply(state, event);
+    }
+    assert_eq!(state.unwrap().status, SessionStatus::Running);
+}
+
+#[test]
+fn state_machine_running_propose_paused_judge_accept_running() {
+    let session = fixture_session("advance");
+    let propose_events = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::Propose {
+            by: chr("ch1"),
+            text: text("提案"),
+        },
+    )
+    .unwrap();
+    let mut state = Some(session);
+    for event in &propose_events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+
+    let SessionStatus::Paused { proposal } = session.status.clone() else {
+        unreachable!()
+    };
+    let judge_events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal,
+            accepted: true,
+        },
+    )
+    .unwrap();
+    let mut state = Some(session);
+    for event in &judge_events {
+        state = apply(state, event);
+    }
+    assert_eq!(state.unwrap().status, SessionStatus::Running);
 }
 
 // ---- EndSession ----

@@ -1,7 +1,7 @@
 //! decideの出力・冒険記の構成要素。docs/design/domain-model.md「コマンドとイベント」節に
 //! 対応。C2でSessionStarted/SceneEntered/CardDealt/CardPlayed/EffectApplied/
-//! PhaseAdvanced/SessionEndedのみ実装(ProposalSubmitted/ScenarioPatched/
-//! ProposalJudgedはC3/C4で追加)。
+//! PhaseAdvanced/SessionEnded、C3でProposalSubmitted/ProposalJudgedを実装
+//! (ScenarioPatchedはC4で追加)。
 
 use std::collections::HashMap;
 
@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::actor::Role;
 use crate::card::Effect;
 use crate::character::Character;
-use crate::ids::{CardId, CardInstanceId, CharacterId, SceneId, UserId};
+use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
 use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::Phase;
 use crate::session::ScenarioSnapshot;
@@ -60,6 +60,18 @@ pub enum Event {
     },
     PhaseAdvanced {
         phase: Phase,
+    },
+    /// → Paused へ遷移(C3)。`id`の発番規則はdomain-model.md「C3:
+    /// decide/applyの解決規則」参照。
+    ProposalSubmitted {
+        id: ProposalId,
+        by: CharacterId,
+        text: BoundedString<4096>,
+    },
+    /// → Running へ遷移(C3)。
+    ProposalJudged {
+        id: ProposalId,
+        accepted: bool,
     },
     SessionEnded {
         outcome: Outcome,

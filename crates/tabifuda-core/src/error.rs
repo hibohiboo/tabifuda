@@ -39,4 +39,8 @@ pub enum RuleError {
     /// AdvancePhase効果だが現在のPhaseが既に最後(Climax)で次が無い。
     #[error("no next phase")]
     NoNextPhase,
+    /// JudgeProposalが指定したProposalIdが、現在のPaused状態が保持する
+    /// pending_proposalと一致しない(status==Runningで裁定対象が無い場合を含む)。
+    #[error("proposal not found")]
+    ProposalNotFound,
 }

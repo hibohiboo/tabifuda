@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::actor::Role;
 use crate::character::Character;
 use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
-use crate::primitives::Outcome;
+use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::{Phase, Scenario};
 
 /// 開催時点のシナリオを凍結コピーしたもの。元シナリオの後編集と独立。
@@ -20,7 +20,7 @@ pub struct ScenarioSnapshot(pub Scenario);
 pub struct Proposal {
     pub id: ProposalId,
     pub by: CharacterId,
-    pub text: String,
+    pub text: BoundedString<4096>,
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
@@ -74,4 +74,9 @@ pub struct Session {
     )]
     pub table: Vec<CardInstance>,
     pub pending_proposal: Option<Proposal>,
+    /// `ProposalId`発番用の単調カウンタ(C3決定)。`CardInstanceId`と異なり
+    /// `pending_proposal`は裁定のたびに`None`へ戻る(除去が起きる)ため、
+    /// 現在状態からの逆算では連番の一意性を保てない。そこで別途カウンタを持つ
+    /// (domain-model.md「C3: decide/applyの解決規則」参照)。
+    pub proposal_seq: u64,
 }

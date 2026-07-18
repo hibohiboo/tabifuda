@@ -9,9 +9,9 @@ use crate::character::Character;
 use crate::command::Command;
 use crate::error::RuleError;
 use crate::event::Event;
-use crate::ids::{CardInstanceId, CharacterId, SceneId, UserId};
+use crate::ids::{CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
 use crate::scenario::{Phase, Scenario};
-use crate::session::{CardInstance, ScenarioSnapshot, Session, SessionStatus};
+use crate::session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStatus};
 
 /// state == None が許されるのはStartSessionのみ(domain-model.md「stateが
 /// Optionになる理由」参照)。
@@ -34,6 +34,11 @@ pub fn decide(
                 free_text,
             },
         ) => decide_play_card(session, actor, by, card, free_text),
+        (Some(session), Command::Propose { by, text }) => decide_propose(session, actor, by, text),
+        (Some(session), Command::JudgeProposal { proposal, accepted }) => {
+            decide_judge_proposal(session, actor, proposal, accepted)
+        }
+        (Some(session), Command::GmAdvance { to }) => decide_gm_advance(session, actor, to),
         (Some(session), Command::EndSession { outcome }) => {
             decide_end_session(session, actor, outcome)
         }
@@ -67,6 +72,7 @@ pub fn apply(state: Option<Session>, event: &Event) -> Option<Session> {
                 hands,
                 table: Vec::new(),
                 pending_proposal: None,
+                proposal_seq: 0,
             })
         }
         (Some(session), event) => Some(apply_to_existing(session, event)),
@@ -94,6 +100,21 @@ fn apply_to_existing(mut session: Session, event: &Event) -> Session {
         Event::EffectApplied { .. } => {}
         Event::PhaseAdvanced { phase } => {
             session.phase = phase.clone();
+        }
+        Event::ProposalSubmitted { id, by, text } => {
+            session.status = SessionStatus::Paused {
+                proposal: id.clone(),
+            };
+            session.pending_proposal = Some(Proposal {
+                id: id.clone(),
+                by: by.clone(),
+                text: text.clone(),
+            });
+            session.proposal_seq += 1;
+        }
+        Event::ProposalJudged { .. } => {
+            session.status = SessionStatus::Running;
+            session.pending_proposal = None;
         }
         Event::SessionEnded { outcome } => {
             session.status = SessionStatus::Ended(outcome.clone());
@@ -217,6 +238,53 @@ fn decide_play_card(
         }
     }
     Ok(events)
+}
+
+fn decide_propose(
+    session: &Session,
+    actor: &UserId,
+    by: CharacterId,
+    text: crate::primitives::BoundedString<4096>,
+) -> Result<Vec<Event>, RuleError> {
+    check_not_ended(session)?;
+    check_not_paused(session)?;
+    check_player_or_gm(session, actor, &by)?;
+
+    let id = ProposalId(format!("proposal-{}", session.proposal_seq));
+    Ok(vec![Event::ProposalSubmitted { id, by, text }])
+}
+
+fn decide_judge_proposal(
+    session: &Session,
+    actor: &UserId,
+    proposal: ProposalId,
+    accepted: bool,
+) -> Result<Vec<Event>, RuleError> {
+    check_not_ended(session)?;
+    check_gm(session, actor)?;
+    match &session.status {
+        SessionStatus::Paused { proposal: pending } if *pending == proposal => {
+            Ok(vec![Event::ProposalJudged {
+                id: proposal,
+                accepted,
+            }])
+        }
+        _ => Err(RuleError::ProposalNotFound),
+    }
+}
+
+/// GM強制進行。カードのrequires/GotoScene遷移条件を経由せず直接シーンへ入場する
+/// (`enter_scene`を共有)。状態機械図に載らない操作のため、Running/Paused双方で
+/// 許可し、共通の拒否系(Ended)のみに従う(domain-model.md「C3」参照)。
+fn decide_gm_advance(
+    session: &Session,
+    actor: &UserId,
+    to: SceneId,
+) -> Result<Vec<Event>, RuleError> {
+    check_not_ended(session)?;
+    check_gm(session, actor)?;
+    let instance_count = total_instance_count(session);
+    enter_scene(&session.scenario.0, &session.party, instance_count, &to)
 }
 
 fn decide_end_session(

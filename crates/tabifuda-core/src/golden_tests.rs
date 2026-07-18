@@ -10,9 +10,9 @@ use crate::card::{Condition, Effect, Target};
 use crate::error::RuleError;
 use crate::event::Event;
 use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, StatId};
-use crate::primitives::Outcome;
+use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::Phase;
-use crate::session::{CardInstance, SessionStatus};
+use crate::session::{CardInstance, Proposal, SessionStatus};
 
 /// 値 → JSON文字列が固定表現と一致し、かつその文字列 → 値で往復することを検証する
 /// (両方向を固定することで、シリアライズ・デシリアライズどちらの破壊も検出する)。
@@ -125,6 +125,19 @@ fn golden_rule_error() {
     assert_golden(RuleError::Forbidden, r#""Forbidden""#);
     assert_golden(RuleError::SessionPaused, r#""SessionPaused""#);
     assert_golden(RuleError::SceneNotFound, r#""SceneNotFound""#);
+    assert_golden(RuleError::ProposalNotFound, r#""ProposalNotFound""#);
+}
+
+#[test]
+fn golden_proposal() {
+    assert_golden(
+        Proposal {
+            id: ProposalId("proposal-0".to_string()),
+            by: character("ch1"),
+            text: BoundedString::<4096>::try_new("近道を探したい").unwrap(),
+        },
+        r#"{"id":"proposal-0","by":"ch1","text":"近道を探したい"}"#,
+    );
 }
 
 #[test]
@@ -157,6 +170,21 @@ fn golden_event() {
             phase: Phase::Middle,
         },
         r#"{"PhaseAdvanced":{"phase":"Middle"}}"#,
+    );
+    assert_golden(
+        Event::ProposalSubmitted {
+            id: ProposalId("proposal-0".to_string()),
+            by: character("ch1"),
+            text: BoundedString::<4096>::try_new("近道を探したい").unwrap(),
+        },
+        r#"{"ProposalSubmitted":{"id":"proposal-0","by":"ch1","text":"近道を探したい"}}"#,
+    );
+    assert_golden(
+        Event::ProposalJudged {
+            id: ProposalId("proposal-0".to_string()),
+            accepted: true,
+        },
+        r#"{"ProposalJudged":{"id":"proposal-0","accepted":true}}"#,
     );
     assert_golden(
         Event::SessionEnded {
