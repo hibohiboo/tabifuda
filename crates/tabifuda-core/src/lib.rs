@@ -15,6 +15,7 @@ pub mod engine;
 pub mod error;
 pub mod event;
 pub mod ids;
+pub mod lint;
 pub mod patch;
 pub mod primitives;
 pub mod scenario;
@@ -30,6 +31,7 @@ pub use event::Event;
 pub use ids::{
     CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
 };
+pub use lint::{lint, LintFinding, LintIssue, Severity};
 pub use patch::{validate, PatchError, PatchOp, ScenarioPatch};
 pub use primitives::{BoundedString, BoundedStringError, Outcome};
 pub use scenario::{
@@ -43,6 +45,8 @@ mod engine_tests;
 mod golden_tests;
 #[cfg(test)]
 mod invariant_tests;
+#[cfg(test)]
+mod lint_tests;
 #[cfg(test)]
 mod patch_tests;
 #[cfg(test)]
