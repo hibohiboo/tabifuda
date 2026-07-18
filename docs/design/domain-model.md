@@ -72,9 +72,9 @@ enum Target {
 }
 ```
 
-Effect / Condition は今後の追加が前提(タグ条件、シナリオ経験条件など)。
-シリアライズは種別名を含むタグ付き形式(serdeの外部タグ等)とし、
-`#[non_exhaustive]` を付けて後方互換の追加を許容する。
+Effect / Condition / Target は今後の追加が前提(タグ条件、シナリオ経験条件、
+Party/Actor等の対象追加など)。シリアライズは種別名を含むタグ付き形式
+(serdeの外部タグ等)とし、`#[non_exhaustive]` を付けて後方互換の追加を許容する。
 
 ## シナリオ構造
 
@@ -87,12 +87,40 @@ Scenario
 ```
 
 ```rust
+struct ScenarioMeta {
+    id: ScenarioId,
+    title: String,
+    author: String,
+    forked_from: Option<ScenarioId>,
+}
+
+struct Scenario {
+    meta: ScenarioMeta,
+    card_defs: HashMap<CardId, CardDef>,  // Markerカードの定義含む
+    phases: Vec<PhaseDef>,
+}
+
+struct PhaseDef {
+    phase: Phase,
+    scenes: Vec<SceneDef>,
+}
+
+struct Deal {
+    card: CardId,
+    to: Target,
+}
+
 struct SceneDef {
     id: SceneId,
     kind: SceneKind,           // Conversation | Travel | Battle | ...
     narration: String,         // シーン開始時の描写
     deals: Vec<Deal>,          // 入場時に配るカード
     exits: Vec<Transition>,    // 遷移条件(Condition/カード効果)
+}
+
+struct Transition {
+    condition: Condition,      // これを満たしたら自動遷移
+    to: SceneId,
 }
 ```
 
@@ -117,6 +145,8 @@ scene: climax_battle (kind: Battle)
 ## セッション状態
 
 ```rust
+struct ScenarioSnapshot(Scenario);  // 開催時点のシナリオを凍結コピーしたもの
+
 struct Session {
     scenario: ScenarioSnapshot,   // 開催時点のシナリオを凍結コピー(元シナリオの後編集と独立)
     party: Vec<Character>,        // マスターデータの参照ではなく凍結コピー。
@@ -136,6 +166,22 @@ enum SessionStatus {
     Running,
     Paused { proposal: ProposalId },  // 提案の裁定待ち
     Ended(Outcome),
+}
+
+enum Outcome {
+    Victory,
+    Defeat,
+}
+
+struct Proposal {
+    id: ProposalId,
+    by: CharacterId,
+    text: String,
+}
+
+struct CardInstance {
+    id: CardInstanceId,   // 配布された1枚ごとの実体
+    card: CardId,         // 元になったCardDef
 }
 
 struct Character {
