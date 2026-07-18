@@ -275,9 +275,31 @@ enum Role {
 }
 
 // decideは認証済みの本人確認(UserId)だけを受け取る
-fn decide(state: &Session, actor: &UserId, cmd: Command)
+fn decide(state: Option<&Session>, actor: &UserId, cmd: Command)
     -> Result<Vec<Event>, RuleError>;
 ```
+
+### state が Option になる理由(2026-07-19決定。C2)
+
+`StartSession` はセッションがまだ存在しない時点で呼ぶ唯一のコマンドであり、
+検証対象の `&Session` を渡せない(そもそも無い)。そこで `decide`/`apply` の
+第1引数を `Option<&Session>` / `Option<Session>` とする:
+
+- `state == None` で許されるコマンドは `StartSession` のみ。他のコマンドは
+  `RuleError::NoActiveSession` で拒否する
+- 逆に `state == Some`(セッションが既に始まっている)で `StartSession` が
+  渡された場合は `RuleError::SessionAlreadyStarted` で拒否する
+- `StartSession` を呼んだ `actor`(UserId)がそのままセッションの **Gm として
+  roles に登録される**(Gm は Player 権限を包含するため、ソロMVPはこれだけで
+  成立する。「role の信頼モデル」節参照)
+- `apply` は `SessionStarted` イベントを受け取ったとき、渡された `state` の
+  中身を使わずに新しい `Session` を構築する。`state.is_some()` で
+  `SessionStarted` 以外の通常イベントを扱い、逆の組み合わせ
+  (`state == None` で通常イベント、または `state == Some` で二重の
+  `SessionStarted`)は**コアの公開APIとしてpanicしない**設計とするため、
+  `apply` は `Option<Session>` を返し、不正な組み合わせは `None` を返す
+  (「decideの出力は必ずapply可能」という不変条件下では起こらない経路であり、
+  呼び出し側であるtabifuda-cli等がここで `unwrap` するのは構わない)
 
 ### role の信頼モデル(2026-07-18決定。レビューH2)
 
@@ -291,9 +313,14 @@ fn decide(state: &Session, actor: &UserId, cmd: Command)
 - 権限判定は decide 内で行い、違反は `RuleError::Forbidden` で拒否
 
 権限規則(v0.2):
+- `StartSession`: 制約なし(呼んだ本人がGmとして登録されるため、事前の
+  roles検証対象が存在しない。上記「state が Option になる理由」参照)
 - `PlayCard` / `Propose`: そのキャラを担当するPlayer、またはGm
   (**Gm は Player の権限を包含する**)
-- `JudgeProposal` / `ApplyPatch` / `GmAdvance`: Gmのみ
+- `JudgeProposal` / `ApplyPatch` / `GmAdvance` / `EndSession`: Gmのみ
+  (2026-07-19決定。`EndSession` は物語上の決着(勝敗カードが起こす
+  `Effect::EndSession`)とは別に、GMがセッションを打ち切る強制操作。
+  `GmAdvance` と同格の「進行の強制操作」として扱う)
 - 違反は `RuleError::Forbidden` で拒否(テストは受理/拒否を対で書く)
 - 全Eventに `actor: UserId` を記録する(冒険記の「誰が」・監査の根拠)
 
@@ -304,26 +331,28 @@ fn decide(state: &Session, actor: &UserId, cmd: Command)
 
 ```rust
 enum Command {
-    StartSession { scenario, party },
+    StartSession { scenario: Scenario, party: Vec<Character> },
     PlayCard { by: CharacterId, card: CardInstanceId,
-               free_text: Option<String> },   // Dialogueの自由入力
-    Propose { by: CharacterId, text: String }, // → Paused へ遷移
-    ApplyPatch { patch: ScenarioPatch },       // GM。Paused中のみ(v0.1)
-    JudgeProposal { proposal: ProposalId, accepted: bool }, // GM裁定 → Running へ
-    GmAdvance { to: SceneId },                 // GM強制進行
-    EndSession { outcome: Outcome },
+               free_text: Option<BoundedString<4096>> },   // Dialogueの自由入力
+    Propose { by: CharacterId, text: String }, // → Paused へ遷移(C3)
+    ApplyPatch { patch: ScenarioPatch },       // GM。Paused中のみ(v0.1、C4)
+    JudgeProposal { proposal: ProposalId, accepted: bool }, // GM裁定 → Running へ(C3)
+    GmAdvance { to: SceneId },                 // GM強制進行(C3)
+    EndSession { outcome: Outcome },           // GM専用の強制終了(下記参照)
 }
 
 enum Event {
-    SessionStarted { .. },
+    SessionStarted { scenario: ScenarioSnapshot, party: Vec<Character>,
+                     roles: HashMap<UserId, Role>,
+                     initial_phase: Phase, initial_scene: SceneId },
     SceneEntered { scene: SceneId, narration: String },
-    CardDealt { to: CharacterId, card: CardId },
+    CardDealt { to: CharacterId, card: CardId, instance: CardInstanceId },
     CardPlayed { by: CharacterId, card: CardId,
-                 free_text: Option<String> },
-    EffectApplied { effect: Effect },
-    ProposalSubmitted { id: ProposalId, by, text },   // → Paused
-    ScenarioPatched { patch: ScenarioPatch },
-    ProposalJudged { id: ProposalId, accepted: bool }, // → Running
+                 free_text: Option<BoundedString<4096>> },
+    EffectApplied { effect: Effect },          // 下記「Effect解決」参照
+    ProposalSubmitted { id: ProposalId, by: CharacterId, text: String },   // → Paused(C3)
+    ScenarioPatched { patch: ScenarioPatch },   // C4
+    ProposalJudged { id: ProposalId, accepted: bool }, // → Running(C3)
     PhaseAdvanced { phase: Phase },
     SessionEnded { outcome: Outcome },
 }
@@ -332,6 +361,46 @@ enum Event {
 ログUI(Web版)は Event 列をそのまま時系列カードとして描画する。`CardPlayed` は
 カード画像+free_text の吹き出し、`ScenarioPatched` は「GMがシナリオを改修した」
 カード+note、という表示が素直。
+
+### C2: decide/apply の解決規則(2026-07-19決定)
+
+**初期シーンの決定**: `StartSession` の `initial_phase`/`initial_scene` は
+`scenario.phases[0].phase` / `scenario.phases[0].scenes[0].id`(先頭フェーズの
+先頭シーン)。`phases` が空、または先頭フェーズに `scenes` が無い場合は
+`RuleError::ScenarioHasNoScenes` で拒否する。
+
+**CardInstanceId の発行**(coreはIO・乱数を持たないため決定的に発行する):
+`CardDealt` イベントに `instance: CardInstanceId` を焼き込む(apply 側では
+計算しない)。decide は「現在の hands+table に存在するカード総数」を起点に、
+このdecide呼び出し内で新規発行するインスタンスへ連番を割り当てる
+(`{CardId}-{連番}` 形式)。C2の範囲ではカードは配布のみで手札から除去され
+ないため、この総数は単調増加し、Session側に別途カウンタを持たなくても
+一意性が保たれる(除去を導入する将来サイクルでは要再検討)。
+
+**Effect解決**(`PlayCard` 実行時、`CardDef.effects` を先頭から順に解決):
+- `GotoScene(id)`: `id` がシナリオに存在しなければ `RuleError::SceneNotFound`。
+  存在すれば `SceneEntered{scene: id, narration}` を発行し、続けてそのシーンの
+  `deals` を解決した `CardDealt` 群を発行する(初期シーン入場と同じ解決経路)
+- `AdvancePhase`: 現在の `Phase` の次(`Opening→Middle→Climax`)へ進める
+  `PhaseAdvanced` を発行。既に `Climax` なら次が無いため `RuleError::NoNextPhase`
+- `DealCard{card, to}`: `Target` を対象キャラID群へ解決し、各キャラへ
+  `CardDealt` を発行。`Target::Party` はパーティ全員、`Target::Character(id)`
+  はそのキャラ1人(シナリオデータ内での `Character` 使用はP2のシナリオlintで
+  別途検出される想定であり、C2のdecideはどちらも同じ規則で解決してよい)
+- `EndSession(outcome)`: `SessionEnded{outcome}` を発行(以降のEffectは解決しない)
+- `ModifyStat{..}`: **型のみ、解決は後回し**(C2スコープ外)。状態は変更せず
+  `EffectApplied{effect}` のみ発行し、監査ログ上に「効果が存在した」ことだけ残す。
+  `EffectApplied` はこの「未解決Effect」専用であり、上記の解決済みEffectとは
+  重複して発行しない
+
+**PlayCardの拒否系**: `requires` 未達は `RuleError::ConditionNotMet`
+(`HasCard` は実行者キャラの手札+`table`、`StatAtLeast` は実行者キャラの
+`stats` を見る)。`card`(CardInstanceId)が実行者キャラの手札に無ければ
+`RuleError::CardNotFound`。
+
+**共通の拒否系**: `status == Ended` の間の全Commandは `RuleError::SessionEnded`。
+`status == Paused` の間の `PlayCard` / `EndSession` は `RuleError::SessionPaused`
+(状態機械図に `Paused --EndSession-->` が無いことに対応)。
 
 ## ソロMVPでの簡略化
 
