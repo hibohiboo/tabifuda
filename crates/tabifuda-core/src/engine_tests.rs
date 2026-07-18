@@ -14,7 +14,7 @@ use crate::ids::{
     CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
 };
 use crate::patch::{PatchError, PatchOp, ScenarioPatch};
-use crate::primitives::Outcome;
+use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::{Deal, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef, SceneKind};
 use crate::session::{CardInstance, ScenarioSnapshot, Session, SessionStatus};
 use crate::Role;
@@ -37,13 +37,19 @@ fn stat(s: &str) -> StatId {
 fn inst(s: &str) -> CardInstanceId {
     CardInstanceId(s.to_string())
 }
+fn short(s: &str) -> BoundedString<200> {
+    BoundedString::try_new(s).unwrap()
+}
+fn long(s: &str) -> BoundedString<2000> {
+    BoundedString::try_new(s).unwrap()
+}
 
 fn card_def(id: &str, kind: CardKind, effects: Vec<Effect>, requires: Vec<Condition>) -> CardDef {
     CardDef {
         id: cid(id),
-        name: id.to_string(),
+        name: short(id),
         kind,
-        text: String::new(),
+        text: long(""),
         tags: vec![],
         effects,
         requires,
@@ -54,7 +60,7 @@ fn scene(id: &str, deals: Vec<Deal>) -> SceneDef {
     SceneDef {
         id: scn(id),
         kind: SceneKind::Conversation,
-        narration: format!("{id}の描写"),
+        narration: long(&format!("{id}の描写")),
         deals,
         exits: vec![],
     }
@@ -65,8 +71,8 @@ fn fixture_scenario() -> Scenario {
     Scenario {
         meta: ScenarioMeta {
             id: ScenarioId("scenario1".to_string()),
-            title: "テスト用シナリオ".to_string(),
-            author: "test".to_string(),
+            title: short("テスト用シナリオ"),
+            author: short("test"),
             forked_from: None,
         },
         card_defs: vec![
@@ -268,8 +274,8 @@ fn start_session_rejects_scenario_without_scenes() {
     let scenario = Scenario {
         meta: ScenarioMeta {
             id: ScenarioId("empty".to_string()),
-            title: String::new(),
-            author: String::new(),
+            title: short(""),
+            author: short(""),
             forked_from: None,
         },
         card_defs: vec![],

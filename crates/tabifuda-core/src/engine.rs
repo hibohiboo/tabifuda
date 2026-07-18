@@ -352,7 +352,7 @@ fn enter_scene(
         .ok_or(RuleError::SceneNotFound)?;
     let mut events = vec![Event::SceneEntered {
         scene: scene_id.clone(),
-        narration: scene_def.narration.clone(),
+        narration: scene_def.narration.as_str().to_string(),
     }];
     let mut next_seq = existing_instance_count;
     for deal in &scene_def.deals {

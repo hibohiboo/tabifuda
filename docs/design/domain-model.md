@@ -47,9 +47,9 @@ v0からの変更点:
 ```rust
 struct CardDef {
     id: CardId,
-    name: String,
+    name: BoundedString<200>,
     kind: CardKind,
-    text: String,              // フレーバー/説明
+    text: BoundedString<2000>, // フレーバー/説明
     tags: Vec<Tag>,            // v0.1では常に空。将来のタグシステム用に予約
     effects: Vec<Effect>,      // 出したときの効果
     requires: Vec<Condition>,  // 出せる条件(任意)
@@ -105,8 +105,8 @@ Scenario
 ```rust
 struct ScenarioMeta {
     id: ScenarioId,
-    title: String,
-    author: String,
+    title: BoundedString<200>,
+    author: BoundedString<200>,
     forked_from: Option<ScenarioId>,
 }
 
@@ -128,10 +128,10 @@ struct Deal {
 
 struct SceneDef {
     id: SceneId,
-    kind: SceneKind,           // Conversation | Travel | Battle | ...
-    narration: String,         // シーン開始時の描写
-    deals: Vec<Deal>,          // 入場時に配るカード
-    exits: Vec<Transition>,    // 遷移条件(Condition/カード効果)
+    kind: SceneKind,               // Conversation | Travel | Battle | ...
+    narration: BoundedString<2000>, // シーン開始時の描写
+    deals: Vec<Deal>,              // 入場時に配るカード
+    exits: Vec<Transition>,        // 遷移条件(Condition/カード効果)
 }
 
 struct Transition {
@@ -139,6 +139,23 @@ struct Transition {
     to: SceneId,
 }
 ```
+
+### 作者データへのBoundedString適用(P2 C3前決定)
+
+cross-cutting.md「自由入力(UGC)の取り扱い」§3は、作者データ(カード名・
+text・narration・title・author)へのBoundedString適用をP2(テンプレシナリオ
++シナリオlint登場時)で段階適用すると定めている。C1/C2ではこの適用が
+漏れていたため、C3着手前に retrofit する(2026-07-19確認)。
+
+- `BoundedString`はJSON上は素の文字列としてシリアライズされるため、
+  既存の`shared/scenarios/`データの形式に変更は無い(型レベルの検証が
+  増えるのみ)
+- 上限値: 識別的な短いテキスト(`CardDef.name`、`ScenarioMeta.title`/
+  `author`)は200文字、説明的な長いテキスト(`CardDef.text`、
+  `SceneDef.narration`)は2000文字。実行時の自由入力(`free_text`/
+  `Propose.text`/`ScenarioPatch.note`、いずれも4096文字)より小さいのは、
+  作者データは一括投入されるコンテンツでありDoS面の切実さが実行時入力
+  ほど高くないためだが、無制限にはしない
 
 ### コレクションと id の規則(2026-07-18決定。レビューM3)
 

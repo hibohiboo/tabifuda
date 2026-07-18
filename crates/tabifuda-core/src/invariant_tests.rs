@@ -171,9 +171,9 @@ fn small_id_pool() -> impl Strategy<Value = String> {
 fn small_card_def(id: String) -> CardDef {
     CardDef {
         id: CardId(format!("c-{id}")),
-        name: id,
+        name: BoundedString::try_new(id).unwrap(),
         kind: CardKind::Item,
-        text: String::new(),
+        text: BoundedString::try_new("").unwrap(),
         tags: vec![],
         effects: vec![],
         requires: vec![],
@@ -184,7 +184,7 @@ fn small_scene_def(id: String) -> SceneDef {
     SceneDef {
         id: SceneId(format!("s-{id}")),
         kind: SceneKind::Conversation,
-        narration: String::new(),
+        narration: BoundedString::try_new("").unwrap(),
         deals: vec![],
         exits: vec![],
     }
@@ -204,8 +204,8 @@ fn small_scenario_strategy() -> impl Strategy<Value = Scenario> {
             Scenario {
                 meta: ScenarioMeta {
                     id: ScenarioId("scenario".to_string()),
-                    title: String::new(),
-                    author: String::new(),
+                    title: BoundedString::try_new("").unwrap(),
+                    author: BoundedString::try_new("").unwrap(),
                     forked_from: None,
                 },
                 card_defs,

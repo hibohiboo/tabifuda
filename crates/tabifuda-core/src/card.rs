@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::ids::{CardId, CharacterId, SceneId, StatId};
+use crate::primitives::BoundedString;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -65,9 +66,11 @@ pub enum Condition {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CardDef {
     pub id: CardId,
-    pub name: String,
+    /// 作者データの長さ上限。docs/design/cross-cutting.md「自由入力(UGC)の取り扱い」
+    /// §3、domain-model.md「作者データへのBoundedString適用」参照。
+    pub name: BoundedString<200>,
     pub kind: CardKind,
-    pub text: String,
+    pub text: BoundedString<2000>,
     #[cfg_attr(
         test,
         proptest(strategy = "proptest::collection::vec(proptest::prelude::any::<Tag>(), 0..=3)")

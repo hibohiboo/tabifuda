@@ -4,7 +4,7 @@
 use crate::card::{CardDef, CardKind, Condition, Effect, Target};
 use crate::ids::{CardId, CharacterId, SceneId};
 use crate::lint::{lint, LintIssue, Severity};
-use crate::primitives::Outcome;
+use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::{
     Deal, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef, SceneKind, Transition,
 };
@@ -18,13 +18,19 @@ fn scn(s: &str) -> SceneId {
 fn chr(s: &str) -> CharacterId {
     CharacterId(s.to_string())
 }
+fn short(s: &str) -> BoundedString<200> {
+    BoundedString::try_new(s).unwrap()
+}
+fn long(s: &str) -> BoundedString<2000> {
+    BoundedString::try_new(s).unwrap()
+}
 
 fn card_def(id: &str) -> CardDef {
     CardDef {
         id: cid(id),
-        name: id.to_string(),
+        name: short(id),
         kind: CardKind::Item,
-        text: String::new(),
+        text: long(""),
         tags: vec![],
         effects: vec![],
         requires: vec![],
@@ -35,7 +41,7 @@ fn scene(id: &str) -> SceneDef {
     SceneDef {
         id: scn(id),
         kind: SceneKind::Conversation,
-        narration: String::new(),
+        narration: long(""),
         deals: vec![],
         exits: vec![],
     }
@@ -45,8 +51,8 @@ fn scenario(card_defs: Vec<CardDef>, phases: Vec<PhaseDef>) -> Scenario {
     Scenario {
         meta: ScenarioMeta {
             id: crate::ids::ScenarioId("scenario1".to_string()),
-            title: String::new(),
-            author: String::new(),
+            title: short(""),
+            author: short(""),
             forked_from: None,
         },
         card_defs,

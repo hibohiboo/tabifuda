@@ -5,11 +5,18 @@
 use std::io::Write;
 use std::process::Command;
 
+use tabifuda_core::{BoundedString, CardId, ScenarioId, SceneId};
 use tabifuda_core::{
     CardDef, CardKind, Effect, Outcome, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef,
     SceneKind, Target,
 };
-use tabifuda_core::{CardId, ScenarioId, SceneId};
+
+fn short(s: &str) -> BoundedString<200> {
+    BoundedString::try_new(s).unwrap()
+}
+fn long(s: &str) -> BoundedString<2000> {
+    BoundedString::try_new(s).unwrap()
+}
 
 fn write_temp_json(name: &str, scenario: &Scenario) -> std::path::PathBuf {
     let mut path = std::env::temp_dir();
@@ -27,9 +34,9 @@ fn write_temp_json(name: &str, scenario: &Scenario) -> std::path::PathBuf {
 fn minimal_valid_scenario() -> Scenario {
     let end_card = CardDef {
         id: CardId("end".to_string()),
-        name: "end".to_string(),
+        name: short("end"),
         kind: CardKind::Marker,
-        text: String::new(),
+        text: long(""),
         tags: vec![],
         effects: vec![Effect::EndSession(Outcome::Victory)],
         requires: vec![],
@@ -37,7 +44,7 @@ fn minimal_valid_scenario() -> Scenario {
     let s1 = SceneDef {
         id: SceneId("s1".to_string()),
         kind: SceneKind::Conversation,
-        narration: String::new(),
+        narration: long(""),
         deals: vec![tabifuda_core::Deal {
             card: CardId("end".to_string()),
             to: Target::Party,
@@ -47,8 +54,8 @@ fn minimal_valid_scenario() -> Scenario {
     Scenario {
         meta: ScenarioMeta {
             id: ScenarioId("scenario1".to_string()),
-            title: String::new(),
-            author: String::new(),
+            title: short(""),
+            author: short(""),
             forked_from: None,
         },
         card_defs: vec![end_card],
@@ -63,7 +70,7 @@ fn broken_scenario_with_unknown_card_ref() -> Scenario {
     let s1 = SceneDef {
         id: SceneId("s1".to_string()),
         kind: SceneKind::Conversation,
-        narration: String::new(),
+        narration: long(""),
         deals: vec![tabifuda_core::Deal {
             card: CardId("nowhere".to_string()),
             to: Target::Party,
@@ -73,8 +80,8 @@ fn broken_scenario_with_unknown_card_ref() -> Scenario {
     Scenario {
         meta: ScenarioMeta {
             id: ScenarioId("scenario1".to_string()),
-            title: String::new(),
-            author: String::new(),
+            title: short(""),
+            author: short(""),
             forked_from: None,
         },
         card_defs: vec![],

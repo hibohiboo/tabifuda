@@ -25,12 +25,19 @@ fn chr(s: &str) -> CharacterId {
     CharacterId(s.to_string())
 }
 
+fn short(s: &str) -> BoundedString<200> {
+    BoundedString::try_new(s).unwrap()
+}
+fn long(s: &str) -> BoundedString<2000> {
+    BoundedString::try_new(s).unwrap()
+}
+
 fn card_def(id: &str) -> CardDef {
     CardDef {
         id: cid(id),
-        name: id.to_string(),
+        name: short(id),
         kind: CardKind::Item,
-        text: String::new(),
+        text: long(""),
         tags: vec![],
         effects: vec![],
         requires: vec![],
@@ -41,7 +48,7 @@ fn scene(id: &str) -> SceneDef {
     SceneDef {
         id: scn(id),
         kind: SceneKind::Conversation,
-        narration: String::new(),
+        narration: long(""),
         deals: vec![],
         exits: vec![],
     }
@@ -64,8 +71,8 @@ fn fixture_session() -> Session {
     let scenario = Scenario {
         meta: ScenarioMeta {
             id: ScenarioId("scenario1".to_string()),
-            title: String::new(),
-            author: String::new(),
+            title: short(""),
+            author: short(""),
             forked_from: None,
         },
         card_defs: vec![card_def("existing")],
@@ -126,7 +133,7 @@ fn validate_rejects_add_card_def_duplicate() {
 fn validate_accepts_replace_scene_existing_target() {
     let session = fixture_session();
     let mut replaced = scene("s1");
-    replaced.narration = "改訂後の描写".to_string();
+    replaced.narration = long("改訂後の描写");
     let result = validate(&session, &patch(vec![PatchOp::ReplaceScene(replaced)]));
     assert!(result.is_ok());
 }
