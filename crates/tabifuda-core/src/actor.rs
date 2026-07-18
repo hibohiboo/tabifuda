@@ -8,7 +8,15 @@ use crate::ids::{CharacterId, UserId};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Role {
     Gm,
-    Player { characters: Vec<CharacterId> },
+    Player {
+        #[cfg_attr(
+            test,
+            proptest(
+                strategy = "proptest::collection::vec(proptest::prelude::any::<CharacterId>(), 0..=3)"
+            )
+        )]
+        characters: Vec<CharacterId>,
+    },
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]

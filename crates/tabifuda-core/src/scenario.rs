@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::card::{CardDef, Condition, Target};
-use crate::ids::{CardId, SceneId, ScenarioId};
+use crate::ids::{CardId, ScenarioId, SceneId};
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -45,7 +45,17 @@ pub struct SceneDef {
     pub id: SceneId,
     pub kind: SceneKind,
     pub narration: String,
+    #[cfg_attr(
+        test,
+        proptest(strategy = "proptest::collection::vec(proptest::prelude::any::<Deal>(), 0..=3)")
+    )]
     pub deals: Vec<Deal>,
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::vec(proptest::prelude::any::<Transition>(), 0..=3)"
+        )
+    )]
     pub exits: Vec<Transition>,
 }
 
@@ -53,6 +63,12 @@ pub struct SceneDef {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PhaseDef {
     pub phase: Phase,
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::vec(proptest::prelude::any::<SceneDef>(), 0..=2)"
+        )
+    )]
     pub scenes: Vec<SceneDef>,
 }
 
@@ -69,6 +85,18 @@ pub struct ScenarioMeta {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Scenario {
     pub meta: ScenarioMeta,
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::hash_map(proptest::prelude::any::<CardId>(), proptest::prelude::any::<CardDef>(), 0..=3)"
+        )
+    )]
     pub card_defs: HashMap<CardId, CardDef>,
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::vec(proptest::prelude::any::<PhaseDef>(), 0..=3)"
+        )
+    )]
     pub phases: Vec<PhaseDef>,
 }

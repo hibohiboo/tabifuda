@@ -34,8 +34,15 @@ pub enum Target {
 pub enum Effect {
     GotoScene(SceneId),
     AdvancePhase,
-    DealCard { card: CardId, to: Target },
-    ModifyStat { target: Target, stat: StatId, delta: i32 },
+    DealCard {
+        card: CardId,
+        to: Target,
+    },
+    ModifyStat {
+        target: Target,
+        stat: StatId,
+        delta: i32,
+    },
     EndSession(crate::session::Outcome),
 }
 
@@ -56,7 +63,23 @@ pub struct CardDef {
     pub name: String,
     pub kind: CardKind,
     pub text: String,
+    #[cfg_attr(
+        test,
+        proptest(strategy = "proptest::collection::vec(proptest::prelude::any::<Tag>(), 0..=3)")
+    )]
     pub tags: Vec<Tag>,
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::vec(proptest::prelude::any::<Effect>(), 0..=3)"
+        )
+    )]
     pub effects: Vec<Effect>,
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::vec(proptest::prelude::any::<Condition>(), 0..=3)"
+        )
+    )]
     pub requires: Vec<Condition>,
 }
