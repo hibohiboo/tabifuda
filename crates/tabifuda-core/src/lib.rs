@@ -42,6 +42,8 @@ mod engine_tests;
 #[cfg(test)]
 mod golden_tests;
 #[cfg(test)]
+mod invariant_tests;
+#[cfg(test)]
 mod patch_tests;
 #[cfg(test)]
 mod roundtrip_tests;
