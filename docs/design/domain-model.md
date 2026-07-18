@@ -1,11 +1,17 @@
 # ドメインモデル叩き台 v0.2
 
-対象: Rustコア(crates/core)。コンソール版ソロプレイMVPの範囲+将来の非同期マルチを見据えた土台。
+対象: Rustコア(crates/tabifuda-core)。コンソール版ソロプレイMVPの範囲+将来の非同期マルチを見据えた土台。
 
 v0.1からの変更点:
 - **アクターと権限を導入**(cross-cutting.md §権限 からの逆輸入)。
   全CommandにActorが付き、GM専用コマンドの検証をdecide内で行う
 - 全EventにActorを記録(監査・冒険記の「誰が」に対応)
+- **flags(FlagId/FlagValue)を廃止し、状態表現をカードに統一**。
+  「世界のすべてはカード」を徹底し、状態・選択の成立は
+  `CardKind::Marker` カードで表現する。グローバルな事実(パーティ/
+  シナリオ全体に関わるもの)は共有領域 `table` に、個人の選択は
+  担当キャラの `hands` に配る。`Condition::HasCard` は
+  アクターの手札と `table` の両方を対象に判定する
 
 v0からの変更点:
 - セッション状態機械(Running/Paused)と提案→改修→再開フローを追加
@@ -35,6 +41,7 @@ v0からの変更点:
 | Dialogue | 常時/配布 | 台詞カード。自由入力テキストを添えて出せる |
 | Proposal | 常時 | 新たな選択肢の提案。GMが採否を裁定 |
 | Item | 配布/取得 | 所持品。効果を持つことがある |
+| Marker | 配布/取得 | 選択・状態の成立を示す印。効果を持たないことが多い。世界の状態(旧flags)はこのカードで表現する |
 
 ```rust
 struct CardDef {
@@ -51,15 +58,17 @@ enum Effect {
     GotoScene(SceneId),
     AdvancePhase,
     DealCard { card: CardId, to: Target },
-    SetFlag(FlagId, FlagValue),
     ModifyStat { target: Target, stat: StatId, delta: i32 },
     EndSession(Outcome),
 }
 
 enum Condition {
-    FlagIs(FlagId, FlagValue),
-    HasCard(CardId),
+    HasCard(CardId),   // アクターの手札 or table に存在するか
     StatAtLeast(StatId, i32),
+}
+
+enum Target {
+    Character(CharacterId),
 }
 ```
 
@@ -72,10 +81,9 @@ Effect / Condition は今後の追加が前提(タグ条件、シナリオ経験
 ```
 Scenario
  ├ meta (id, title, author, forked_from: Option<ScenarioId>)
- ├ card_defs: シナリオ固有カード辞書
- ├ phases: [Opening, Middle, Climax]
- │   └ scenes: [SceneDef]
- └ flags: 初期フラグ定義
+ ├ card_defs: シナリオ固有カード辞書(Markerカードの定義含む)
+ └ phases: [Opening, Middle, Climax]
+     └ scenes: [SceneDef]
 ```
 
 ```rust
@@ -84,11 +92,12 @@ struct SceneDef {
     kind: SceneKind,           // Conversation | Travel | Battle | ...
     narration: String,         // シーン開始時の描写
     deals: Vec<Deal>,          // 入場時に配るカード
-    exits: Vec<Transition>,    // 遷移条件(フラグ/カード効果)
+    exits: Vec<Transition>,    // 遷移条件(Condition/カード効果)
 }
 ```
 
-シーン遷移は原則カードの `GotoScene` 効果か、フラグ条件による自動遷移で表現する。
+シーン遷移は原則カードの `GotoScene` 効果か、`Condition`(`HasCard`等)による
+自動遷移で表現する。
 
 ### 勝敗分岐(v0.1の戦闘表現)
 
@@ -118,8 +127,8 @@ struct Session {
     phase: Phase,
     scene: SceneId,
     hands: HashMap<CharacterId, Vec<CardInstance>>,
-    table: Vec<CardInstance>,     // 場に出たカード
-    flags: HashMap<FlagId, FlagValue>,
+    table: Vec<CardInstance>,     // 場に出たカード。パーティ/シナリオ全体の
+                                  // 状態(旧flags)は Marker カードとしてここに置く
     pending_proposal: Option<Proposal>,
 }
 
@@ -161,7 +170,6 @@ enum PatchOp {
     AddScene { phase: Phase, scene: SceneDef },
     AddTransition { scene: SceneId, transition: Transition },
     DealCard { card: CardId, to: Target },  // その場で配る
-    SetFlag(FlagId, FlagValue),
 }
 
 struct ScenarioPatch {
@@ -240,7 +248,7 @@ enum Event {
 ## ソロMVPでの簡略化
 
 - プレイヤーがGMを兼任(単一ユーザーがGm+Player両ロールのActorを持つ)
-- 判定(ダイス)なし。分岐はフラグとカード選択のみ
+- 判定(ダイス)なし。分岐はMarkerカードとカード選択のみ
 - 戦闘は勝利/敗北カードの選択で表現(上記)
 - パーティは1人から
 - テンプレシナリオ「単純討伐」1本: OP(依頼会話)→ミドル(移動)→

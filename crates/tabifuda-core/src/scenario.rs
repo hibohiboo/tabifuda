@@ -1,0 +1,74 @@
+//! シナリオ構造(Scenario/SceneDef等)。docs/design/domain-model.md「シナリオ構造」節に対応。
+
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+use crate::card::{CardDef, Condition, Target};
+use crate::ids::{CardId, SceneId, ScenarioId};
+
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Phase {
+    Opening,
+    Middle,
+    Climax,
+}
+
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SceneKind {
+    Conversation,
+    Travel,
+    Battle,
+}
+
+/// シーン入場時に配るカード。
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Deal {
+    pub card: CardId,
+    pub to: Target,
+}
+
+/// Conditionによる自動遷移。カードのGotoScene効果による遷移とは別経路。
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Transition {
+    pub condition: Condition,
+    pub to: SceneId,
+}
+
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SceneDef {
+    pub id: SceneId,
+    pub kind: SceneKind,
+    pub narration: String,
+    pub deals: Vec<Deal>,
+    pub exits: Vec<Transition>,
+}
+
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PhaseDef {
+    pub phase: Phase,
+    pub scenes: Vec<SceneDef>,
+}
+
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScenarioMeta {
+    pub id: ScenarioId,
+    pub title: String,
+    pub author: String,
+    pub forked_from: Option<ScenarioId>,
+}
+
+#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Scenario {
+    pub meta: ScenarioMeta,
+    pub card_defs: HashMap<CardId, CardDef>,
+    pub phases: Vec<PhaseDef>,
+}

@@ -42,7 +42,8 @@ crates/core にドメインモデル(v0.2)を実装する。UI・永続化・非
 - テスト: 権限とステータスの受理/拒否対、状態機械の全遷移
 
 ### C4: シナリオパッチ
-- PatchOp 6種、`validate(&Session, &ScenarioPatch)`、ApplyPatch(Paused中のみ)
+- PatchOp 5種(C1でのflags廃止に伴いSetFlagは無し)、
+  `validate(&Session, &ScenarioPatch)`、ApplyPatch(Paused中のみ)
 - テスト: validate の受理/拒否対(現在シーン削除・配布済カード定義消失の検出)
 
 ### C5: プロパティテストによる不変条件の固定
