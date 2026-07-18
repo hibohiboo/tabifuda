@@ -192,6 +192,7 @@ struct Session {
     table: Vec<CardInstance>,     // 場に出たカード。パーティ/シナリオ全体の
                                   // 状態(旧flags)は Marker カードとしてここに置く
     pending_proposal: Option<Proposal>,
+    proposal_seq: u64,            // ProposalId発番用の単調カウンタ(C3決定。下記参照)
 }
 
 enum SessionStatus {
@@ -208,7 +209,7 @@ enum Outcome {
 struct Proposal {
     id: ProposalId,
     by: CharacterId,
-    text: String,
+    text: BoundedString<4096>,  // cross-cutting.md §UGC-3 段階適用(C3)
 }
 
 struct CardInstance {
@@ -334,7 +335,7 @@ enum Command {
     StartSession { scenario: Scenario, party: Vec<Character> },
     PlayCard { by: CharacterId, card: CardInstanceId,
                free_text: Option<BoundedString<4096>> },   // Dialogueの自由入力
-    Propose { by: CharacterId, text: String }, // → Paused へ遷移(C3)
+    Propose { by: CharacterId, text: BoundedString<4096> }, // → Paused へ遷移(C3)
     ApplyPatch { patch: ScenarioPatch },       // GM。Paused中のみ(v0.1、C4)
     JudgeProposal { proposal: ProposalId, accepted: bool }, // GM裁定 → Running へ(C3)
     GmAdvance { to: SceneId },                 // GM強制進行(C3)
@@ -350,7 +351,7 @@ enum Event {
     CardPlayed { by: CharacterId, card: CardId,
                  free_text: Option<BoundedString<4096>> },
     EffectApplied { effect: Effect },          // 下記「Effect解決」参照
-    ProposalSubmitted { id: ProposalId, by: CharacterId, text: String },   // → Paused(C3)
+    ProposalSubmitted { id: ProposalId, by: CharacterId, text: BoundedString<4096> },   // → Paused(C3)
     ScenarioPatched { patch: ScenarioPatch },   // C4
     ProposalJudged { id: ProposalId, accepted: bool }, // → Running(C3)
     PhaseAdvanced { phase: Phase },
@@ -399,8 +400,37 @@ enum Event {
 `RuleError::CardNotFound`。
 
 **共通の拒否系**: `status == Ended` の間の全Commandは `RuleError::SessionEnded`。
-`status == Paused` の間の `PlayCard` / `EndSession` は `RuleError::SessionPaused`
-(状態機械図に `Paused --EndSession-->` が無いことに対応)。
+`status == Paused` の間の `PlayCard` / `Propose` / `EndSession` は
+`RuleError::SessionPaused`(状態機械図に `Paused --EndSession-->`等が無いことに対応)。
+
+### C3: decide/applyの解決規則(2026-07-19決定)
+
+**ProposalIdの発番**: `CardInstanceId`と異なり、`pending_proposal`は裁定の
+たびに`None`へ戻る(=除去が起きる)ため、現在状態からの逆算(総数起点の連番)
+では一意性を保てない(`CardInstanceId`のコメントが予告していた「除去を導入
+する将来サイクル」に該当)。そこで`Session.proposal_seq: u64`を追加し、
+`decide`は`{session.proposal_seq}`を埋め込んだ`proposal-{seq}`形式のIDを発行、
+`apply`(`ProposalSubmitted`)がインクリメントする。UUID(v4等)はcoreの純粋性
+(乱数禁止)に抵触するため不採用(検討の上、連番方式を選択)。
+
+**Propose**: `by`を担当するPlayerまたはGmのみ受理(`PlayCard`と同じ
+`check_player_or_gm`)。`ProposalSubmitted{id, by, text}`を発行し、
+`apply`側で`status`を`Paused{proposal: id}`にし`pending_proposal`を設定する。
+
+**JudgeProposal**: Gm専用。`status`が`Paused{proposal}`かつ`proposal`が
+コマンドの`proposal`と一致する場合のみ受理し、`ProposalJudged{id, accepted}`
+を発行する。不一致(`status == Running`で裁定対象が無い場合を含む)は
+`RuleError::ProposalNotFound`。`accepted`の真偽によらず`apply`は
+`status`を`Running`に戻し`pending_proposal`を`None`にする(採用時に挟まる
+`ScenarioPatched`はC4スコープで別コマンド`ApplyPatch`が担い、`JudgeProposal`
+自体の解決規則には影響しない)。
+
+**GmAdvance**: Gm専用。`enter_scene`(初期シーン入場・`GotoScene`効果解決と
+共有するシーン入場ヘルパー)を直接呼び出し、カードの`requires`や
+`Condition`を経由せず`SceneEntered`+`deals`解決分の`CardDealt`を発行する。
+状態機械図に載らない進行の強制操作のため、`Running`/`Paused`いずれでも許可し
+(状態は変えない)、共通の拒否系(`Ended`)にのみ従う。遷移先シーンが存在
+しなければ`PlayCard`の`GotoScene`と同じ`RuleError::SceneNotFound`。
 
 ## ソロMVPでの簡略化
 
