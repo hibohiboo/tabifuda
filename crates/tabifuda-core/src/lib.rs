@@ -5,18 +5,25 @@
 //!   乱数が必要な場合は結果を引数/イベントとして外から与える(リプレイ決定性のため)。
 //! - すべての進行はイベント。状態を直接書き換える近道を作らない。
 //!   変更は必ず `decide(state, command) -> Result<Vec<Event>, RuleError>` と
-//!   `apply(state, event) -> State` を通す。
+//!   `apply(state, event) -> State` を通す(decide/applyはC2で実装)。
 
-/// P1で実際のドメイン型に置き換わる、CI疎通確認用のプレースホルダ。
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Placeholder;
+pub mod actor;
+pub mod card;
+pub mod character;
+pub mod ids;
+pub mod scenario;
+pub mod session;
+
+pub use actor::{Actor, Role};
+pub use card::{CardDef, CardKind, Condition, Effect, Tag, Target};
+pub use character::Character;
+pub use ids::{
+    CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
+};
+pub use scenario::{
+    Deal, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef, SceneKind, Transition,
+};
+pub use session::{CardInstance, Outcome, Proposal, ScenarioSnapshot, Session, SessionStatus};
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn placeholder_is_comparable() {
-        assert_eq!(Placeholder, Placeholder);
-    }
-}
+mod roundtrip_tests;
