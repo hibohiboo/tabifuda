@@ -17,6 +17,7 @@ pub enum Phase {
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum SceneKind {
     Conversation,
     Travel,
@@ -25,7 +26,7 @@ pub enum SceneKind {
 
 /// シーン入場時に配るカード。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Deal {
     pub card: CardId,
     pub to: Target,
@@ -33,14 +34,14 @@ pub struct Deal {
 
 /// Conditionによる自動遷移。カードのGotoScene効果による遷移とは別経路。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Transition {
     pub condition: Condition,
     pub to: SceneId,
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SceneDef {
     pub id: SceneId,
     pub kind: SceneKind,
@@ -60,7 +61,7 @@ pub struct SceneDef {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PhaseDef {
     pub phase: Phase,
     #[cfg_attr(
@@ -73,7 +74,7 @@ pub struct PhaseDef {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScenarioMeta {
     pub id: ScenarioId,
     pub title: String,
@@ -82,7 +83,7 @@ pub struct ScenarioMeta {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Scenario {
     pub meta: ScenarioMeta,
     #[cfg_attr(

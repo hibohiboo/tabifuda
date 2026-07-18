@@ -11,6 +11,7 @@ pub struct Tag(pub String);
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum CardKind {
     Action,
     Scenario,
@@ -29,7 +30,7 @@ pub enum Target {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum Effect {
     GotoScene(SceneId),
@@ -43,7 +44,7 @@ pub enum Effect {
         stat: StatId,
         delta: i32,
     },
-    EndSession(crate::session::Outcome),
+    EndSession(crate::primitives::Outcome),
 }
 
 /// アクターの手札 or table に存在するかで判定する(FlagIsはv0.2で廃止。
@@ -57,7 +58,7 @@ pub enum Condition {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CardDef {
     pub id: CardId,
     pub name: String,

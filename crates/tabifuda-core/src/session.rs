@@ -7,22 +7,16 @@ use serde::{Deserialize, Serialize};
 use crate::actor::Role;
 use crate::character::Character;
 use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
+use crate::primitives::Outcome;
 use crate::scenario::{Phase, Scenario};
 
 /// 開催時点のシナリオを凍結コピーしたもの。元シナリオの後編集と独立。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScenarioSnapshot(pub Scenario);
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Outcome {
-    Victory,
-    Defeat,
-}
-
-#[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Proposal {
     pub id: ProposalId,
     pub by: CharacterId,
@@ -37,7 +31,7 @@ pub struct CardInstance {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SessionStatus {
     Running,
     Paused { proposal: ProposalId },
@@ -45,7 +39,7 @@ pub enum SessionStatus {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Session {
     pub scenario: ScenarioSnapshot,
     #[cfg_attr(

@@ -11,6 +11,7 @@ pub mod actor;
 pub mod card;
 pub mod character;
 pub mod ids;
+pub mod primitives;
 pub mod scenario;
 pub mod session;
 
@@ -20,10 +21,13 @@ pub use character::Character;
 pub use ids::{
     CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
 };
+pub use primitives::Outcome;
 pub use scenario::{
     Deal, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef, SceneKind, Transition,
 };
-pub use session::{CardInstance, Outcome, Proposal, ScenarioSnapshot, Session, SessionStatus};
+pub use session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStatus};
 
+#[cfg(test)]
+mod golden_tests;
 #[cfg(test)]
 mod roundtrip_tests;
