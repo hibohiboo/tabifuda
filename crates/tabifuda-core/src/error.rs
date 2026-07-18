@@ -19,9 +19,12 @@ pub enum RuleError {
     /// status == Ended の間に発行された(StartSession以外の)コマンド。
     #[error("session already ended")]
     SessionEnded,
-    /// status == Paused の間に発行されたPlayCard/EndSession。
+    /// status == Paused の間に発行されたPlayCard/Propose/EndSession。
     #[error("session is paused")]
     SessionPaused,
+    /// ApplyPatchはstatus == Pausedの間のみ許可される(status != Pausedで拒否)。
+    #[error("session is not paused")]
+    SessionNotPaused,
     /// StartSession時、シナリオに有効な先頭シーンが無い(phasesが空、または
     /// 先頭phaseにscenesが無い)。
     #[error("scenario has no scenes")]
@@ -43,4 +46,7 @@ pub enum RuleError {
     /// pending_proposalと一致しない(status==Runningで裁定対象が無い場合を含む)。
     #[error("proposal not found")]
     ProposalNotFound,
+    /// ApplyPatchのパッチが`patch::validate`を通らなかった。
+    #[error("invalid patch: {0}")]
+    InvalidPatch(#[from] crate::patch::PatchError),
 }

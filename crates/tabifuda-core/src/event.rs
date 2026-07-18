@@ -1,7 +1,7 @@
 //! decideの出力・冒険記の構成要素。docs/design/domain-model.md「コマンドとイベント」節に
 //! 対応。C2でSessionStarted/SceneEntered/CardDealt/CardPlayed/EffectApplied/
-//! PhaseAdvanced/SessionEnded、C3でProposalSubmitted/ProposalJudgedを実装
-//! (ScenarioPatchedはC4で追加)。
+//! PhaseAdvanced/SessionEnded、C3でProposalSubmitted/ProposalJudged、
+//! C4でScenarioPatchedを実装。
 
 use std::collections::HashMap;
 
@@ -11,6 +11,7 @@ use crate::actor::Role;
 use crate::card::Effect;
 use crate::character::Character;
 use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
+use crate::patch::ScenarioPatch;
 use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::Phase;
 use crate::session::ScenarioSnapshot;
@@ -67,6 +68,11 @@ pub enum Event {
         id: ProposalId,
         by: CharacterId,
         text: BoundedString<4096>,
+    },
+    /// GMによるシナリオ改編(C4)。ログUIでは1枚のカードとして表示できる
+    /// (domain-model.md「シナリオパッチ」節)。
+    ScenarioPatched {
+        patch: ScenarioPatch,
     },
     /// → Running へ遷移(C3)。
     ProposalJudged {

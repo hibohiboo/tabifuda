@@ -10,6 +10,7 @@ use crate::command::Command;
 use crate::error::RuleError;
 use crate::event::Event;
 use crate::ids::{CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
+use crate::patch::{self, PatchOp, ScenarioPatch};
 use crate::scenario::{Phase, Scenario};
 use crate::session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStatus};
 
@@ -35,6 +36,7 @@ pub fn decide(
             },
         ) => decide_play_card(session, actor, by, card, free_text),
         (Some(session), Command::Propose { by, text }) => decide_propose(session, actor, by, text),
+        (Some(session), Command::ApplyPatch { patch }) => decide_apply_patch(session, actor, patch),
         (Some(session), Command::JudgeProposal { proposal, accepted }) => {
             decide_judge_proposal(session, actor, proposal, accepted)
         }
@@ -75,12 +77,15 @@ pub fn apply(state: Option<Session>, event: &Event) -> Option<Session> {
                 proposal_seq: 0,
             })
         }
-        (Some(session), event) => Some(apply_to_existing(session, event)),
+        (Some(session), event) => apply_to_existing(session, event),
         (None, _) => None,
     }
 }
 
-fn apply_to_existing(mut session: Session, event: &Event) -> Session {
+/// `ScenarioPatched`の適用はpatch::apply_opsが失敗しうる(型上)ため`Option`を返す。
+/// decideが検証済みのパッチしか`ScenarioPatched`として出力しない不変条件の下では
+/// 失敗経路には入らない(「decideの出力は必ずapply可能」)。
+fn apply_to_existing(mut session: Session, event: &Event) -> Option<Session> {
     match event {
         Event::SessionStarted { .. } => {}
         Event::SceneEntered { scene, .. } => {
@@ -112,6 +117,9 @@ fn apply_to_existing(mut session: Session, event: &Event) -> Session {
             });
             session.proposal_seq += 1;
         }
+        Event::ScenarioPatched { patch } => {
+            patch::apply_ops(&mut session.scenario.0, &patch.ops).ok()?;
+        }
         Event::ProposalJudged { .. } => {
             session.status = SessionStatus::Running;
             session.pending_proposal = None;
@@ -120,7 +128,7 @@ fn apply_to_existing(mut session: Session, event: &Event) -> Session {
             session.status = SessionStatus::Ended(outcome.clone());
         }
     }
-    session
+    Some(session)
 }
 
 fn decide_start_session(
@@ -254,6 +262,39 @@ fn decide_propose(
     Ok(vec![Event::ProposalSubmitted { id, by, text }])
 }
 
+/// GM専用。Paused中のみ(domain-model.md「シナリオパッチ」節)。`patch::validate`を
+/// 通ったパッチのみ`ScenarioPatched`として発行し、`PatchOp::DealCard`分は
+/// `enter_scene`と同じ連番起点でその場の`CardDealt`を追加発行する(即時配布)。
+fn decide_apply_patch(
+    session: &Session,
+    actor: &UserId,
+    patch: ScenarioPatch,
+) -> Result<Vec<Event>, RuleError> {
+    check_not_ended(session)?;
+    check_gm(session, actor)?;
+    check_paused(session)?;
+    patch::validate(session, &patch)?;
+
+    let mut events = vec![Event::ScenarioPatched {
+        patch: patch.clone(),
+    }];
+    let mut instance_count = total_instance_count(session);
+    for op in &patch.ops {
+        if let PatchOp::DealCard { card, to } = op {
+            for character_id in resolve_target(to, &session.party) {
+                let instance = CardInstanceId(format!("{}-{}", card.0, instance_count));
+                instance_count += 1;
+                events.push(Event::CardDealt {
+                    to: character_id,
+                    card: card.clone(),
+                    instance,
+                });
+            }
+        }
+    }
+    Ok(events)
+}
+
 fn decide_judge_proposal(
     session: &Session,
     actor: &UserId,
@@ -360,6 +401,16 @@ fn check_not_paused(session: &Session) -> Result<(), RuleError> {
         Err(RuleError::SessionPaused)
     } else {
         Ok(())
+    }
+}
+
+/// ApplyPatch専用。他コマンドの`check_not_paused`とは逆に、Paused**である**
+/// ことを要求する(domain-model.md「シナリオパッチ」節「Paused中のみ」)。
+fn check_paused(session: &Session) -> Result<(), RuleError> {
+    if matches!(session.status, SessionStatus::Paused { .. }) {
+        Ok(())
+    } else {
+        Err(RuleError::SessionNotPaused)
     }
 }
 

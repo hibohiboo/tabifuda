@@ -15,6 +15,7 @@ pub mod engine;
 pub mod error;
 pub mod event;
 pub mod ids;
+pub mod patch;
 pub mod primitives;
 pub mod scenario;
 pub mod session;
@@ -29,6 +30,7 @@ pub use event::Event;
 pub use ids::{
     CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
 };
+pub use patch::{validate, PatchError, PatchOp, ScenarioPatch};
 pub use primitives::{BoundedString, BoundedStringError, Outcome};
 pub use scenario::{
     Deal, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef, SceneKind, Transition,
@@ -39,5 +41,7 @@ pub use session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStat
 mod engine_tests;
 #[cfg(test)]
 mod golden_tests;
+#[cfg(test)]
+mod patch_tests;
 #[cfg(test)]
 mod roundtrip_tests;

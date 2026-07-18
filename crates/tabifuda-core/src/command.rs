@@ -1,11 +1,12 @@
 //! decideへの入力。docs/design/domain-model.md「コマンドとイベント」節に対応。
-//! C2でStartSession/PlayCard/EndSession、C3でPropose/JudgeProposal/GmAdvanceを実装
-//! (ApplyPatchはC4で追加)。
+//! C2でStartSession/PlayCard/EndSession、C3でPropose/JudgeProposal/GmAdvance、
+//! C4でApplyPatchを実装。
 
 use serde::{Deserialize, Serialize};
 
 use crate::character::Character;
 use crate::ids::{CardInstanceId, CharacterId, ProposalId, SceneId};
+use crate::patch::ScenarioPatch;
 use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::Scenario;
 
@@ -32,6 +33,10 @@ pub enum Command {
     Propose {
         by: CharacterId,
         text: BoundedString<4096>,
+    },
+    /// GM専用。Paused中のみ(C4)。
+    ApplyPatch {
+        patch: ScenarioPatch,
     },
     /// GM裁定 → Running へ遷移(C3)。
     JudgeProposal {

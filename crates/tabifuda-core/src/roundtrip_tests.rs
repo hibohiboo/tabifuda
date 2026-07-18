@@ -56,6 +56,9 @@ roundtrip_test!(roundtrip_scenario_snapshot, ScenarioSnapshot);
 roundtrip_test!(roundtrip_session, Session);
 
 roundtrip_test!(roundtrip_bounded_string, BoundedString<16>);
+roundtrip_test!(roundtrip_patch_op, PatchOp);
+roundtrip_test!(roundtrip_scenario_patch, ScenarioPatch);
+roundtrip_test!(roundtrip_patch_error, PatchError);
 roundtrip_test!(roundtrip_command, Command);
 roundtrip_test!(roundtrip_event, Event);
 roundtrip_test!(roundtrip_rule_error, RuleError);

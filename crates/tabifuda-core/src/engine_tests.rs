@@ -10,7 +10,10 @@ use crate::command::Command;
 use crate::engine::{apply, decide};
 use crate::error::RuleError;
 use crate::event::Event;
-use crate::ids::{CardId, CardInstanceId, CharacterId, ScenarioId, SceneId, StatId, UserId};
+use crate::ids::{
+    CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
+};
+use crate::patch::{PatchError, PatchOp, ScenarioPatch};
 use crate::primitives::Outcome;
 use crate::scenario::{Deal, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef, SceneKind};
 use crate::session::{CardInstance, ScenarioSnapshot, Session, SessionStatus};
@@ -1059,6 +1062,198 @@ fn state_machine_running_propose_paused_judge_accept_running() {
         state = apply(state, event);
     }
     assert_eq!(state.unwrap().status, SessionStatus::Running);
+}
+
+// ---- ApplyPatch ----
+
+fn scenario_patch(ops: Vec<PatchOp>) -> ScenarioPatch {
+    ScenarioPatch {
+        ops,
+        note: text("GMメモ"),
+    }
+}
+
+fn paused_for_patch() -> Session {
+    let mut session = fixture_session("advance");
+    session.status = SessionStatus::Paused {
+        proposal: ProposalId("p1".to_string()),
+    };
+    session
+}
+
+#[test]
+fn apply_patch_accepts_for_gm_when_paused_and_adds_card_def() {
+    let session = paused_for_patch();
+    let new_card = card_def("brand_new", CardKind::Item, vec![], vec![]);
+    let patch = scenario_patch(vec![PatchOp::AddCardDef(new_card)]);
+
+    let events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::ApplyPatch {
+            patch: patch.clone(),
+        },
+    )
+    .unwrap();
+    assert_eq!(events, vec![Event::ScenarioPatched { patch }]);
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    assert!(session.scenario.0.card_def(&cid("brand_new")).is_some());
+}
+
+#[test]
+fn apply_patch_deals_card_immediately() {
+    let session = paused_for_patch();
+    let patch = scenario_patch(vec![PatchOp::DealCard {
+        card: cid("advance"),
+        to: Target::Party,
+    }]);
+
+    let events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::ApplyPatch {
+            patch: patch.clone(),
+        },
+    )
+    .unwrap();
+    assert_eq!(events[0], Event::ScenarioPatched { patch });
+    let dealt: Vec<_> = events
+        .iter()
+        .filter(|e| matches!(e, Event::CardDealt { .. }))
+        .collect();
+    assert_eq!(dealt.len(), 2); // ch1, ch2
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    assert_eq!(session.hands[&chr("ch1")].len(), 2); // 元のadvance + 新規配布
+    assert_eq!(session.hands[&chr("ch2")].len(), 1);
+}
+
+#[test]
+fn apply_patch_rejects_for_player() {
+    let session = paused_for_patch();
+    let result = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::ApplyPatch {
+            patch: scenario_patch(vec![]),
+        },
+    );
+    assert_eq!(result, Err(RuleError::Forbidden));
+}
+
+#[test]
+fn apply_patch_rejects_when_running() {
+    let session = fixture_session("advance"); // 既定でRunning
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::ApplyPatch {
+            patch: scenario_patch(vec![]),
+        },
+    );
+    assert_eq!(result, Err(RuleError::SessionNotPaused));
+}
+
+#[test]
+fn apply_patch_rejects_when_ended() {
+    let mut session = fixture_session("advance");
+    session.status = SessionStatus::Ended(Outcome::Victory);
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::ApplyPatch {
+            patch: scenario_patch(vec![]),
+        },
+    );
+    assert_eq!(result, Err(RuleError::SessionEnded));
+}
+
+#[test]
+fn apply_patch_rejects_invalid_patch() {
+    let session = paused_for_patch();
+    let duplicate = card_def("advance", CardKind::Action, vec![], vec![]);
+    let result = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::ApplyPatch {
+            patch: scenario_patch(vec![PatchOp::AddCardDef(duplicate)]),
+        },
+    );
+    assert_eq!(
+        result,
+        Err(RuleError::InvalidPatch(PatchError::DuplicateCardId))
+    );
+}
+
+// ---- 状態機械: Propose→Paused→ApplyPatch(0回以上)→JudgeProposal(採用)→Running ----
+
+#[test]
+fn state_machine_paused_apply_patch_then_judge_accept_running() {
+    let session = fixture_session("advance");
+    let propose_events = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::Propose {
+            by: chr("ch1"),
+            text: text("近道を提案"),
+        },
+    )
+    .unwrap();
+    let mut state = Some(session);
+    for event in &propose_events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    let SessionStatus::Paused { proposal } = session.status.clone() else {
+        unreachable!()
+    };
+
+    let patch_events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::ApplyPatch {
+            patch: scenario_patch(vec![PatchOp::AddCardDef(card_def(
+                "brand_new",
+                CardKind::Item,
+                vec![],
+                vec![],
+            ))]),
+        },
+    )
+    .unwrap();
+    let mut state = Some(session);
+    for event in &patch_events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    // パッチ適用中もPausedのまま(JudgeProposalとは独立)。
+    assert!(matches!(session.status, SessionStatus::Paused { .. }));
+
+    let judge_events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::JudgeProposal {
+            proposal,
+            accepted: true,
+        },
+    )
+    .unwrap();
+    let mut state = Some(session);
+    for event in &judge_events {
+        state = apply(state, event);
+    }
+    let session = state.unwrap();
+    assert_eq!(session.status, SessionStatus::Running);
+    assert!(session.scenario.0.card_def(&cid("brand_new")).is_some());
 }
 
 // ---- EndSession ----
