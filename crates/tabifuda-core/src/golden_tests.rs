@@ -7,8 +7,11 @@
 //! 整形のようなワイヤ形式の変更を検出できない。ここでは JSON 文字列そのものを固定する。
 
 use crate::card::{Condition, Effect, Target};
-use crate::ids::{CardId, CharacterId, ProposalId, SceneId, StatId};
+use crate::error::RuleError;
+use crate::event::Event;
+use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, StatId};
 use crate::primitives::Outcome;
+use crate::scenario::Phase;
 use crate::session::{CardInstance, SessionStatus};
 
 /// 値 → JSON文字列が固定表現と一致し、かつその文字列 → 値で往復することを検証する
@@ -114,5 +117,51 @@ fn golden_card_instance() {
             card: card("c1"),
         },
         r#"{"id":"ci1","card":"c1"}"#,
+    );
+}
+
+#[test]
+fn golden_rule_error() {
+    assert_golden(RuleError::Forbidden, r#""Forbidden""#);
+    assert_golden(RuleError::SessionPaused, r#""SessionPaused""#);
+    assert_golden(RuleError::SceneNotFound, r#""SceneNotFound""#);
+}
+
+#[test]
+fn golden_event() {
+    assert_golden(
+        Event::SceneEntered {
+            scene: scene("s1"),
+            narration: "門が開いた".to_string(),
+        },
+        r#"{"SceneEntered":{"scene":"s1","narration":"門が開いた"}}"#,
+    );
+    assert_golden(
+        Event::CardDealt {
+            to: character("ch1"),
+            card: card("c1"),
+            instance: CardInstanceId("c1-0".to_string()),
+        },
+        r#"{"CardDealt":{"to":"ch1","card":"c1","instance":"c1-0"}}"#,
+    );
+    assert_golden(
+        Event::CardPlayed {
+            by: character("ch1"),
+            card: card("c1"),
+            free_text: None,
+        },
+        r#"{"CardPlayed":{"by":"ch1","card":"c1","free_text":null}}"#,
+    );
+    assert_golden(
+        Event::PhaseAdvanced {
+            phase: Phase::Middle,
+        },
+        r#"{"PhaseAdvanced":{"phase":"Middle"}}"#,
+    );
+    assert_golden(
+        Event::SessionEnded {
+            outcome: Outcome::Victory,
+        },
+        r#"{"SessionEnded":{"outcome":"Victory"}}"#,
     );
 }

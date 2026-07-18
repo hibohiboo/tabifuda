@@ -10,6 +10,10 @@
 pub mod actor;
 pub mod card;
 pub mod character;
+pub mod command;
+pub mod engine;
+pub mod error;
+pub mod event;
 pub mod ids;
 pub mod primitives;
 pub mod scenario;
@@ -18,15 +22,21 @@ pub mod session;
 pub use actor::Role;
 pub use card::{CardDef, CardKind, Condition, Effect, Tag, Target};
 pub use character::Character;
+pub use command::Command;
+pub use engine::{apply, decide};
+pub use error::RuleError;
+pub use event::Event;
 pub use ids::{
     CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
 };
-pub use primitives::Outcome;
+pub use primitives::{BoundedString, BoundedStringError, Outcome};
 pub use scenario::{
     Deal, Phase, PhaseDef, Scenario, ScenarioMeta, SceneDef, SceneKind, Transition,
 };
 pub use session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStatus};
 
+#[cfg(test)]
+mod engine_tests;
 #[cfg(test)]
 mod golden_tests;
 #[cfg(test)]

@@ -54,3 +54,8 @@ roundtrip_test!(roundtrip_role, Role);
 roundtrip_test!(roundtrip_scenario, Scenario);
 roundtrip_test!(roundtrip_scenario_snapshot, ScenarioSnapshot);
 roundtrip_test!(roundtrip_session, Session);
+
+roundtrip_test!(roundtrip_bounded_string, BoundedString<16>);
+roundtrip_test!(roundtrip_command, Command);
+roundtrip_test!(roundtrip_event, Event);
+roundtrip_test!(roundtrip_rule_error, RuleError);
