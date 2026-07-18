@@ -19,7 +19,7 @@
 
 | # | 項目 | 状態 | ブロック先 | 決定内容 |
 |---|---|---|---|---|
-| 1 | H1: Target の意味論 | 議論中 | C2 | — |
+| 1 | H1: Target の意味論 | 反映済み | C2 | Party追加。Characterは上演中専用 |
 | 2 | M3: コレクション型と id の正 | 未着手 | C2/C5 | — |
 | 3 | L2: 文字列長上限の投入時期 | 未着手 | C2 | — |
 | 4 | H2: role 信頼モデルと Actor 形状 | 未着手 | C3 | — |
@@ -41,15 +41,31 @@
 - (b) Deal から Target を外し、配布は「手番キャラ固定」等のルールにする
 - (c) その他(パーティ全員 `Party` の要否も含めて議論)
 
-**決定**: (未定)
+**決定**(2026-07-18): **(a)の縮小版: `Target::Party` のみ追加**。
+
+- 対象の指し方を「役割参照」と「実名参照」に区別する:
+  - `Party`(パーティ全員)= 役割参照。台本執筆時点で書ける。
+    シナリオデータ(CardDef.effects / SceneDef.deals)とパッチの両方で使用可
+  - `Character(id)` = 実名参照。**上演中専用**(GMのパッチ・実行時配布)。
+    シナリオデータ内での使用は不正(解決不能)とし、P2のシナリオlintで検出
+- `Current`(カードを出した本人)等の追加役割参照は、必要になったサイクルで
+  追加する(`#[non_exhaustive]` のため非破壊)
+
+**理由**: 単純討伐(P2のテンプレシナリオ)の配布はすべて Party で記述でき、
+Current は現時点で使い所がない。「未使用機能の先回り実装禁止」(CLAUDE.md)と
+整合する最小の拡張を選んだ。
 
 **経緯**:
 - 2026-07-18 議論開始。前提理解のため、PO向け解説文書
   docs/design/domain-guide.md を作成(§4 に Target の概念と本論点の背景を平易に記載)。
   文書の地図 docs/README.md も同時に整備
+- 2026-07-18 決定・反映(domain-model.md「Target の意味論」節を新設、
+  card.rs に Party 追加、golden_tests に固定表現追加、domain-guide.md §4 更新)
 
-**反映先**: domain-model.md「カード」節(Target定義と解決規則)、card.rs / scenario.rs、
-domain-guide.md §4(決定後に解説を更新)
+**反映先**: ✅ domain-model.md「カード」節+「Target の意味論」節 / ✅ card.rs /
+✅ golden_tests.rs / ✅ domain-guide.md §4。
+残タスク: P2 シナリオlintに「シナリオデータ内の Character 使用検出」を含める
+(test-strategy.md §2 のlint実装時)
 
 ---
 
@@ -113,3 +129,4 @@ cross-cutting.md「認可は core に委ねる」に反する。`Session.roles` 
 
 - 2026-07-18: 文書作成。全4項目「未着手」
 - 2026-07-18: #1 H1 を「議論中」へ。前提資料として domain-guide.md / docs/README.md を作成
+- 2026-07-18: #1 H1 決定(Party追加・Characterは上演中専用)→ 反映済み。次は #2 M3
