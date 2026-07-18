@@ -253,7 +253,8 @@ enum PatchOp {
 
 struct ScenarioPatch {
     ops: Vec<PatchOp>,
-    note: String,   // GMのコメント。ログカードとして表示
+    note: BoundedString<4096>,   // GMのコメント。ログカードとして表示。
+                                 // cross-cutting.md §UGC-3 段階適用(C4)
 }
 ```
 
@@ -263,6 +264,38 @@ struct ScenarioPatch {
 - **ログ表示**: パッチが小さいため `ScenarioPatched` を1枚のカードとして
   時系列ログに描画できる(「世界はすべてカード」に一致)
 - **フォーク公開**: 改編シナリオ=元シナリオ+パッチ列。由来を追跡できる形で公開可能
+
+### C4: decide/applyの解決規則(2026-07-19決定)
+
+**PatchOpごとの検証**(`validate`が`ScenarioPatch.ops`を先頭から順に、直前までの
+opを反映した状態に対して適用する。同一パッチ内の後続opは先行opの結果を参照できる):
+- `AddCardDef(def)`: `def.id`が既存`card_defs`と重複していれば`PatchError::DuplicateCardId`
+- `ReplaceScene(new_def)`: `new_def.id`と一致する既存シーンが無ければ
+  `PatchError::SceneNotFound`(「追加」ではなく「置換」のため、新規idはAddSceneが担う)
+- `AddScene{phase, scene}`: `scene.id`が既存シーン(全phase通して)と重複していれば
+  `PatchError::DuplicateSceneId`。`phase`に対応する`PhaseDef`が無ければ
+  `PatchError::PhaseNotFound`(既存フェーズへの追加のみを許可し、新規フェーズの
+  作成はしない)
+- `AddTransition{scene, transition}`: `scene`(遷移の所有シーン)または
+  `transition.to`(遷移先)がシナリオに無ければ`PatchError::SceneNotFound`
+- `DealCard{card, ..}`: `card`のCardDefがシナリオに無ければ`PatchError::CardNotFound`
+
+**事後不変条件**(test-strategy.md 不変条件5。全op適用後の結果に対して検証):
+- 現在シーン(`session.scene`)が解決できることの確認。v0.1のPatchOp(5種)には
+  削除系操作が無いため実際にはこのチェックが失敗する経路は存在しない
+  (将来`RemoveScene`等が追加された時のための防御的チェック。2026-07-19、
+  phase1-task.md C4着手時にユーザーへ確認の上、拒否テストは保留しPatchOp拡充
+  サイクルへ先送り)
+- 配布済みカード(`session.hands`+`table`の全`CardInstance.card`)のCardDefが
+  シナリオに解決できることの確認。`DealCard{card: 未定義のCardId, ..}`で
+  再現できるため受理/拒否対でテストする
+
+**ApplyPatchの実行**: Gm専用・`status == Paused`の間のみ許可(`RuleError::SessionNotPaused`
+はstatus != Pausedでの拒否、既存の`RuleError::SessionPaused`とは逆方向)。
+`validate`を通ったパッチは`ScenarioPatched{patch}`を発行し、`PatchOp::DealCard`分は
+`enter_scene`と同じ連番起点で`CardDealt`を追加発行する(その場で配る、
+入場時配布とは別経路)。`apply`側は`ScenarioPatched`の適用時に`patch::apply_ops`を
+Sessionのシナリオへ直接適用する。
 
 ## アクターと権限
 
@@ -402,6 +435,8 @@ enum Event {
 **共通の拒否系**: `status == Ended` の間の全Commandは `RuleError::SessionEnded`。
 `status == Paused` の間の `PlayCard` / `Propose` / `EndSession` は
 `RuleError::SessionPaused`(状態機械図に `Paused --EndSession-->`等が無いことに対応)。
+逆に`ApplyPatch`は`status == Paused`の間**のみ**許可され、それ以外は
+`RuleError::SessionNotPaused`(C4)。
 
 ### C3: decide/applyの解決規則(2026-07-19決定)
 
