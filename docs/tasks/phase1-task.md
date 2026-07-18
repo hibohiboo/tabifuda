@@ -31,8 +31,10 @@ crates/core にドメインモデル(v0.2)を実装する。UI・永続化・非
   `apply(Session, &Event) -> Session`
 - StartSession(シナリオ+パーティの凍結コピー、初期シーン入場と配布)、
   PlayCard(free_text対応、requires検証、Effect解決)、EndSession
-- Effect: GotoScene / AdvancePhase / DealCard / SetFlag / EndSession
+- Effect: GotoScene / AdvancePhase / DealCard / EndSession
   (ModifyStatは型のみ、解決は後回し可)
+- free_text は `BoundedString<MAX>` 型で長さ上限を設ける(型レベル)。
+  機構と段階適用は cross-cutting.md §UGC-3 参照(レビューL2の決定)
 - テスト: 各Commandに受理/拒否を対で(テーブル駆動)。拒否系は
   test-strategy.md の網羅対象に従う
 
