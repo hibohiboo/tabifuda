@@ -1,5 +1,9 @@
 # P1 C1 型設計レビュー: 判断タスクの進捗管理
 
+**状態: クローズ(2026-07-18)。全4項目が反映済み。** 本ファイルは意思決定の
+由来を残すため削除しない(運用ルール参照)。各決定の残タスクは該当サイクル
+(C2〜C4, P2)の実装時に各節の「反映先」を参照すること。
+
 元文書: docs/design/reviews/p1-c1-type-review.md(指摘の全文はそちらが正)。
 本ファイルは**人間の判断が要る4項目の進捗証跡**。判断のやり取りが
 セッションを跨いでも追えるよう、状態変化のたびに本ファイルを更新して
@@ -22,7 +26,7 @@
 | 1 | H1: Target の意味論 | 反映済み | C2 | Party追加。Characterは上演中専用 |
 | 2 | M3: コレクション型と id の正 | 反映済み | C2/C5 | 台本はVec+埋込id、索引はMapキーが正 |
 | 3 | L2: 文字列長上限の投入時期 | 反映済み | C2 | BoundedString機構をC2導入、runtime入力から段階 |
-| 4 | H2: role 信頼モデルと Actor 形状 | 議論中 | C3 | — |
+| 4 | H2: role 信頼モデルと Actor 形状 | 反映済み | C3 | decideはUserIdのみ、rolesが唯一の正。Actor廃止 |
 
 処理順は上から(早くブロックする順)。C2着手前に #1〜#3、C3着手前に #4 の
 決定が必要。
@@ -166,9 +170,32 @@ cross-cutting.md「認可は core に委ねる」に反する。`Session.roles` 
   照合し不一致は `RuleError::Forbidden`
 - (c) 現状維持(ソロMVPでは実害なし)とし、P4 のサーバ実装時に再設計
 
-**決定**: (未定)
+**決定**(2026-07-18): **(a) decide は認証済み UserId のみ受け取り、
+`Session.roles` を役割の唯一の正とする。Actor 構造体は廃止**。
 
-**反映先**: domain-model.md「アクターと権限」節(decide シグネチャ)、actor.rs、C3 実装
+- `fn decide(state: &Session, actor: &UserId, cmd: Command)`。役割は decide 内で
+  `state.roles` から解決し、未登録ユーザーは `RuleError::Forbidden`
+- 役割の自己申告経路が**型ごと消える**ため、「GMを名乗るだけの権限昇格」が
+  構造的に不可能(cross-cutting.md「認証はAPI層、認可はcore」の境界と一致)
+- `Role` enum は roles の値として存続。**Gm は Player の権限を包含**する
+  (権限規則v0.2より)ため、ソロMVPは単一ユーザーの Gm 登録だけで成立
+  (旧「両ロールActorを渡す」記述は不要になり削除)
+
+**理由**: (b)は冗長データを常に検証で守る形で、照合を書き忘れた経路がそのまま
+脆弱性になる。(a)は不正状態を型で表現不能にする(検証より構造で守る)。
+(c)はC3の権限テスト全書き直しのリスクをP4に先送りするだけ。議論中に
+「GmがPlayer権限を包含するため両ロール問題が存在しない」ことを確認でき、
+(a)の実装障害が無いと判明した。
+
+**経緯**:
+- 2026-07-18 議論開始。Gm⊇Player の包含関係を発見(両ロール登録は不要)
+- 2026-07-18 決定・反映
+
+**反映先**: ✅ domain-model.md「role の信頼モデル」節を新設(decideシグネチャ変更・
+ソロMVP記述差し替え)/ ✅ actor.rs(Actor構造体削除、Role存続)/ ✅ lib.rs /
+✅ roundtrip_tests.rs(roundtrip_actor削除)/ ✅ domain-guide.md §6。
+残タスク: C3 で権限テストを「rolesから解決」前提で実装(未登録ユーザーの
+Forbidden 拒否系を含める)
 
 ---
 
@@ -191,3 +218,5 @@ cross-cutting.md「認可は core に委ねる」に反する。`Session.roles` 
   PlayCard/Propose が「担当Player または Gm」であり **Gm は Player の権限を包含**する。
   よってソロMVPは「単一ユーザーを Gm として roles に登録」だけで成立し、
   domain-model.md「両ロールを持つActorを渡す」という記述は不要(案(a)の障害が消える)
+- 2026-07-18: #4 H2 決定(decideはUserIdのみ・rolesが唯一の正・Actor廃止)→ 反映済み。
+  **全4項目完了。本ログをクローズ**
