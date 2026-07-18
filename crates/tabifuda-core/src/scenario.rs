@@ -1,6 +1,8 @@
 //! シナリオ構造(Scenario/SceneDef等)。docs/design/domain-model.md「シナリオ構造」節に対応。
-
-use std::collections::HashMap;
+//!
+//! コレクション規則(同文書「コレクションと id の規則」): 作者データは
+//! `Vec<T>`+埋め込み id が正(並び順に意味があり、シリアライズが決定的)。
+//! id の一意性は validate / シナリオlint(P2)/ プロパティテスト(C5)で固定する。
 
 use serde::{Deserialize, Serialize};
 
@@ -89,10 +91,10 @@ pub struct Scenario {
     #[cfg_attr(
         test,
         proptest(
-            strategy = "proptest::collection::hash_map(proptest::prelude::any::<CardId>(), proptest::prelude::any::<CardDef>(), 0..=3)"
+            strategy = "proptest::collection::vec(proptest::prelude::any::<CardDef>(), 0..=3)"
         )
     )]
-    pub card_defs: HashMap<CardId, CardDef>,
+    pub card_defs: Vec<CardDef>,
     #[cfg_attr(
         test,
         proptest(
@@ -100,4 +102,19 @@ pub struct Scenario {
         )
     )]
     pub phases: Vec<PhaseDef>,
+}
+
+impl Scenario {
+    /// カード定義を id で引く(作者データは Vec+埋め込み id が正。線形探索で十分)。
+    pub fn card_def(&self, id: &CardId) -> Option<&CardDef> {
+        self.card_defs.iter().find(|def| &def.id == id)
+    }
+
+    /// シーン定義を全 phase を通して id で引く。
+    pub fn scene_def(&self, id: &SceneId) -> Option<&SceneDef> {
+        self.phases
+            .iter()
+            .flat_map(|phase| phase.scenes.iter())
+            .find(|scene| &scene.id == id)
+    }
 }
