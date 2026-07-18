@@ -21,11 +21,15 @@ pub enum CardKind {
     Marker,
 }
 
-/// Effect/ModifyStatの対象。現時点では特定キャラのみ(要相談の上で決定)。
+/// 効果の対象。意味論は domain-model.md「Target の意味論」参照(2026-07-18決定):
+/// - `Party` は役割参照。台本(シナリオ)執筆時点で書ける
+/// - `Character` は実名参照で**上演中専用**。シナリオデータ内での使用は不正
+///   (解決不能。P2のシナリオlintで検出)
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum Target {
+    Party,
     Character(CharacterId),
 }
 

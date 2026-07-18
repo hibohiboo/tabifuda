@@ -44,6 +44,7 @@ fn stat(id: &str) -> StatId {
 
 #[test]
 fn golden_target() {
+    assert_golden(Target::Party, r#""Party""#);
     assert_golden(
         Target::Character(character("ch1")),
         r#"{"Character":"ch1"}"#,
