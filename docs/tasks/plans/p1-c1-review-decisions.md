@@ -21,7 +21,7 @@
 |---|---|---|---|---|
 | 1 | H1: Target の意味論 | 反映済み | C2 | Party追加。Characterは上演中専用 |
 | 2 | M3: コレクション型と id の正 | 反映済み | C2/C5 | 台本はVec+埋込id、索引はMapキーが正 |
-| 3 | L2: 文字列長上限の投入時期 | 未着手 | C2 | — |
+| 3 | L2: 文字列長上限の投入時期 | 議論中 | C2 | — |
 | 4 | H2: role 信頼モデルと Actor 形状 | 未着手 | C3 | — |
 
 処理順は上から(早くブロックする順)。C2着手前に #1〜#3、C3着手前に #4 の
@@ -156,3 +156,7 @@ cross-cutting.md「認可は core に委ねる」に反する。`Session.roles` 
   実行時索引(順序不問)で規則を分ける」観点、および HashMap のシリアライズ順序
   非決定性(fixture・フォーク差分への影響)を追加で提示
 - 2026-07-18: #2 M3 決定(台本はVec+埋込id、索引はMapキーが正)→ 反映済み。次は #3 L2
+- 2026-07-18: #3 L2 を「議論中」へ。対象Stringを「実行時の自由入力(Proposal.text/
+  free_text/note)」と「作者データ(name/title/text/narration/author)」に分類。
+  機構は const generics の BoundedString<MAX>(custom Deserialize で境界を強制、
+  panicなし)を軸に、投入時期(段階適用)を論点として提示
