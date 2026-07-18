@@ -4,7 +4,8 @@
 
 v0.1からの変更点:
 - **アクターと権限を導入**(cross-cutting.md §権限 からの逆輸入)。
-  全CommandにActorが付き、GM専用コマンドの検証をdecide内で行う
+  全コマンド実行に認証済み UserId が付き、役割は Session.roles から解決、
+  GM専用コマンドの検証を decide 内で行う(「role の信頼モデル」参照)
 - 全EventにActorを記録(監査・冒険記の「誰が」に対応)
 - **flags(FlagId/FlagValue)を廃止し、状態表現をカードに統一**。
   「世界のすべてはカード」を徹底し、状態・選択の成立は
@@ -268,26 +269,36 @@ struct ScenarioPatch {
 (cross-cutting.md 参照。サーバ側でも同じcoreを通すため、検証は一箇所で済む)。
 
 ```rust
-struct Actor { user: UserId, role: Role }
-
 enum Role {
     Gm,
     Player { characters: Vec<CharacterId> },  // 操作できるキャラ
 }
 
-// decideはアクターを受け取る
-fn decide(state: &Session, actor: &Actor, cmd: Command)
+// decideは認証済みの本人確認(UserId)だけを受け取る
+fn decide(state: &Session, actor: &UserId, cmd: Command)
     -> Result<Vec<Event>, RuleError>;
 ```
 
+### role の信頼モデル(2026-07-18決定。レビューH2)
+
+- **`Session.roles` が役割の唯一の正**。decide は渡された UserId で
+  `state.roles` を引き、役割を自分で解決する。roles に未登録のユーザーは
+  `RuleError::Forbidden`
+- 呼び出し側が役割を自己申告する経路は**型ごと存在しない**(旧
+  `Actor { user, role }` 構造体は廃止)。「GMを名乗るだけの権限昇格」が
+  型レベルで不可能になり、cross-cutting.md「API層は認証(誰か)のみ、
+  認可(何ができるか)は core」の境界と一致する
+- 権限判定は decide 内で行い、違反は `RuleError::Forbidden` で拒否
+
 権限規則(v0.2):
 - `PlayCard` / `Propose`: そのキャラを担当するPlayer、またはGm
+  (**Gm は Player の権限を包含する**)
 - `JudgeProposal` / `ApplyPatch` / `GmAdvance`: Gmのみ
 - 違反は `RuleError::Forbidden` で拒否(テストは受理/拒否を対で書く)
 - 全Eventに `actor: UserId` を記録する(冒険記の「誰が」・監査の根拠)
 
-ソロMVPでは、単一ユーザーが Gm と Player{全キャラ} の両ロールを持つ
-Actorを常に渡す(素通しだが経路は本番と同一)。
+ソロMVPでは、単一ユーザーを **Gm として roles に登録**するだけでよい
+(Gm が Player 権限を包含するため両ロール登録は不要。経路は本番と同一)。
 
 ## コマンドとイベント
 
@@ -324,7 +335,8 @@ enum Event {
 
 ## ソロMVPでの簡略化
 
-- プレイヤーがGMを兼任(単一ユーザーがGm+Player両ロールのActorを持つ)
+- プレイヤーがGMを兼任(単一ユーザーを Gm として roles に登録。
+  Gm は Player 権限を包含する)
 - 判定(ダイス)なし。分岐はMarkerカードとカード選択のみ
 - 戦闘は勝利/敗北カードの選択で表現(上記)
 - パーティは1人から

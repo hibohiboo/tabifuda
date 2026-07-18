@@ -15,7 +15,7 @@ pub mod primitives;
 pub mod scenario;
 pub mod session;
 
-pub use actor::{Actor, Role};
+pub use actor::Role;
 pub use card::{CardDef, CardKind, Condition, Effect, Tag, Target};
 pub use character::Character;
 pub use ids::{

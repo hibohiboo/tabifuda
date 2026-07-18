@@ -50,7 +50,6 @@ roundtrip_test!(roundtrip_card_instance, CardInstance);
 roundtrip_test!(roundtrip_session_status, SessionStatus);
 
 roundtrip_test!(roundtrip_role, Role);
-roundtrip_test!(roundtrip_actor, Actor);
 
 roundtrip_test!(roundtrip_scenario, Scenario);
 roundtrip_test!(roundtrip_scenario_snapshot, ScenarioSnapshot);
