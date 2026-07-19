@@ -7,8 +7,9 @@ use std::collections::HashMap;
 use std::io::{self, BufRead, Write};
 
 use tabifuda_core::{
-    apply, decide, BoundedString, CardDef, CardInstance, CardKind, Character, CharacterId, Command,
-    Event, RuleError, Scenario, Session, SessionStatus, UserId,
+    apply, decide, BoundedString, CardDef, CardId, CardInstance, CardKind, Character, CharacterId,
+    Command, Event, PatchOp, RuleError, Scenario, ScenarioPatch, Session, SessionStatus, Target,
+    UserId,
 };
 
 use crate::{chronicle, oplog};
@@ -64,27 +65,79 @@ pub fn run(scenario: Scenario) {
                     .clone()
                     .expect("Pausedならpending_proposalがある");
                 println!(
-                    "\n提案が届いています(GMとして裁定してください): 「{}」",
+                    "\n提案が届いています(GMとして応答してください): 「{}」",
                     proposal.text.as_str()
                 );
-                print!("採用しますか? [y/n]: ");
+                print!("y=採用して再開 / n=却下して再開 / c=カードを配って応える [y/n/c]: ");
                 io::stdout().flush().ok();
                 let Some(Ok(input)) = lines.next() else {
                     return;
                 };
-                let accepted = input.trim().eq_ignore_ascii_case("y");
-                let (next, result) = issue(
-                    state.take(),
-                    &actor,
-                    Command::JudgeProposal {
-                        proposal: proposal.id.clone(),
-                        accepted,
-                    },
-                    &mut event_log,
-                );
-                state = next;
-                if let Err(err) = result {
-                    println!("裁定に失敗しました: {err}");
+                let input = input.trim().to_string();
+                if input.eq_ignore_ascii_case("c") {
+                    // domain-model.md「提案への応答UI(CLIの決定)」: カード名と
+                    // 回答文からCardDefを組み立て、AddCardDef+DealCardを1パッチで
+                    // 発行する。適用後もPausedのまま(y/nで締めるまで繰り返せる)。
+                    let Some(name) = prompt_bounded_text::<200>(&mut lines, "カード名: ")
+                    else {
+                        return;
+                    };
+                    let Some(name) = name else { continue };
+                    let Some(text) =
+                        prompt_bounded_text::<2000>(&mut lines, "回答文(カードを出すと表示): ")
+                    else {
+                        return;
+                    };
+                    let Some(text) = text else { continue };
+                    let card_id = next_gm_card_id(&session.scenario.0);
+                    let def = CardDef {
+                        id: card_id.clone(),
+                        name,
+                        kind: CardKind::Scenario,
+                        text,
+                        tags: vec![],
+                        effects: vec![],
+                        requires: vec![],
+                    };
+                    let patch = ScenarioPatch {
+                        ops: vec![
+                            PatchOp::AddCardDef(def),
+                            PatchOp::DealCard {
+                                card: card_id,
+                                to: Target::Party,
+                            },
+                        ],
+                        note: BoundedString::try_new("提案に応えてカードを配布")
+                            .expect("定型文は上限内"),
+                    };
+                    let (next, result) = issue(
+                        state.take(),
+                        &actor,
+                        Command::ApplyPatch { patch },
+                        &mut event_log,
+                    );
+                    state = next;
+                    match result {
+                        Ok(()) => println!("カードを配りました(裁定待ちのまま)。"),
+                        Err(err) => println!("カードを配れませんでした: {err}"),
+                    }
+                } else if input.eq_ignore_ascii_case("y") || input.eq_ignore_ascii_case("n") {
+                    let accepted = input.eq_ignore_ascii_case("y");
+                    let (next, result) = issue(
+                        state.take(),
+                        &actor,
+                        Command::JudgeProposal {
+                            proposal: proposal.id.clone(),
+                            accepted,
+                        },
+                        &mut event_log,
+                    );
+                    state = next;
+                    if let Err(err) = result {
+                        println!("裁定に失敗しました: {err}");
+                    }
+                } else {
+                    println!("不明なコマンドです。");
                 }
             }
             SessionStatus::Running => {
@@ -158,7 +211,8 @@ pub fn run(scenario: Scenario) {
                         println!("その番号のカードはありません。");
                         continue;
                     };
-                    let is_dialogue = matches!(def.map(|d| d.kind), Some(CardKind::Dialogue));
+                    let is_dialogue =
+                        matches!(def.as_ref().map(|d| &d.kind), Some(CardKind::Dialogue));
                     let free_text = if is_dialogue {
                         // 内側のNoneは「本文なしで出す」(スキップ/入力エラー)であり、
                         // カードの使用自体は継続する。EOFのみ終了する。
@@ -181,8 +235,17 @@ pub fn run(scenario: Scenario) {
                         &mut event_log,
                     );
                     state = next;
-                    if let Err(err) = result {
-                        println!("カードを出せませんでした: {err}");
+                    match result {
+                        // カード本文の開示(domain-model.md「カード使用時のtext表示
+                        // (CLIの決定)」。GMが配った質問カードの回答もここで読める)。
+                        Ok(()) => {
+                            if let Some(text) = def.as_ref().map(|d| d.text.as_str()) {
+                                if !text.is_empty() {
+                                    println!("{text}");
+                                }
+                            }
+                        }
+                        Err(err) => println!("カードを出せませんでした: {err}"),
                     }
                 } else {
                     println!("不明なコマンドです。");
@@ -192,14 +255,24 @@ pub fn run(scenario: Scenario) {
     }
 }
 
+/// GMが配るカードのCardId発番(`gm-card-{n}`)。既存card_defsと重複しない
+/// 最小の連番を探す。一意性の検証責務はコアのvalidate(DuplicateCardId)にあり、
+/// ここは入力の組み立てのみ(domain-model.md「提案への応答UI(CLIの決定)」)。
+fn next_gm_card_id(scenario: &Scenario) -> CardId {
+    (1..)
+        .map(|n| CardId(format!("gm-card-{n}")))
+        .find(|id| scenario.card_def(id).is_none())
+        .expect("連番はいつか空きに当たる")
+}
+
 /// 戻り値は2重Option: 外側`None`はEOF(呼び出し元は終了する)。内側`None`は
 /// 「本文なし」(空入力、または上限超過エラーで本文を諦めた場合)を表す。
 /// 内側`None`の扱いは呼び出し元に委ねる(自由入力なら本文なしで続行、
 /// 提案なら提案自体を取りやめる、等)。
-fn prompt_bounded_text(
+fn prompt_bounded_text<const N: usize>(
     lines: &mut impl Iterator<Item = io::Result<String>>,
     prompt: &str,
-) -> Option<Option<BoundedString<4096>>> {
+) -> Option<Option<BoundedString<N>>> {
     print!("{prompt}");
     io::stdout().flush().ok();
     let Some(Ok(input)) = lines.next() else {

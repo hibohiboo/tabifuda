@@ -5,7 +5,7 @@
 //! 冒険記は自由入力本文を含めてよい(cross-cutting.md「2種類のログを
 //! 区別する」: ドメインログ=冒険記は製品価値そのもの)。
 
-use tabifuda_core::{CardId, Event, Scenario};
+use tabifuda_core::{CardId, Event, PatchOp, Scenario};
 
 pub fn render(events: &[Event]) -> String {
     let mut scenario: Option<Scenario> = None;
@@ -69,6 +69,16 @@ pub fn render(events: &[Event]) -> String {
                 lines.push(format!("{}が提案した: 「{}」", by.0, text.as_str()));
             }
             Event::ScenarioPatched { patch } => {
+                // パッチで足されたカードの名前がID表示に落ちないよう、AddCardDef分を
+                // 名前解決に反映する(表示用の翻訳。patch::apply_opsの再実装ではない。
+                // domain-model.md「カード使用時のtext表示(CLIの決定)」参照)。
+                if let Some(s) = scenario.as_mut() {
+                    for op in &patch.ops {
+                        if let PatchOp::AddCardDef(def) = op {
+                            s.card_defs.push(def.clone());
+                        }
+                    }
+                }
                 lines.push(format!(
                     "GMがシナリオを改修した: 「{}」",
                     patch.note.as_str()
@@ -128,6 +138,61 @@ mod tests {
         }];
         let text = render(&events);
         assert!(text.contains("mystery"));
+    }
+
+    /// ScenarioPatchedのAddCardDef分が名前解決に反映され、パッチで足された
+    /// カードがID表示に落ちないこと(domain-model.md「カード使用時のtext表示
+    /// (CLIの決定)」)。
+    #[test]
+    fn render_resolves_card_added_by_patch() {
+        use std::collections::HashMap;
+        use tabifuda_core::{
+            CardDef, CardInstanceId, CardKind, Phase, Scenario, ScenarioId, ScenarioMeta,
+            ScenarioPatch, ScenarioSnapshot, SceneId,
+        };
+
+        let scenario = Scenario {
+            meta: ScenarioMeta {
+                id: ScenarioId("s".to_string()),
+                title: BoundedString::try_new("題").unwrap(),
+                author: BoundedString::try_new("a").unwrap(),
+                forked_from: None,
+            },
+            card_defs: vec![],
+            phases: vec![],
+        };
+        let def = CardDef {
+            id: CardId("gm-card-1".to_string()),
+            name: BoundedString::try_new("獣の目撃情報を尋ねる").unwrap(),
+            kind: CardKind::Scenario,
+            text: BoundedString::try_new("銀色の大狼だという。").unwrap(),
+            tags: vec![],
+            effects: vec![],
+            requires: vec![],
+        };
+        let events = vec![
+            Event::SessionStarted {
+                scenario: ScenarioSnapshot(scenario),
+                party: vec![],
+                roles: HashMap::new(),
+                initial_phase: Phase::Opening,
+                initial_scene: SceneId("op".to_string()),
+            },
+            Event::ScenarioPatched {
+                patch: ScenarioPatch {
+                    ops: vec![PatchOp::AddCardDef(def)],
+                    note: BoundedString::try_new("提案に応えてカードを配布").unwrap(),
+                },
+            },
+            Event::CardDealt {
+                to: CharacterId("hunter".to_string()),
+                card: CardId("gm-card-1".to_string()),
+                instance: CardInstanceId("gm-card-1-0".to_string()),
+            },
+        ];
+        let text = render(&events);
+        assert!(text.contains("獣の目撃情報を尋ねる"));
+        assert!(!text.contains("gm-card-1"));
     }
 
     #[test]

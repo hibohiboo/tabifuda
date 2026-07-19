@@ -74,6 +74,40 @@ fn play_hides_marker_and_removes_played_and_unchosen_cards() {
     assert!(!epilogue.contains("] 退く"));
 }
 
+/// 提案にGMがカードを配って応えるルート(demo.md「討伐に成功するルート」)。
+/// オープニングで提案→c(カード名+回答文)→y採用→配られた質問カードを出すと
+/// 回答文が表示される→以降は勝利エンドまで一本道。
+const ANSWER_CARD_INPUT: &str = "p\n獣の姿や被害を知りたい\nc\n獣の目撃情報を尋ねる\n銀色の毛並みの大狼だという。家畜が三頭襲われた。\ny\n2\n1\n\n1\n1\n1\n\n";
+
+#[test]
+fn play_gm_deals_answer_card_and_text_is_revealed_on_play() {
+    let output = run_play(ANSWER_CARD_INPUT);
+    assert!(
+        output.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    // 配られた質問カードが手札の選択肢として並ぶ。
+    assert!(stdout.contains("] 獣の目撃情報を尋ねる"));
+    // カードを出すと回答文(CardDef.text)が開示される。
+    assert!(stdout.contains("銀色の毛並みの大狼だという。"));
+    // パッチ適用後もPausedのままなので、y採用を経て勝利エンドまで到達できる。
+    assert!(stdout.contains("冒険の終わり: Victory"));
+    // 冒険記でもパッチ追加カードは名前解決され、内部IDに落ちない。
+    assert!(stdout.contains("GMがシナリオを改修した"));
+    assert!(!stdout.contains("gm-card-1"));
+
+    // 運用ログ(stderr)にはUGC本文(回答文)を漏らさない。
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        !stderr.contains("銀色の毛並み"),
+        "ops log leaked answer text: {stderr}"
+    );
+}
+
 #[test]
 fn play_ops_log_omits_free_text_even_through_real_process() {
     let secret = "近道を探したい";

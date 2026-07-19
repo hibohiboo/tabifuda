@@ -555,6 +555,42 @@ Gm専用・`status == Paused`の間のみ許可(`RuleError::SessionNotPaused`
 入場時配布とは別経路)。`apply`側は`ScenarioPatched`の適用時に`patch::apply_ops`を
 Sessionのシナリオへ直接適用する。
 
+### 提案への応答UI(CLIの決定。規範ではない)
+
+提案は「採用/却下」の二値だけでは足りない。プレイヤーの提案が
+「獣の姿は?被害は?」のような**確認・質問**である場合、GMの自然な応答は
+「答えを引き出す選択肢(カード)をシナリオに足してから再開する」ことであり、
+これは状態機械の `Paused --ScenarioPatched(0回以上) + ProposalJudged(採用)-->
+Running` がそのまま担う。コアの変更は不要で、以下はtabifuda-cliの
+操作系の決定である。
+
+- Paused画面の選択肢は `y`(採用)/`n`(却下)/`c`(カードを配って応える)
+- `c` はGMに **カード名** と **回答文** を入力させ、
+  `ApplyPatch { ops: [AddCardDef(def), DealCard{card, to: Party}], note }`
+  を1回で発行する。作られる`CardDef`は `kind: Scenario`・`text: 回答文`・
+  `effects: []`・`requires: []`(出すと消費され、シーンは変わらない。
+  回答はカード使用時のtext表示(下記)で開示される)
+- `CardId`はCLIが `gm-card-{n}` 形式で発番する(既存`card_defs`と重複しない
+  最小の連番を探す)。発番の一意性検証は従来どおり`validate`
+  (`PatchError::DuplicateCardId`)が担い、CLIはルール分岐を持たない
+- `note`はCLIが「提案に応えてカードを配布」の定型文で自動生成する
+  (回答文自体はカードを出すまで開示しない。冒険記に載るのはnoteのみ)
+- パッチ適用後もPausedのまま(状態機械どおり)。`c`を繰り返して複数枚
+  配ってから、最後に`y`/`n`で裁定して再開する
+
+### カード使用時のtext表示(CLIの決定。規範ではない)
+
+`PlayCard`受理後、CLIは出したカードの`CardDef.text`を表示する
+(カード本文の開示。上記の質問カードでは「出すと回答が読める」となる)。
+冒険記(chronicle)には含めない(全カードのフレーバー文で冒険記が
+埋まるのを避ける。回答文自体は`ScenarioPatched`の`AddCardDef`として
+イベントログに残るため、情報は失われない)。
+
+冒険記のカード名解決は開始時スナップショットに加えて
+`ScenarioPatched`の`ops`中の`AddCardDef`を反映する(パッチで足された
+カードの名前がID表示に落ちないようにする。表示用の翻訳であり、
+`patch::apply_ops`の再実装ではない)。
+
 ## シナリオlint
 
 シナリオデータの静的検証(検査項目・重大度・到達可能性/詰み検知の探索範囲)の
