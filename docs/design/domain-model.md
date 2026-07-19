@@ -270,6 +270,12 @@ struct Session {
                                   // 状態(旧flags)は Marker カードとしてここに置く
     pending_proposal: Option<Proposal>,
     proposal_seq: u64,            // ProposalId発番用の単調カウンタ(C3決定。下記参照)
+    card_instance_seq: usize,     // CardInstanceId発番用の単調カウンタ(下記
+                                  // 「カードの消費・除去」節参照。除去してもID
+                                  // を再利用しないため巻き戻さない)
+    scene_local_instances: Vec<CardInstanceId>, // 現在のシーンが`SceneEntered`
+                                  // で配ったカードのうち、まだ手札にあるものの
+                                  // 一覧(シーン離脱時のクリーンアップ対象の候補)
 }
 
 enum SessionStatus {
@@ -456,16 +462,24 @@ enum Event {
     SessionStarted { scenario: ScenarioSnapshot, party: Vec<Character>,
                      roles: HashMap<UserId, Role>,
                      initial_phase: Phase, initial_scene: SceneId },
-    SceneEntered { scene: SceneId, narration: String },
+    SceneEntered { scene: SceneId, narration: String,
+                   local_instances: Vec<CardInstanceId> }, // 下記「カードの消費・除去」参照
     CardDealt { to: CharacterId, card: CardId, instance: CardInstanceId },
     CardPlayed { by: CharacterId, card: CardId,
                  free_text: Option<BoundedString<4096>> },
+    CardRemoved { from: CharacterId, card: CardId,
+                  instance: CardInstanceId, reason: RemovalReason }, // 下記参照
     EffectApplied { effect: Effect },          // 下記「Effect解決」参照
     ProposalSubmitted { id: ProposalId, by: CharacterId, text: BoundedString<4096> },   // → Paused(C3)
     ScenarioPatched { patch: ScenarioPatch },   // C4
     ProposalJudged { id: ProposalId, accepted: bool }, // → Running(C3)
     PhaseAdvanced { phase: Phase },
     SessionEnded { outcome: Outcome },
+}
+
+enum RemovalReason {
+    Consumed,   // 使用による消費(下記参照)
+    SceneLeft,  // シーンを離れたことによる自動消去(下記参照)
 }
 ```
 
@@ -482,11 +496,13 @@ enum Event {
 
 **CardInstanceId の発行**(coreはIO・乱数を持たないため決定的に発行する):
 `CardDealt` イベントに `instance: CardInstanceId` を焼き込む(apply 側では
-計算しない)。decide は「現在の hands+table に存在するカード総数」を起点に、
-このdecide呼び出し内で新規発行するインスタンスへ連番を割り当てる
-(`{CardId}-{連番}` 形式)。C2の範囲ではカードは配布のみで手札から除去され
-ないため、この総数は単調増加し、Session側に別途カウンタを持たなくても
-一意性が保たれる(除去を導入する将来サイクルでは要再検討)。
+計算しない)。`Session.card_instance_seq: usize` を発番用の単調カウンタとして持ち
+(`ProposalId`/`proposal_seq` と同じ設計。下記「カードの消費・除去」節参照)、
+decide は `{session.card_instance_seq}` を起点にこのdecide呼び出し内で
+新規発行するインスタンスへ連番を割り当てる(`{CardId}-{連番}` 形式)。
+`apply` は `CardDealt` イベントを1件処理するごとに `card_instance_seq` を
++1する。カードは除去されうる(下記参照)ため、除去後もこのカウンタは
+巻き戻さない(一度発行したIDを再利用しない)。
 
 **Effect解決**(`PlayCard` 実行時、`CardDef.effects` を先頭から順に解決):
 - `GotoScene(id)`: `id` がシナリオに存在しなければ `RuleError::SceneNotFound`。
@@ -543,6 +559,47 @@ enum Event {
 状態機械図に載らない進行の強制操作のため、`Running`/`Paused`いずれでも許可し
 (状態は変えない)、共通の拒否系(`Ended`)にのみ従う。遷移先シーンが存在
 しなければ`PlayCard`の`GotoScene`と同じ`RuleError::SceneNotFound`。
+
+### カードの消費・除去(2026-07-19決定)
+
+Phase 2ふりかえりで「出したカードが手札に残り続ける」ことをPOの違和感として
+起票し(future-requirements.md旧§6)、Phase 3着手前に解消した。
+
+**消費ルール(`CardKind`から自動導出。`CardDef`のスキーマ変更なし)**:
+`CardKind::is_consumed_on_play(&self) -> bool` が `Scenario`/`Dialogue` を
+`true`(使用時に除去)、それ以外(`Action`/`Item`/`Marker`)を `false` と判定する。
+作者がカード単位で上書きする機構は導入しない(需要が具体化したら
+future-requirements.mdへ)。
+
+**`PlayCard`での除去**: `decide_play_card`は`CardPlayed`発行の直後
+(`effects`解決の前)、`is_consumed_on_play(card_def.kind)`が`true`なら
+`CardRemoved{from: by, card: card_def.id, instance, reason: Consumed}`を発行する。
+
+**シーン離脱時のクリーンアップ**: `SceneEntered`は、そのシーンの
+`scene_def.deals`から実際に配ったカードの`CardInstanceId`一覧を
+`local_instances`に積む(カード効果由来の`DealCard`は含まない。
+`quest_accepted`のような「持続する付与」と区別するため)。`apply`は
+`Session.scene_local_instances`をこの一覧で丸ごと差し替える。
+
+新しいシーンへ入場する直前(`decide_play_card`の`GotoScene`分岐、
+`decide_gm_advance`)、`session.scene_local_instances`のうち
+「まだ手札にある」かつ「`CardKind`が`Marker`ではない」ものを
+`CardRemoved{reason: SceneLeft}`として発行してから`enter_scene`を呼ぶ
+(選ばなかった側の選択肢カードが、シーンを離れた時点で自動的に消える)。
+`decide_play_card`側は今出したカード自身の`instance`を対象から除く
+(`Consumed`で既に除去済みのため)。
+
+**Markerは除去対象外**: 消費ルール・シーン離脱クリーンアップのどちらの
+対象にもならない(「選んだ記録」として`Session.hands`に残り続ける。
+`Condition::HasCard`の判定にも影響しない)。ただし**CLIの手札表示からは
+`CardKind::Marker`を除外する**(domain-guide.md「世界はすべてカード」の
+Markerの用途どおり、プレイヤーが選ぶ対象ではなく世界の状態を示す印である
+ため)。これは規範(decide/apply)ではなくCLI(tabifuda-cli)の表示ロジックの
+決定であり、`session.hands`のデータ自体は変更しない。
+
+**冒険記(chronicle)**: `CardRemoved`は明示的に扱うが、テキストとしては
+描画しない(プレイヤー行動の物語的な流れを主役にする。housekeeping detail
+は省く)。運用ログ(oplog)には種別(`CardRemoved`)のみ記録する。
 
 ## ソロMVPでの簡略化
 
