@@ -1,5 +1,6 @@
 use std::process::ExitCode;
 
+mod chronicle;
 mod oplog;
 mod play;
 

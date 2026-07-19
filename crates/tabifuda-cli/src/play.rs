@@ -11,7 +11,7 @@ use tabifuda_core::{
     Event, RuleError, Scenario, Session, SessionStatus, UserId,
 };
 
-use crate::oplog;
+use crate::{chronicle, oplog};
 
 const SOLO_CHARACTER_ID: &str = "hunter";
 const SOLO_CHARACTER_NAME: &str = "旅人";
@@ -29,6 +29,7 @@ pub fn run(scenario: Scenario) {
     let stdin = io::stdin();
     let mut lines = stdin.lock().lines();
 
+    let mut event_log: Vec<Event> = Vec::new();
     let mut state: Option<Session> = None;
     let (next, result) = issue(
         state,
@@ -37,6 +38,7 @@ pub fn run(scenario: Scenario) {
             scenario,
             party: vec![character],
         },
+        &mut event_log,
     );
     state = next;
     if let Err(err) = result {
@@ -53,6 +55,7 @@ pub fn run(scenario: Scenario) {
         match &session.status {
             SessionStatus::Ended(outcome) => {
                 println!("\n=== 冒険の終わり: {outcome:?} ===");
+                println!("\n{}", chronicle::render(&event_log));
                 return;
             }
             SessionStatus::Paused { .. } => {
@@ -77,6 +80,7 @@ pub fn run(scenario: Scenario) {
                         proposal: proposal.id.clone(),
                         accepted,
                     },
+                    &mut event_log,
                 );
                 state = next;
                 if let Err(err) = result {
@@ -135,6 +139,7 @@ pub fn run(scenario: Scenario) {
                             by: character_id.clone(),
                             text,
                         },
+                        &mut event_log,
                     );
                     state = next;
                     if let Err(err) = result {
@@ -167,6 +172,7 @@ pub fn run(scenario: Scenario) {
                             card: instance.id.clone(),
                             free_text,
                         },
+                        &mut event_log,
                     );
                     state = next;
                     if let Err(err) = result {
@@ -205,22 +211,25 @@ fn prompt_bounded_text(
     }
 }
 
-/// decide→(受理時のみ)apply の連鎖+運用ログの記録。翻訳のみでルール分岐は持たない。
+/// decide→(受理時のみ)apply の連鎖+冒険記用ログ蓄積+運用ログの記録。
+/// 翻訳のみでルール分岐は持たない。
 fn issue(
     state: Option<Session>,
     actor: &UserId,
     cmd: Command,
-) -> (Option<Session>, Result<Vec<Event>, RuleError>) {
+    log: &mut Vec<Event>,
+) -> (Option<Session>, Result<(), RuleError>) {
     let result = decide(state.as_ref(), actor, cmd.clone());
     eprintln!("[log] {}", oplog::command_result_line(actor, &cmd, &result));
-    match &result {
+    match result {
         Ok(events) => {
             let mut next = state;
-            for event in events {
+            for event in &events {
                 next = apply(next, event);
             }
-            (next, result)
+            log.extend(events);
+            (next, Ok(()))
         }
-        Err(_) => (state, result),
+        Err(err) => (state, Err(err)),
     }
 }
