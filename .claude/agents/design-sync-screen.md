@@ -12,7 +12,8 @@ model: haiku
 
 1. 指示で渡された範囲(通常は `git diff <base>...HEAD` で今回触れた型・関数・
    モジュール。無指定なら直近コミットの差分)を特定する
-2. docs/design/domain-model.md の対応セクションと突き合わせる。観点:
+2. docs/design/domain-model.md(lint実装なら docs/design/scenario-lint.md)の
+   対応セクションと突き合わせる。観点:
    - 型名・バリアント名・フィールド名と型が文書と一致するか
    - Event / Command / PatchOp / RuleError のバリアント一覧の過不足
    - SessionStatus の遷移規則、権限規則の表と実装の一致

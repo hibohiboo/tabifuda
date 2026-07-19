@@ -1,5 +1,5 @@
-//! lint::lint の単体テスト。docs/design/domain-model.md「シナリオlint(P2 C1決定)」
-//! の検査項目表に対応(受理系=findingsが空、各拒否系=該当issueが1件含まれることを検証)。
+//! lint::lint の単体テスト。docs/design/scenario-lint.md「検査項目と重大度」
+//! の表に対応(受理系=findingsが空、各拒否系=該当issueが1件含まれることを検証)。
 
 use crate::card::{CardDef, CardKind, Condition, Effect, Target};
 use crate::ids::{CardId, CharacterId, SceneId};

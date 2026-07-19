@@ -1,4 +1,4 @@
-//! decide/apply。docs/design/domain-model.md「C2: decide/applyの解決規則」に対応。
+//! decide/apply。docs/design/domain-model.md「進行の解決規則」に対応。
 //! CLAUDE.md最重要ルール2・3(coreは純粋・進行は必ずイベント経由)を実装する中核。
 
 use std::collections::HashMap;
@@ -338,7 +338,7 @@ fn decide_judge_proposal(
 
 /// GM強制進行。カードのrequires/GotoScene遷移条件を経由せず直接シーンへ入場する
 /// (`enter_scene`を共有)。状態機械図に載らない操作のため、Running/Paused双方で
-/// 許可し、共通の拒否系(Ended)のみに従う(domain-model.md「C3」参照)。
+/// 許可し、共通の拒否系(Ended)のみに従う(domain-model.md「GmAdvance(強制進行)」参照)。
 fn decide_gm_advance(
     session: &Session,
     actor: &UserId,

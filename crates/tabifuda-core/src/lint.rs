@@ -1,5 +1,5 @@
 //! シナリオデータの静的検証(シナリオlint)。
-//! docs/design/domain-model.md「シナリオlint(P2 C1決定)」に対応。
+//! docs/design/scenario-lint.md に対応。
 //!
 //! `lint(scenario)` は純粋関数(IOなし)。将来の`scenario-validate`スキルと
 //! 実装を共有する前提のため、CLI固有にせずここに置く。
@@ -16,7 +16,7 @@ pub enum Severity {
     Warning,
 }
 
-/// 検査で見つかった問題。docs/design/domain-model.md「シナリオlint」の表に対応。
+/// 検査で見つかった問題。docs/design/scenario-lint.md「検査項目と重大度」の表に対応。
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum LintIssue {
@@ -211,7 +211,7 @@ fn check_scene_def(
     }
 }
 
-/// シーン`scene`から直接辿れるシーンID(domain-model.md「到達可能性・詰み検知の
+/// シーン`scene`から直接辿れるシーンID(scenario-lint.md「到達可能性・詰み検知の
 /// 探索範囲」参照。DealCardで後から配られたカードの効果は追わない)。
 fn direct_successors(scenario: &Scenario, scene: &SceneDef) -> Vec<SceneId> {
     let mut out: Vec<SceneId> = scene.exits.iter().map(|t| t.to.clone()).collect();

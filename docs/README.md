@@ -21,6 +21,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 | 文書 | 内容 |
 |---|---|
 | [design/domain-model.md](design/domain-model.md) | **中核**。型・状態機械・コマンド/イベントの規範的定義。コアに触れるなら必読 |
+| [design/scenario-lint.md](design/scenario-lint.md) | シナリオlint(静的検証)の規範: 検査項目・重大度・探索範囲。lintに触れるなら必読 |
 | [design/cross-cutting.md](design/cross-cutting.md) | 横断方針: 権限・ログ・UGC(自由入力)・削除・シークレット |
 | [design/test-strategy.md](design/test-strategy.md) | テストの置き場所と書き方。不変条件1〜5。コアのテストを書くなら必読 |
 | [adr/](adr/) | アーキテクチャ決定記録(手法・パッケージマネージャ・CI・.claude設定・ID発番)。「なぜこうなっているか」を遡る |
@@ -38,7 +39,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 
 ## 文書間の優先順位(矛盾したとき)
 
-1. **design/ の規範文書**(domain-model.md、cross-cutting.md、test-strategy.md)が正
+1. **design/ の規範文書**(domain-model.md、scenario-lint.md、cross-cutting.md、test-strategy.md)が正
 2. adr/ は「決定の経緯」。決定内容が design/ と食い違ったら design/ を直してから実装
 3. **解説文書(domain-guide.md)・レビュー記録・決定ログ・タスク文書は非規範**。
    規範文書と食い違いを見つけたら、それは修正すべきバグ(発見者は報告する)
