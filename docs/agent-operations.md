@@ -46,6 +46,7 @@
 | P1 コアのドメインモデル | Sonnet 5 | **Event/State/Patch型設計レビュー(最重要)** | テスト雛形 |
 | P2 CLI版MVP | Sonnet 5 | なし | シナリオデータ作成・検証 |
 | P3 WASM+Web UI | Sonnet 5 | wasm境界API設計レビュー | UI文言・体裁 |
+| P3.5 CLI永続化 | Sonnet 5 | finalize(報酬・持ち帰り)のEvent設計レビュー | セーブ/パーティのフィクスチャ作成 |
 | P4 Hono+Drizzle+Neon | Sonnet 5 | DBスキーマ+イベントストア設計レビュー | マイグレーション検証 |
 | P5 AWSデプロイ | Sonnet 5 | IaCセキュリティレビュー | 設定ファイル整備 |
 
