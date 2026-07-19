@@ -33,6 +33,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 | [tasks/](tasks/) | フェーズ別タスク指示文(phase0〜5)。1サイクル=1セッション=1PR |
 | [tasks/plans/](tasks/plans/) | plan mode成果物と実行計画・決定ログ(gitで進捗を追う) |
 | [agent-journal.md](agent-journal.md) | エージェント失敗ジャーナル(1行/件)。週次棚卸しの材料 |
+| [retrospectives/](retrospectives/) | フェーズ完了時のふりかえり(1フェーズ1ファイル、非規範)。作成手順は agent-operations.md「フェーズ完了時のふりかえり」 |
 
 ## 文書間の優先順位(矛盾したとき)
 
