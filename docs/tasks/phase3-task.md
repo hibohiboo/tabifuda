@@ -30,6 +30,13 @@
 
 ## サイクル
 
+### C0: フロント層設計文書の置き場を決める(C1と同セッションでよい)
+- wasm境界・UI表示ロジックの決定(例: 現状domain-model.mdに書かれている
+  「CLIの手札表示からMarkerを除外する」)を置く場所を決める
+  (design/配下にレイヤ別文書、例: wasm-boundary.mdを新設するか、既存文書に
+  節を足すか)。決めたら該当する既存記述を移す
+  (経緯: docs構造レビュー L1)
+
 ### C1: tabifuda-wasm
 - wasm-bindgen で decide/apply/validate/lint をTSへ公開。
   Command/Event はJSONで受け渡し(TS型定義を生成または手書きで同期)
