@@ -5,19 +5,20 @@
 
 use std::collections::HashMap;
 use std::io::{self, BufRead, Write};
+use std::path::{Path, PathBuf};
 
 use tabifuda_core::{
     apply, decide, BoundedString, CardDef, CardId, CardInstance, CardKind, Character, CharacterId,
-    Command, Event, PatchOp, RuleError, Scenario, ScenarioPatch, Session, SessionStatus, Target,
-    UserId,
+    Command, Event, PatchOp, RuleError, Scenario, ScenarioId, ScenarioPatch, Session,
+    SessionStatus, Target, UserId,
 };
 
-use crate::{chronicle, oplog};
+use crate::{chronicle, fork, oplog};
 
 const SOLO_CHARACTER_ID: &str = "hunter";
 const SOLO_CHARACTER_NAME: &str = "旅人";
 
-pub fn run(scenario: Scenario) {
+pub fn run(scenario: Scenario, scenario_path: &Path) {
     let actor = UserId("solo".to_string());
     let character_id = CharacterId(SOLO_CHARACTER_ID.to_string());
     let character = Character {
@@ -57,6 +58,7 @@ pub fn run(scenario: Scenario) {
             SessionStatus::Ended(outcome) => {
                 println!("\n=== 冒険の終わり: {outcome:?} ===");
                 println!("\n{}", chronicle::render(&event_log));
+                maybe_save_fork(session, &event_log, scenario_path, &mut lines);
                 return;
             }
             SessionStatus::Paused { .. } => {
@@ -253,6 +255,71 @@ pub fn run(scenario: Scenario) {
             }
         }
     }
+}
+
+/// セッション終了後のフォーク保存(domain-model.md「フォーク出力」)。
+/// `ScenarioPatched`が1回以上あるときだけ保存を尋ね、パッチ適用済みの
+/// `session.scenario`を基に`fork::build_fork`で構築して書き出す。
+/// EOF・y以外の入力・書き込み失敗はいずれも保存せず終了する(冒険記の
+/// 表示は済んでいるため、ここでの失敗はセッション自体を壊さない)。
+fn maybe_save_fork(
+    session: &Session,
+    events: &[Event],
+    scenario_path: &Path,
+    lines: &mut impl Iterator<Item = io::Result<String>>,
+) {
+    if !events
+        .iter()
+        .any(|e| matches!(e, Event::ScenarioPatched { .. }))
+    {
+        return;
+    }
+    print!("\nシナリオはセッション中に改編されました。フォークとして保存しますか? [y/n]: ");
+    io::stdout().flush().ok();
+    let Some(Ok(input)) = lines.next() else {
+        return;
+    };
+    if !input.trim().eq_ignore_ascii_case("y") {
+        return;
+    }
+
+    let path = fork_output_path(scenario_path);
+    // meta.idは出力ファイル名の語幹と揃える(domain-model.md「フォーク出力」)。
+    let fork_id = ScenarioId(
+        path.file_stem()
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_else(|| format!("{}-fork", session.scenario.0.meta.id.0)),
+    );
+    let forked = fork::build_fork(&session.scenario.0, events, fork_id);
+    let json = match serde_json::to_string_pretty(&forked) {
+        Ok(json) => json,
+        Err(err) => {
+            println!("フォークを構築できませんでした: {err}");
+            return;
+        }
+    };
+    match std::fs::write(&path, json + "\n") {
+        Ok(()) => println!("フォークを保存しました: {}", path.display()),
+        Err(err) => println!("フォークを保存できませんでした: {err}"),
+    }
+}
+
+/// 元ファイルの隣に`{語幹}-fork.json`(既存ファイルと衝突したら
+/// `{語幹}-fork-2.json`から連番)で出力パスを決める。
+fn fork_output_path(scenario_path: &Path) -> PathBuf {
+    let stem = scenario_path
+        .file_stem()
+        .map(|s| s.to_string_lossy().into_owned())
+        .unwrap_or_else(|| "scenario".to_string());
+    let dir = scenario_path.parent().unwrap_or_else(|| Path::new("."));
+    let first = dir.join(format!("{stem}-fork.json"));
+    if !first.exists() {
+        return first;
+    }
+    (2..)
+        .map(|n| dir.join(format!("{stem}-fork-{n}.json")))
+        .find(|p| !p.exists())
+        .expect("連番はいつか空きに当たる")
 }
 
 /// GMが配るカードのCardId発番(`gm-card-{n}`)。既存card_defsと重複しない

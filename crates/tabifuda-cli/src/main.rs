@@ -1,6 +1,7 @@
 use std::process::ExitCode;
 
 mod chronicle;
+mod fork;
 mod oplog;
 mod play;
 
@@ -33,7 +34,7 @@ fn run_play(path: &str) -> ExitCode {
         Ok(scenario) => scenario,
         Err(code) => return code,
     };
-    play::run(scenario);
+    play::run(scenario, std::path::Path::new(path));
     ExitCode::SUCCESS
 }
 
