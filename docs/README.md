@@ -23,7 +23,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 | [design/domain-model.md](design/domain-model.md) | **中核**。型・状態機械・コマンド/イベントの規範的定義。コアに触れるなら必読 |
 | [design/cross-cutting.md](design/cross-cutting.md) | 横断方針: 権限・ログ・UGC(自由入力)・削除・シークレット |
 | [design/test-strategy.md](design/test-strategy.md) | テストの置き場所と書き方。不変条件1〜5。コアのテストを書くなら必読 |
-| [adr/](adr/) | アーキテクチャ決定記録(手法・パッケージマネージャ・CI・.claude設定)。「なぜこうなっているか」を遡る |
+| [adr/](adr/) | アーキテクチャ決定記録(手法・パッケージマネージャ・CI・.claude設定・ID発番)。「なぜこうなっているか」を遡る |
 
 ### 進め方視点(タスクと運用。エージェント・人間の共通ルール)
 

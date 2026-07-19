@@ -538,8 +538,9 @@ decide は `{session.card_instance_seq}` を起点にこのdecide呼び出し内
 では一意性を保てない(`CardInstanceId`のコメントが予告していた「除去を導入
 する将来サイクル」に該当)。そこで`Session.proposal_seq: u64`を追加し、
 `decide`は`{session.proposal_seq}`を埋め込んだ`proposal-{seq}`形式のIDを発行、
-`apply`(`ProposalSubmitted`)がインクリメントする。UUID(v4等)はcoreの純粋性
-(乱数禁止)に抵触するため不採用(検討の上、連番方式を選択)。
+`apply`(`ProposalSubmitted`)がインクリメントする。外部発行UUIDの添付は
+純粋性には抵触しないが不採用(2026-07-19再検討。一意性の検証責務をcoreに
+閉じることと、CardInstanceIdとの発番戦略統一のため。ADR 0005参照)。
 
 **Propose**: `by`を担当するPlayerまたはGmのみ受理(`PlayCard`と同じ
 `check_player_or_gm`)。`ProposalSubmitted{id, by, text}`を発行し、
