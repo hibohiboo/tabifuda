@@ -29,6 +29,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 
 | 文書 | 内容 |
 |---|---|
+| [roadmap.md](roadmap.md) | **フェーズ全体像の索引(非規範)**。P0〜P5の目的・完了条件・現在地と、フェーズ対応表3箇所への参照。各フェーズの正は tasks/ |
 | [agent-operations.md](agent-operations.md) | 運用の正: モデルラダー、開発サイクル、決定ログ運用、ハンドオフ、コスト |
 | [tasks/](tasks/) | フェーズ別タスク指示文(phase0〜5)。1サイクル=1セッション=1PR |
 | [tasks/plans/](tasks/plans/) | plan mode成果物と実行計画・決定ログ(gitで進捗を追う) |
