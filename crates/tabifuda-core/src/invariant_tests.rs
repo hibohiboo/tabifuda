@@ -121,7 +121,8 @@ proptest! {
         }
     }
 
-    /// 不変条件4(保存則): カードは`CardDealt`イベント無しに手札/tableに現れない/消えない。
+    /// 不変条件4(保存則): カードは`CardDealt`イベント無しに手札/tableに現れず、
+    /// `CardRemoved`イベント無しに消えない。
     #[test]
     fn invariant_cards_only_change_via_card_dealt(steps in steps_strategy()) {
         let mut state: Option<Session> = None;
@@ -146,8 +147,19 @@ proptest! {
                             );
                             prop_assert_eq!(after, expected);
                         }
+                        Event::CardRemoved { from, card, instance, .. } => {
+                            let mut expected = before.clone();
+                            let removed =
+                                expected.remove(&(Some(from.clone()), instance.clone(), card.clone()));
+                            prop_assert!(
+                                removed,
+                                "存在しないCardInstanceIdが除去された: {:?}",
+                                instance
+                            );
+                            prop_assert_eq!(after, expected);
+                        }
                         _ => {
-                            prop_assert_eq!(after, before, "CardDealt以外でカード集合が変化した: {:?}", event);
+                            prop_assert_eq!(after, before, "CardDealt/CardRemoved以外でカード集合が変化した: {:?}", event);
                         }
                     }
                     state = next;
@@ -274,6 +286,8 @@ fn small_session_strategy() -> impl Strategy<Value = Session> {
                     table: vec![],
                     pending_proposal: None,
                     proposal_seq: 0,
+                    card_instance_seq: 0,
+                    scene_local_instances: vec![],
                 }
             },
         )

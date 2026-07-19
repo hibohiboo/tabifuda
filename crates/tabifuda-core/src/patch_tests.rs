@@ -100,6 +100,8 @@ fn fixture_session() -> Session {
         table: vec![],
         pending_proposal: None,
         proposal_seq: 0,
+        card_instance_seq: 0,
+        scene_local_instances: vec![],
     }
 }
 

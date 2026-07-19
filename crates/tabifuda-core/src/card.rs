@@ -22,6 +22,18 @@ pub enum CardKind {
     Marker,
 }
 
+impl CardKind {
+    /// domain-model.md「カードの消費・除去」参照。使用時に手札から除去される
+    /// 種別か(`Scenario`/`Dialogue`)。`Marker`は除去対象外(選んだ記録として
+    /// 残す。CLIでは表示のみ隠す)。
+    pub fn is_consumed_on_play(&self) -> bool {
+        match self {
+            CardKind::Scenario | CardKind::Dialogue => true,
+            CardKind::Action | CardKind::Proposal | CardKind::Item | CardKind::Marker => false,
+        }
+    }
+}
+
 /// 効果の対象。意味論は domain-model.md「Target の意味論」参照(2026-07-18決定):
 /// - `Party` は役割参照。台本(シナリオ)執筆時点で書ける
 /// - `Character` は実名参照で**上演中専用**。シナリオデータ内での使用は不正

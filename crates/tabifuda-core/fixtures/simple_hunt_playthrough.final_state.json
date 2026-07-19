@@ -231,5 +231,7 @@
   },
   "table": [],
   "pending_proposal": null,
-  "proposal_seq": 1
+  "proposal_seq": 1,
+  "card_instance_seq": 6,
+  "scene_local_instances": []
 }

@@ -27,7 +27,7 @@ pub use character::Character;
 pub use command::Command;
 pub use engine::{apply, decide};
 pub use error::RuleError;
-pub use event::Event;
+pub use event::{Event, RemovalReason};
 pub use ids::{
     CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
 };

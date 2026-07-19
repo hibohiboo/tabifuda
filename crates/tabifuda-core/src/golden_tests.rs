@@ -215,8 +215,9 @@ fn golden_event() {
         Event::SceneEntered {
             scene: scene("s1"),
             narration: "門が開いた".to_string(),
+            local_instances: vec![CardInstanceId("c1-0".to_string())],
         },
-        r#"{"SceneEntered":{"scene":"s1","narration":"門が開いた"}}"#,
+        r#"{"SceneEntered":{"scene":"s1","narration":"門が開いた","local_instances":["c1-0"]}}"#,
     );
     assert_golden(
         Event::CardDealt {
@@ -233,6 +234,15 @@ fn golden_event() {
             free_text: None,
         },
         r#"{"CardPlayed":{"by":"ch1","card":"c1","free_text":null}}"#,
+    );
+    assert_golden(
+        Event::CardRemoved {
+            from: character("ch1"),
+            card: card("c1"),
+            instance: CardInstanceId("c1-0".to_string()),
+            reason: crate::event::RemovalReason::Consumed,
+        },
+        r#"{"CardRemoved":{"from":"ch1","card":"c1","instance":"c1-0","reason":"Consumed"}}"#,
     );
     assert_golden(
         Event::PhaseAdvanced {

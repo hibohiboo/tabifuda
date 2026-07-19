@@ -9,7 +9,7 @@ use crate::character::Character;
 use crate::command::Command;
 use crate::engine::{apply, decide};
 use crate::error::RuleError;
-use crate::event::Event;
+use crate::event::{Event, RemovalReason};
 use crate::ids::{
     CardId, CardInstanceId, CharacterId, ProposalId, ScenarioId, SceneId, StatId, UserId,
 };
@@ -200,6 +200,8 @@ fn fixture_session(hand_card: &str) -> Session {
         table: vec![],
         pending_proposal: None,
         proposal_seq: 0,
+        card_instance_seq: 1,
+        scene_local_instances: vec![],
     }
 }
 
@@ -522,7 +524,8 @@ fn play_card_resolves_goto_scene() {
             },
             Event::SceneEntered {
                 scene: scn("s2"),
-                narration: "s2の描写".to_string()
+                narration: "s2の描写".to_string(),
+                local_instances: vec![]
             },
         ]
     );
@@ -648,6 +651,12 @@ fn play_card_resolves_end_session_effect() {
                 by: chr("ch1"),
                 card: cid("victory"),
                 free_text: None
+            },
+            Event::CardRemoved {
+                from: chr("ch1"),
+                card: cid("victory"),
+                instance: inst("ci1"),
+                reason: crate::event::RemovalReason::Consumed,
             },
             Event::SessionEnded {
                 outcome: Outcome::Victory
@@ -936,6 +945,7 @@ fn gm_advance_accepts_for_gm_and_enters_scene() {
         vec![Event::SceneEntered {
             scene: scn("s2"),
             narration: "s2の描写".to_string(),
+            local_instances: vec![],
         }]
     );
 
@@ -1330,4 +1340,164 @@ fn end_session_rejects_when_already_ended() {
         },
     );
     assert_eq!(result, Err(RuleError::SessionEnded));
+}
+
+// ---- カードの消費・除去(CardRemoved) ----
+// domain-model.md「カードの消費・除去」参照。simple-hunt.jsonの
+// climax_battle(victory/defeat両方Scenario配布、片方だけ選ぶ)と同じ形の
+// 最小シナリオで検証する。
+
+/// s1がchosen(Scenario)/unchosen(Scenario)/marker_local(Marker)の3枚を配る。
+/// chosenの効果はGotoScene(s2)。
+fn removal_test_scenario() -> Scenario {
+    Scenario {
+        meta: ScenarioMeta {
+            id: ScenarioId("removal-test".to_string()),
+            title: short(""),
+            author: short(""),
+            forked_from: None,
+        },
+        card_defs: vec![
+            card_def(
+                "chosen",
+                CardKind::Scenario,
+                vec![Effect::GotoScene(scn("s2"))],
+                vec![],
+            ),
+            card_def("unchosen", CardKind::Scenario, vec![], vec![]),
+            card_def("marker_local", CardKind::Marker, vec![], vec![]),
+        ],
+        phases: vec![
+            PhaseDef {
+                phase: Phase::Opening,
+                scenes: vec![scene(
+                    "s1",
+                    vec![
+                        Deal {
+                            card: cid("chosen"),
+                            to: Target::Party,
+                        },
+                        Deal {
+                            card: cid("unchosen"),
+                            to: Target::Party,
+                        },
+                        Deal {
+                            card: cid("marker_local"),
+                            to: Target::Party,
+                        },
+                    ],
+                )],
+            },
+            PhaseDef {
+                phase: Phase::Middle,
+                scenes: vec![scene("s2", vec![])],
+            },
+        ],
+    }
+}
+
+fn start_removal_test_session() -> Session {
+    let scenario = removal_test_scenario();
+    let party = vec![Character {
+        id: chr("ch1"),
+        name: "ch1".to_string(),
+        stats: HashMap::new(),
+        deck: vec![],
+    }];
+    let events = decide(None, &usr("gm1"), Command::StartSession { scenario, party }).unwrap();
+    let mut state = None;
+    for event in &events {
+        state = apply(state, event);
+    }
+    state.unwrap()
+}
+
+fn find_instance(session: &Session, character: &CharacterId, card: &CardId) -> CardInstanceId {
+    session.hands[character]
+        .iter()
+        .find(|ci| &ci.card == card)
+        .unwrap()
+        .id
+        .clone()
+}
+
+#[test]
+fn play_card_goto_scene_consumes_played_card_and_cleans_up_unchosen_sibling() {
+    let session = start_removal_test_session();
+    let chosen = find_instance(&session, &chr("ch1"), &cid("chosen"));
+    let unchosen = find_instance(&session, &chr("ch1"), &cid("unchosen"));
+    let marker = find_instance(&session, &chr("ch1"), &cid("marker_local"));
+
+    let events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::PlayCard {
+            by: chr("ch1"),
+            card: chosen.clone(),
+            free_text: None,
+        },
+    )
+    .unwrap();
+
+    let removed: Vec<(CardInstanceId, RemovalReason)> = events
+        .iter()
+        .filter_map(|e| match e {
+            Event::CardRemoved {
+                instance, reason, ..
+            } => Some((instance.clone(), reason.clone())),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        removed,
+        vec![
+            (chosen, RemovalReason::Consumed),
+            (unchosen.clone(), RemovalReason::SceneLeft),
+        ]
+    );
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let hand = &state.unwrap().hands[&chr("ch1")];
+    assert!(
+        !hand.iter().any(|ci| ci.id == unchosen),
+        "選ばなかった側は消えるはず"
+    );
+    assert!(hand.iter().any(|ci| ci.id == marker), "Markerは残るはず");
+}
+
+#[test]
+fn gm_advance_cleans_up_unplayed_scene_local_scenario_cards_but_keeps_marker() {
+    let session = start_removal_test_session();
+    let chosen = find_instance(&session, &chr("ch1"), &cid("chosen"));
+    let unchosen = find_instance(&session, &chr("ch1"), &cid("unchosen"));
+    let marker = find_instance(&session, &chr("ch1"), &cid("marker_local"));
+
+    let events = decide(
+        Some(&session),
+        &usr("gm1"),
+        Command::GmAdvance { to: scn("s2") },
+    )
+    .unwrap();
+
+    let removed: Vec<CardInstanceId> = events
+        .iter()
+        .filter_map(|e| match e {
+            Event::CardRemoved { instance, .. } => Some(instance.clone()),
+            _ => None,
+        })
+        .collect();
+    // GmAdvanceは何も出さないので、まだ手札にあるScenario2枚とも対象になる。
+    assert_eq!(removed, vec![chosen.clone(), unchosen.clone()]);
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let hand = &state.unwrap().hands[&chr("ch1")];
+    assert!(!hand.iter().any(|ci| ci.id == chosen));
+    assert!(!hand.iter().any(|ci| ci.id == unchosen));
+    assert!(hand.iter().any(|ci| ci.id == marker), "Markerは残るはず");
 }
