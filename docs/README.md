@@ -10,6 +10,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 | 文書 | 内容 |
 |---|---|
 | [design/domain-guide.md](design/domain-guide.md) | **最初に読む解説文書(非規範)**。ゲームの遊び方・世界観・主要概念を平易に説明。設計判断の論点(例: カード効果の「対象」)の背景もここで掴める |
+| [demo.md](demo.md) | **実際に手元で遊ぶ手順(非規範)**。CLIの起動方法・操作方法・勝利/敗北エンドまでの具体的な入力例 |
 | [requirements/future-requirements.md](requirements/future-requirements.md) | 将来要望メモ。今は作らないが壊さないよう意識する要望集。**「実装済み」と誤認しないこと** |
 | CLAUDE.md「用語」表(リポジトリ直下) | シナリオ/セッション/パッチ/提案/冒険記の定義。用語を揺らさない |
 | [design/reviews/](design/reviews/) | 設計レビューの記録(指摘と対応状況) |
