@@ -1,0 +1,235 @@
+{
+  "scenario": {
+    "meta": {
+      "id": "simple-hunt",
+      "title": "単純討伐",
+      "author": "tabifuda",
+      "forked_from": null
+    },
+    "card_defs": [
+      {
+        "id": "reply",
+        "name": "依頼を受ける",
+        "kind": "Dialogue",
+        "text": "村長の依頼を引き受ける返事をする。",
+        "tags": [],
+        "effects": [
+          {
+            "DealCard": {
+              "card": "quest_accepted",
+              "to": "Party"
+            }
+          },
+          "AdvancePhase",
+          {
+            "GotoScene": "mid_travel"
+          }
+        ],
+        "requires": []
+      },
+      {
+        "id": "quest_accepted",
+        "name": "依頼受諾",
+        "kind": "Marker",
+        "text": "村長の依頼を受けたことを示す印。",
+        "tags": [],
+        "effects": [],
+        "requires": []
+      },
+      {
+        "id": "arrive",
+        "name": "獣の巣に到着する",
+        "kind": "Scenario",
+        "text": "森を抜け、獣の巣にたどり着いた。",
+        "tags": [],
+        "effects": [
+          "AdvancePhase",
+          {
+            "GotoScene": "climax_battle"
+          }
+        ],
+        "requires": []
+      },
+      {
+        "id": "victory",
+        "name": "打ち倒す",
+        "kind": "Scenario",
+        "text": "怪物に立ち向かい、打ち倒す。",
+        "tags": [],
+        "effects": [
+          {
+            "GotoScene": "epilogue_win"
+          }
+        ],
+        "requires": []
+      },
+      {
+        "id": "defeat",
+        "name": "退く",
+        "kind": "Scenario",
+        "text": "怪物の力に抗えず、退く。",
+        "tags": [],
+        "effects": [
+          {
+            "GotoScene": "epilogue_lose"
+          }
+        ],
+        "requires": []
+      },
+      {
+        "id": "end_victory",
+        "name": "村に帰還を告げる",
+        "kind": "Dialogue",
+        "text": "討伐の成功を村に報告する。",
+        "tags": [],
+        "effects": [
+          {
+            "EndSession": "Victory"
+          }
+        ],
+        "requires": []
+      },
+      {
+        "id": "end_defeat",
+        "name": "村に撤退を告げる",
+        "kind": "Dialogue",
+        "text": "討伐がならなかったことを村に伝える。",
+        "tags": [],
+        "effects": [
+          {
+            "EndSession": "Defeat"
+          }
+        ],
+        "requires": []
+      }
+    ],
+    "phases": [
+      {
+        "phase": "Opening",
+        "scenes": [
+          {
+            "id": "op_request",
+            "kind": "Conversation",
+            "narration": "村長があなたを呼び止めた。「近くの森に現れた獣を、討伐してほしいのだ」",
+            "deals": [
+              {
+                "card": "reply",
+                "to": "Party"
+              }
+            ],
+            "exits": []
+          }
+        ]
+      },
+      {
+        "phase": "Middle",
+        "scenes": [
+          {
+            "id": "mid_travel",
+            "kind": "Travel",
+            "narration": "依頼を受け、森へ向かう。木々の合間を抜けながら、獣の気配を追う。",
+            "deals": [
+              {
+                "card": "arrive",
+                "to": "Party"
+              }
+            ],
+            "exits": []
+          }
+        ]
+      },
+      {
+        "phase": "Climax",
+        "scenes": [
+          {
+            "id": "climax_battle",
+            "kind": "Battle",
+            "narration": "巣の奥で、獣と対峙する。低い唸り声が響く。",
+            "deals": [
+              {
+                "card": "victory",
+                "to": "Party"
+              },
+              {
+                "card": "defeat",
+                "to": "Party"
+              }
+            ],
+            "exits": []
+          },
+          {
+            "id": "epilogue_win",
+            "kind": "Conversation",
+            "narration": "獣を打ち倒した。村へ戻る道すがら、静けさが心地よい。",
+            "deals": [
+              {
+                "card": "end_victory",
+                "to": "Party"
+              }
+            ],
+            "exits": []
+          },
+          {
+            "id": "epilogue_lose",
+            "kind": "Conversation",
+            "narration": "獣の力の前に、退くほかなかった。村へ戻る足取りは重い。",
+            "deals": [
+              {
+                "card": "end_defeat",
+                "to": "Party"
+              }
+            ],
+            "exits": []
+          }
+        ]
+      }
+    ]
+  },
+  "party": [
+    {
+      "id": "hunter",
+      "name": "旅人",
+      "stats": {},
+      "deck": []
+    }
+  ],
+  "status": {
+    "Ended": "Victory"
+  },
+  "roles": {
+    "solo": "Gm"
+  },
+  "phase": "Climax",
+  "scene": "epilogue_win",
+  "hands": {
+    "hunter": [
+      {
+        "id": "reply-0",
+        "card": "reply"
+      },
+      {
+        "id": "quest_accepted-1",
+        "card": "quest_accepted"
+      },
+      {
+        "id": "arrive-2",
+        "card": "arrive"
+      },
+      {
+        "id": "victory-3",
+        "card": "victory"
+      },
+      {
+        "id": "defeat-4",
+        "card": "defeat"
+      },
+      {
+        "id": "end_victory-5",
+        "card": "end_victory"
+      }
+    ]
+  },
+  "table": [],
+  "pending_proposal": null,
+  "proposal_seq": 1
+}

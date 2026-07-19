@@ -50,4 +50,6 @@ mod lint_tests;
 #[cfg(test)]
 mod patch_tests;
 #[cfg(test)]
+mod replay_tests;
+#[cfg(test)]
 mod roundtrip_tests;
