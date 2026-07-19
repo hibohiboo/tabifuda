@@ -20,10 +20,13 @@
 - **lint Warning(到達不能・詰み)の作者体験が未検証**: 検出ロジックは
   テスト済みだが、実データで警告が出た時の見え方・直しやすさは見ていない。
   シナリオを追加するサイクルで、意図的にWarningを出して確認する
-- **使用済みカードは手札に残り続ける(現行仕様)**: UI設計時に違和感が
-  顕在化しやすい。除去機構は future-requirements.md §6(CardInstanceId
-  発番の再検討が前提)。P3スコープでの先回り実装は禁止、UI側の見せ方で
-  吸収するか要望として扱う
+- **カードの消費・除去はPhase 2で実装済み**(domain-model.md「カードの
+  消費・除去」節、`Event::CardRemoved`)。C3(冒険記タイムラインUI)は
+  `Event`の`match`に`CardRemoved`が含まれる前提で設計すること
+  (`#[non_exhaustive]`のため、TS側のマッピングでも未対応の種別を
+  黙って無視しない扱いにする)。CLI版(tabifuda-cli/src/chronicle.rs)は
+  `CardRemoved`をタイムラインに描画しない判断をしたが、Web版で同じにするかは
+  C3で改めて判断してよい
 
 ## サイクル
 
