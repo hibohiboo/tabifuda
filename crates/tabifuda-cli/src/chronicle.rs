@@ -27,7 +27,9 @@ pub fn render(events: &[Event]) -> String {
                 }
                 scenario = Some(snapshot.0.clone());
             }
-            Event::SceneEntered { scene, narration } => {
+            Event::SceneEntered {
+                scene, narration, ..
+            } => {
                 lines.push(String::new());
                 lines.push(format!("--- {} ---", scene.0));
                 lines.push(narration.clone());
@@ -54,6 +56,9 @@ pub fn render(events: &[Event]) -> String {
                     None => lines.push(format!("{}は「{name}」を出した。", by.0)),
                 }
             }
+            // 消費・シーン離脱による自動除去は物語に不要な機構的詳細のため描画しない
+            // (domain-model.md「カードの消費・除去」参照)。
+            Event::CardRemoved { .. } => {}
             Event::EffectApplied { .. } => {
                 lines.push("（未解決の効果が記録された)".to_string());
             }

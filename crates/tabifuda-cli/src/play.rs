@@ -93,6 +93,9 @@ pub fn run(scenario: Scenario) {
                     println!("{}", scene_def.narration.as_str());
                 }
 
+                // Markerは「選んだ記録」としてsession.handsには残すが、選ぶ対象
+                // ではない世界の状態を示す印なので一覧には出さない
+                // (domain-model.md「カードの消費・除去」参照)。
                 let hand: Vec<(CardInstance, Option<CardDef>)> = session
                     .hands
                     .get(&character_id)
@@ -102,6 +105,9 @@ pub fn run(scenario: Scenario) {
                     .map(|instance| {
                         let def = session.scenario.0.card_def(&instance.card).cloned();
                         (instance, def)
+                    })
+                    .filter(|(_, def)| {
+                        !matches!(def.as_ref().map(|d| &d.kind), Some(CardKind::Marker))
                     })
                     .collect();
 

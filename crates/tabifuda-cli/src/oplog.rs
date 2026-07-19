@@ -47,6 +47,7 @@ fn event_kind(event: &Event) -> &'static str {
         Event::SceneEntered { .. } => "SceneEntered",
         Event::CardDealt { .. } => "CardDealt",
         Event::CardPlayed { .. } => "CardPlayed",
+        Event::CardRemoved { .. } => "CardRemoved",
         Event::EffectApplied { .. } => "EffectApplied",
         Event::PhaseAdvanced { .. } => "PhaseAdvanced",
         Event::ProposalSubmitted { .. } => "ProposalSubmitted",
