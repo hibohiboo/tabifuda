@@ -92,7 +92,7 @@ README の進め方視点の表にも1行追加した。
 
 ## 🟡 Medium
 
-### M1. requirements/ に「現在の要件」の置き場が無い
+### M1. requirements/ に「現在の要件」の置き場が無い ✅ 対応済み(2026-07-19)
 
 **指摘**: requirements/ は future-requirements.md(将来要望)のみ。
 実装済みになった要望はメモから消える運用(旧§6 カード除去)のため、
@@ -101,11 +101,12 @@ README の進め方視点の表にも1行追加した。
 agent-operations.md「開発サイクルの回し方」手順1は「要件: docs/requirements/
 に追記」と定めるが、追記先ファイルが実質未定義。
 
-**対処方針(案)**: 2案のどちらかを明示的に選ぶ。
-(a) requirements/mvp-scope.md 等を作り現在の要求を短く保持する、
-(b) 「現在の要件は domain-model.md 冒頭+『ソロMVPでの簡略化』が兼ねる。
-requirements/ は将来要望専用」と README に明記して現構造を意図に変える。
-規模を考えると (b) で十分。
+**対応**: (b) を採用(現在の規模では専用ファイルは過剰)。宣言を3箇所で
+整合させた: future-requirements.md 冒頭に位置づけ(将来要望専用。現在の
+要件の正は design/ 規範文書と tasks/。採用された要望は規範文書へ移して
+メモから削除、実例: 旧§6)を明記 / README の同文書の行に補足 /
+agent-operations.md「開発サイクルの回し方」手順1の追記先を
+future-requirements.md と明示し、着手済み要望の移動規律を追加。
 
 ### M2. ADR 化の基準が未定義で、決定記録の粒度が不均一
 

@@ -56,7 +56,10 @@
 
 1サイクル = 1つの縦切り機能(例:「Proposalで休止→パッチ→再開」)とする。
 
-1. **要件**: docs/requirements/ に追記(人間+Sonnet 5)
+1. **要件**: 要望を docs/requirements/future-requirements.md に記録
+   (人間+Sonnet 5)。requirements/ は**将来要望専用**であり、
+   着手が決まった要望は次ステップで規範文書へ移し、メモから削除する
+   (「現在の要件」の正は design/ の規範文書と tasks/ が兼ねる)
 2. **設計**: plan modeで設計案を出させ、docs/design/ を先に更新。
    実装より設計文書のコミットが先(文書が正、実装が従)
 3. **実装**: Sonnet 5。TDD推奨(コアは純粋関数なのでテストが書きやすい)
