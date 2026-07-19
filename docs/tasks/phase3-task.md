@@ -11,7 +11,31 @@
 ## 人間の事前決定(C1前に確認)
 - フロントエンドフレームワーク(推奨: React+Vite。決定をADRに記録)
 
+## P2からの申し送り(docs/retrospectives/phase2.md より)
+
+- **シナリオデータの人間レビューは実プレイで行う**: P2 C2の「データレビューを
+  人間に依頼」は文面確認のみで素通しになった。以降、シナリオデータを追加・
+  変更するサイクルの人間レビューは docs/demo.md の手順による実プレイを基本とする
+  (Web版が動いたらWeb上でのプレイに置き換えてよい)
+- **lint Warning(到達不能・詰み)の作者体験が未検証**: 検出ロジックは
+  テスト済みだが、実データで警告が出た時の見え方・直しやすさは見ていない。
+  シナリオを追加するサイクルで、意図的にWarningを出して確認する
+- **カードの消費・除去はPhase 2で実装済み**(domain-model.md「カードの
+  消費・除去」節、`Event::CardRemoved`)。C3(冒険記タイムラインUI)は
+  `Event`の`match`に`CardRemoved`が含まれる前提で設計すること
+  (`#[non_exhaustive]`のため、TS側のマッピングでも未対応の種別を
+  黙って無視しない扱いにする)。CLI版(tabifuda-cli/src/chronicle.rs)は
+  `CardRemoved`をタイムラインに描画しない判断をしたが、Web版で同じにするかは
+  C3で改めて判断してよい
+
 ## サイクル
+
+### C0: フロント層設計文書の置き場を決める(C1と同セッションでよい)
+- wasm境界・UI表示ロジックの決定(例: 現状domain-model.mdに書かれている
+  「CLIの手札表示からMarkerを除外する」)を置く場所を決める
+  (design/配下にレイヤ別文書、例: wasm-boundary.mdを新設するか、既存文書に
+  節を足すか)。決めたら該当する既存記述を移す
+  (経緯: docs構造レビュー L1)
 
 ### C1: tabifuda-wasm
 - wasm-bindgen で decide/apply/validate/lint をTSへ公開。

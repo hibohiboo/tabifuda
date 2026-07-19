@@ -74,9 +74,24 @@ pub struct Session {
     )]
     pub table: Vec<CardInstance>,
     pub pending_proposal: Option<Proposal>,
-    /// `ProposalId`発番用の単調カウンタ(C3決定)。`CardInstanceId`と異なり
+    /// `ProposalId`発番用の単調カウンタ。`CardInstanceId`と異なり
     /// `pending_proposal`は裁定のたびに`None`へ戻る(除去が起きる)ため、
     /// 現在状態からの逆算では連番の一意性を保てない。そこで別途カウンタを持つ
-    /// (domain-model.md「C3: decide/applyの解決規則」参照)。
+    /// (domain-model.md「提案と裁定」参照)。
     pub proposal_seq: u64,
+    /// `CardInstanceId`発番用の単調カウンタ。カードは除去されうるため、
+    /// `hands`+`table`の現在の総数からの逆算では一意性を保てない
+    /// (`proposal_seq`と同じ理由。domain-model.md「カードの消費・除去」参照)。
+    /// 除去してもID空間は消費されたままとし、巻き戻さない。
+    pub card_instance_seq: usize,
+    /// 現在のシーンが`SceneEntered`で配ったカードのうち、まだ`hands`にある
+    /// ものの一覧(シーン離脱時クリーンアップの対象候補。domain-model.md
+    /// 「カードの消費・除去」参照)。
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::vec(proptest::prelude::any::<CardInstanceId>(), 0..=3)"
+        )
+    )]
+    pub scene_local_instances: Vec<CardInstanceId>,
 }

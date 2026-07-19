@@ -6,3 +6,7 @@ edition = "2021"
 [[bin]]
 name = "tabifuda-cli"
 path = "src/main.rs"
+
+[dependencies]
+serde_json = "1"
+tabifuda-core = { path = "../tabifuda-core" }

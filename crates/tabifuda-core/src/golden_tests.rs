@@ -12,6 +12,13 @@ use crate::event::Event;
 use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, StatId};
 use crate::patch::{PatchError, PatchOp, ScenarioPatch};
 use crate::primitives::{BoundedString, Outcome};
+
+fn short(s: &str) -> BoundedString<200> {
+    BoundedString::try_new(s).unwrap()
+}
+fn long(s: &str) -> BoundedString<2000> {
+    BoundedString::try_new(s).unwrap()
+}
 use crate::scenario::{Phase, SceneDef, SceneKind};
 use crate::session::{CardInstance, Proposal, SessionStatus};
 
@@ -148,9 +155,9 @@ fn golden_patch_op() {
     assert_golden(
         PatchOp::AddCardDef(CardDef {
             id: card("c1"),
-            name: "c1".to_string(),
+            name: short("c1"),
             kind: CardKind::Item,
-            text: String::new(),
+            text: long(""),
             tags: vec![],
             effects: vec![],
             requires: vec![],
@@ -161,7 +168,7 @@ fn golden_patch_op() {
         PatchOp::ReplaceScene(SceneDef {
             id: scene("s1"),
             kind: SceneKind::Conversation,
-            narration: "改訂後の描写".to_string(),
+            narration: long("改訂後の描写"),
             deals: vec![],
             exits: vec![],
         }),
@@ -208,8 +215,9 @@ fn golden_event() {
         Event::SceneEntered {
             scene: scene("s1"),
             narration: "門が開いた".to_string(),
+            local_instances: vec![CardInstanceId("c1-0".to_string())],
         },
-        r#"{"SceneEntered":{"scene":"s1","narration":"門が開いた"}}"#,
+        r#"{"SceneEntered":{"scene":"s1","narration":"門が開いた","local_instances":["c1-0"]}}"#,
     );
     assert_golden(
         Event::CardDealt {
@@ -226,6 +234,15 @@ fn golden_event() {
             free_text: None,
         },
         r#"{"CardPlayed":{"by":"ch1","card":"c1","free_text":null}}"#,
+    );
+    assert_golden(
+        Event::CardRemoved {
+            from: character("ch1"),
+            card: card("c1"),
+            instance: CardInstanceId("c1-0".to_string()),
+            reason: crate::event::RemovalReason::Consumed,
+        },
+        r#"{"CardRemoved":{"from":"ch1","card":"c1","instance":"c1-0","reason":"Consumed"}}"#,
     );
     assert_golden(
         Event::PhaseAdvanced {

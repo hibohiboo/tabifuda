@@ -11,8 +11,8 @@ pub enum Outcome {
     Defeat,
 }
 
-/// 長さ上限付き文字列(cross-cutting.md §自由入力(UGC)、domain-model.md「C2:
-/// decide/applyの解決規則」参照)。DoSと保存コストの上限を型レベルで持たせる。
+/// 長さ上限付き文字列(cross-cutting.md §自由入力(UGC)、domain-model.md
+/// 「文字列の長さ上限(BoundedString)」参照)。DoSと保存コストの上限を型レベルで持たせる。
 /// `try_new` はResultを返しpanicしない。custom Deserializeにより、
 /// JSON経由(シナリオ読込・イベント再生・API入力)でも境界を強制する。
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

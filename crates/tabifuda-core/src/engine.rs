@@ -1,15 +1,15 @@
-//! decide/apply。docs/design/domain-model.md「C2: decide/applyの解決規則」に対応。
+//! decide/apply。docs/design/domain-model.md「進行の解決規則」に対応。
 //! CLAUDE.md最重要ルール2・3(coreは純粋・進行は必ずイベント経由)を実装する中核。
 
 use std::collections::HashMap;
 
 use crate::actor::Role;
-use crate::card::{CardDef, Condition, Effect, Target};
+use crate::card::{CardDef, CardKind, Condition, Effect, Target};
 use crate::character::Character;
 use crate::command::Command;
 use crate::error::RuleError;
-use crate::event::Event;
-use crate::ids::{CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
+use crate::event::{Event, RemovalReason};
+use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
 use crate::patch::{self, PatchOp, ScenarioPatch};
 use crate::scenario::{Phase, Scenario};
 use crate::session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStatus};
@@ -75,6 +75,8 @@ pub fn apply(state: Option<Session>, event: &Event) -> Option<Session> {
                 table: Vec::new(),
                 pending_proposal: None,
                 proposal_seq: 0,
+                card_instance_seq: 0,
+                scene_local_instances: Vec::new(),
             })
         }
         (Some(session), event) => apply_to_existing(session, event),
@@ -88,8 +90,13 @@ pub fn apply(state: Option<Session>, event: &Event) -> Option<Session> {
 fn apply_to_existing(mut session: Session, event: &Event) -> Option<Session> {
     match event {
         Event::SessionStarted { .. } => {}
-        Event::SceneEntered { scene, .. } => {
+        Event::SceneEntered {
+            scene,
+            local_instances,
+            ..
+        } => {
             session.scene = scene.clone();
+            session.scene_local_instances = local_instances.clone();
         }
         Event::CardDealt { to, card, instance } => {
             session
@@ -100,8 +107,14 @@ fn apply_to_existing(mut session: Session, event: &Event) -> Option<Session> {
                     id: instance.clone(),
                     card: card.clone(),
                 });
+            session.card_instance_seq += 1;
         }
         Event::CardPlayed { .. } => {}
+        Event::CardRemoved { from, instance, .. } => {
+            if let Some(hand) = session.hands.get_mut(from) {
+                hand.retain(|ci| &ci.id != instance);
+            }
+        }
         Event::EffectApplied { .. } => {}
         Event::PhaseAdvanced { phase } => {
             session.phase = phase.clone();
@@ -190,8 +203,16 @@ fn decide_play_card(
         card: card_def.id.clone(),
         free_text,
     }];
+    if card_def.kind.is_consumed_on_play() {
+        events.push(Event::CardRemoved {
+            from: by.clone(),
+            card: card_def.id.clone(),
+            instance: instance.id.clone(),
+            reason: RemovalReason::Consumed,
+        });
+    }
 
-    let mut instance_count = total_instance_count(session);
+    let mut instance_count = session.card_instance_seq;
     let mut current_phase = session.phase.clone();
     let mut ended = false;
     for effect in &card_def.effects {
@@ -200,6 +221,7 @@ fn decide_play_card(
         }
         match effect {
             Effect::GotoScene(scene_id) => {
+                events.extend(scene_cleanup_events(session, Some(&instance.id)));
                 let scene_events = enter_scene(
                     &session.scenario.0,
                     &session.party,
@@ -278,7 +300,7 @@ fn decide_apply_patch(
     let mut events = vec![Event::ScenarioPatched {
         patch: patch.clone(),
     }];
-    let mut instance_count = total_instance_count(session);
+    let mut instance_count = session.card_instance_seq;
     for op in &patch.ops {
         if let PatchOp::DealCard { card, to } = op {
             for character_id in resolve_target(to, &session.party) {
@@ -316,7 +338,7 @@ fn decide_judge_proposal(
 
 /// GM強制進行。カードのrequires/GotoScene遷移条件を経由せず直接シーンへ入場する
 /// (`enter_scene`を共有)。状態機械図に載らない操作のため、Running/Paused双方で
-/// 許可し、共通の拒否系(Ended)のみに従う(domain-model.md「C3」参照)。
+/// 許可し、共通の拒否系(Ended)のみに従う(domain-model.md「GmAdvance(強制進行)」参照)。
 fn decide_gm_advance(
     session: &Session,
     actor: &UserId,
@@ -324,8 +346,14 @@ fn decide_gm_advance(
 ) -> Result<Vec<Event>, RuleError> {
     check_not_ended(session)?;
     check_gm(session, actor)?;
-    let instance_count = total_instance_count(session);
-    enter_scene(&session.scenario.0, &session.party, instance_count, &to)
+    let mut events = scene_cleanup_events(session, None);
+    events.extend(enter_scene(
+        &session.scenario.0,
+        &session.party,
+        session.card_instance_seq,
+        &to,
+    )?);
+    Ok(events)
 }
 
 fn decide_end_session(
@@ -341,6 +369,9 @@ fn decide_end_session(
 
 /// シーン入場+入場時配布(初期シーン入場・GotoScene効果の両方から共有)。
 /// `existing_instance_count` はCardInstanceId発行の起点(domain-model.md参照)。
+/// `scene_def.deals`から配ったCardInstanceIdを`SceneEntered.local_instances`へ
+/// 詰める(カード効果由来の`DealCard`は含まない。domain-model.md
+/// 「カードの消費・除去」参照)。
 fn enter_scene(
     scenario: &Scenario,
     party: &[Character],
@@ -350,23 +381,67 @@ fn enter_scene(
     let scene_def = scenario
         .scene_def(scene_id)
         .ok_or(RuleError::SceneNotFound)?;
-    let mut events = vec![Event::SceneEntered {
-        scene: scene_id.clone(),
-        narration: scene_def.narration.clone(),
-    }];
+
+    let mut deal_events = Vec::new();
+    let mut local_instances = Vec::new();
     let mut next_seq = existing_instance_count;
     for deal in &scene_def.deals {
         for character_id in resolve_target(&deal.to, party) {
             let instance = CardInstanceId(format!("{}-{}", deal.card.0, next_seq));
             next_seq += 1;
-            events.push(Event::CardDealt {
+            local_instances.push(instance.clone());
+            deal_events.push(Event::CardDealt {
                 to: character_id,
                 card: deal.card.clone(),
                 instance,
             });
         }
     }
+
+    let mut events = vec![Event::SceneEntered {
+        scene: scene_id.clone(),
+        narration: scene_def.narration.as_str().to_string(),
+        local_instances,
+    }];
+    events.extend(deal_events);
     Ok(events)
+}
+
+/// シーンを離れる直前に呼ぶ。現在のシーンが配ったカード
+/// (`session.scene_local_instances`)のうち、まだ手札にあり
+/// `CardKind::Marker`ではないものを`CardRemoved{reason: SceneLeft}`として
+/// 発行する(選ばなかった側の選択肢カードの自動消去。domain-model.md
+/// 「カードの消費・除去」参照)。`exclude`は今出したカード自身のinstance
+/// (`Consumed`で既に除去済みのため対象から外す)。
+fn scene_cleanup_events(session: &Session, exclude: Option<&CardInstanceId>) -> Vec<Event> {
+    session
+        .scene_local_instances
+        .iter()
+        .filter(|id| exclude != Some(id))
+        .filter_map(|id| {
+            let (from, card) = find_in_hands(session, id)?;
+            let kind = &session.scenario.0.card_def(&card)?.kind;
+            if matches!(kind, CardKind::Marker) {
+                return None;
+            }
+            Some(Event::CardRemoved {
+                from,
+                card,
+                instance: id.clone(),
+                reason: RemovalReason::SceneLeft,
+            })
+        })
+        .collect()
+}
+
+/// 指定したCardInstanceIdを現在保持しているキャラクターとCardIdを引く。
+fn find_in_hands(session: &Session, instance: &CardInstanceId) -> Option<(CharacterId, CardId)> {
+    session.hands.iter().find_map(|(character_id, cards)| {
+        cards
+            .iter()
+            .find(|ci| &ci.id == instance)
+            .map(|ci| (character_id.clone(), ci.card.clone()))
+    })
 }
 
 fn resolve_target(target: &Target, party: &[Character]) -> Vec<CharacterId> {
@@ -382,10 +457,6 @@ fn next_phase(current: &Phase) -> Option<Phase> {
         Phase::Middle => Some(Phase::Climax),
         Phase::Climax => None,
     }
-}
-
-fn total_instance_count(session: &Session) -> usize {
-    session.hands.values().map(|v| v.len()).sum::<usize>() + session.table.len()
 }
 
 fn check_not_ended(session: &Session) -> Result<(), RuleError> {

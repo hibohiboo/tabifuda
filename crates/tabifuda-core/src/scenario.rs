@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::card::{CardDef, Condition, Target};
 use crate::ids::{CardId, ScenarioId, SceneId};
+use crate::primitives::BoundedString;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -47,7 +48,7 @@ pub struct Transition {
 pub struct SceneDef {
     pub id: SceneId,
     pub kind: SceneKind,
-    pub narration: String,
+    pub narration: BoundedString<2000>,
     #[cfg_attr(
         test,
         proptest(strategy = "proptest::collection::vec(proptest::prelude::any::<Deal>(), 0..=3)")
@@ -79,8 +80,8 @@ pub struct PhaseDef {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScenarioMeta {
     pub id: ScenarioId,
-    pub title: String,
-    pub author: String,
+    pub title: BoundedString<200>,
+    pub author: BoundedString<200>,
     pub forked_from: Option<ScenarioId>,
 }
 

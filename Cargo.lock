@@ -320,6 +320,10 @@ dependencies = [
 [[package]]
 name = "tabifuda-cli"
 version = "0.1.0"
+dependencies = [
+ "serde_json",
+ "tabifuda-core",
+]
 
 [[package]]
 name = "tabifuda-core"
