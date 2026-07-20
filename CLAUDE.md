@@ -26,7 +26,8 @@ apps/
 packages/
   schema/       Drizzleスキーマ・共有型(P4〜)
 tools/
-  docs-site/    docs可視化サイト(RDRA/進捗/テストの3ビュー。GitHub Pagesへデプロイ。ゲーム本体と非依存)
+  docs-site/    docs可視化サイト(RDRA/進捗/テストの3ビュー。ゲーム本体と非依存)。
+                公開中: https://hibohiboo.github.io/tabifuda/
 docs/
   requirements/ 要件(将来要望メモ含む)
   design/       設計文書(domain-model.md が中核)

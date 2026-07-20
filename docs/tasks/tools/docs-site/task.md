@@ -19,8 +19,9 @@ cycles:
 
 ## 目的
 
-docs/ を GitHub Pages(https://hibohiboo.github.io/tabifuda/)で多面的に
-可視化する静的サイト。3ビューを持つ:
+docs/ を GitHub Pages で多面的に可視化する静的サイト。
+**公開中: https://hibohiboo.github.io/tabifuda/**(D1完了時点からmaster pushで
+自動デプロイ)。3ビューを持つ:
 
 1. **RDRA ビュー**: 設計文書を RDRA(https://www.rdra.jp/)のレイヤー構造で一望
 2. **進捗ビュー**: 全タスク(projects/tools)のサイクル粒度の進捗を一望

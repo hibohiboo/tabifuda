@@ -3,6 +3,10 @@
 Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CLAUDE.md 最重要
 ルール1)がこのリポジトリの大原則で、その「正」は本ディレクトリにある。
 
+**公開サイト**: https://hibohiboo.github.io/tabifuda/ で、本ディレクトリの一部を
+RDRA風の図・タスク進捗・テスト結果として可視化している(tools/docs-site。
+中身は [rdra/](rdra/) と [tasks/tools/docs-site/](tasks/tools/docs-site/) 参照)。
+
 ## 読者別の入口
 
 ### 企画・PO視点(何を作るか。コードを読まずに確認できるもの)
