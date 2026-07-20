@@ -4,7 +4,7 @@ cycles:
   C1: done
   C2: planned
   C3: planned
-  D1: in-progress
+  D1: done
   D2: planned
 ---
 
@@ -74,7 +74,7 @@ docs/ を GitHub Pages(https://hibohiboo.github.io/tabifuda/)で多面的に
 - pages.yml 追加、Pages 有効化
 - docs/README.md・CLAUDE.md「リポジトリ構成」・ADR 0003 追記
 
-### D1: 進捗ビュー+docs-site への拡張
+### D1: 進捗ビュー+docs-site への拡張(完了)
 - rdra-viewer → docs-site 改名(タスクディレクトリ・パッケージ・参照)
 - ナビ(3タブ)導入。テストビューは D2 までプレースホルダ
 - 全 task.md(8本)に frontmatter 導入、docs/tasks/README.md に規約追記、
