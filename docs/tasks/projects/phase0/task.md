@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Phase 0 初期化タスク(エージェント指示文)
 
 実行モデル: Sonnet 5 / Claude Code。plan modeで計画を提示し、承認後に実行すること。

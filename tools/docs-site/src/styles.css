@@ -1,0 +1,297 @@
+:root {
+  color-scheme: light dark;
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f5f2ea;
+  color: #2b2620;
+}
+
+.board {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+.board__header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+}
+
+.board__header p {
+  margin: 0 0 1.5rem;
+  font-size: 0.85rem;
+  color: #6b6257;
+}
+
+.nav {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0.5rem 0 1rem;
+  border-bottom: 2px solid #d8cfbf;
+}
+
+.nav__tab {
+  padding: 0.35rem 1rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  text-decoration: none;
+  color: #6b6257;
+  font-size: 0.9rem;
+}
+
+.nav__tab--active {
+  background: #9a6b2f;
+  color: #fffdf8;
+  font-weight: 600;
+}
+
+.view-note {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: #6b6257;
+}
+
+.view-note a {
+  color: #9a6b2f;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task {
+  border: 1px solid #cbbfa9;
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 0.75rem;
+}
+
+.task__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task__title {
+  font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+}
+
+.task__title:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 1rem;
+  white-space: nowrap;
+}
+
+.badge--done {
+  background: #3e6b3a;
+  color: #fff;
+}
+
+.badge--in-progress {
+  background: #9a6b2f;
+  color: #fff;
+}
+
+.badge--planned {
+  background: #d8cfbf;
+  color: #5c5449;
+}
+
+.task__cycles {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+
+.cycle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  border: 1px solid #cbbfa9;
+  border-radius: 0.35rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.cycle--done {
+  background: #e4efe0;
+  border-color: #3e6b3a;
+}
+
+.cycle--in-progress {
+  background: #f4e5cd;
+  border-color: #9a6b2f;
+}
+
+.cycle--planned {
+  opacity: 0.6;
+}
+
+.cycle__id {
+  font-weight: 700;
+}
+
+.cycle__name {
+  color: #5c5449;
+}
+
+.layer {
+  border: 1px solid #d8cfbf;
+  border-radius: 0.75rem;
+  background: #fffdf8;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.layer__title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.layer__hint {
+  margin: 0.15rem 0 0.75rem;
+  font-size: 0.75rem;
+  color: #8a8073;
+}
+
+.layer__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+  border: 1px solid #cbbfa9;
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 0.75rem;
+  font: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+
+.card--selected {
+  border-color: #9a6b2f;
+  box-shadow: 0 0 0 2px #c89b5a;
+}
+
+.card--dimmed {
+  opacity: 0.35;
+}
+
+.card__name {
+  font-weight: 600;
+}
+
+.card__desc {
+  font-size: 0.8rem;
+  color: #5c5449;
+}
+
+.card__refs {
+  font-size: 0.72rem;
+  color: #7a6a4f;
+}
+
+.card__refs-label {
+  font-weight: 600;
+}
+
+.card__source {
+  font-size: 0.7rem;
+  color: #9a6b2f;
+  word-break: break-all;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #211d18;
+    color: #e8e2d6;
+  }
+  .layer {
+    background: #2a251e;
+    border-color: #474034;
+  }
+  .card {
+    background: #332d24;
+    border-color: #55492f;
+  }
+  .card__desc {
+    color: #b6ac9c;
+  }
+  .board__header p,
+  .layer__hint {
+    color: #9a9080;
+  }
+  .card__refs {
+    color: #bfa878;
+  }
+  .card__source {
+    color: #d3a75f;
+  }
+  .nav {
+    border-color: #474034;
+  }
+  .nav__tab {
+    color: #9a9080;
+  }
+  .nav__tab--active {
+    background: #c89b5a;
+    color: #211d18;
+  }
+  .view-note {
+    color: #9a9080;
+  }
+  .view-note a {
+    color: #d3a75f;
+  }
+  .task {
+    background: #332d24;
+    border-color: #55492f;
+  }
+  .badge--done {
+    background: #4d7a48;
+  }
+  .badge--planned {
+    background: #474034;
+    color: #b6ac9c;
+  }
+  .cycle {
+    border-color: #55492f;
+  }
+  .cycle--done {
+    background: #31402d;
+    border-color: #4d7a48;
+  }
+  .cycle--in-progress {
+    background: #453722;
+    border-color: #c89b5a;
+  }
+  .cycle__name {
+    color: #b6ac9c;
+  }
+}

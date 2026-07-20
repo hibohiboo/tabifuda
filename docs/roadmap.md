@@ -2,6 +2,9 @@
 
 **位置づけ**: 索引文書(非規範)。P0〜P5(P3.5 を含む)の全体像と現在地を
 1枚で見るためのもの。**各フェーズの内容の正は tasks/projects/phaseN/task.md**(正を二重化しない)。
+状態列はフェーズ粒度の索引であり、サイクル粒度の進捗の正は各 task.md の
+frontmatter([tasks/README.md](tasks/README.md)「進捗 frontmatter」。
+可視化: https://hibohiboo.github.io/tabifuda/#/progress )。
 本文書の要約と各タスク文書が食い違ったらタスク文書が正しく、本文書を直す。
 
 作成の経緯: docs構造レビュー

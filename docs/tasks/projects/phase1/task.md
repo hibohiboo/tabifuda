@@ -1,3 +1,14 @@
+---
+status: done
+cycles:
+  C0: done
+  C1: done
+  C2: done
+  C3: done
+  C4: done
+  C5: done
+---
+
 # Phase 1 実装タスク(エージェント指示文)
 
 実行モデル: Sonnet 5 / Claude Code。**1サイクルごとに新セッションで渡す**

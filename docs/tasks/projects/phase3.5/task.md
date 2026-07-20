@@ -1,3 +1,12 @@
+---
+status: planned
+cycles:
+  C1: planned
+  C2: planned
+  C3: planned
+  C4: planned
+---
+
 # Phase 3.5 実装タスク: CLI永続化(中断・再開/パーティ/持ち帰り)
 
 実行モデル: Sonnet 5。1サイクル=1セッション=1PR。

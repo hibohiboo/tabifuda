@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { model } from "./data";
-import { relatedIds, sourceUrl, type RdraElement, type UseCase } from "./model";
+import { model } from "../data";
+import { relatedIds, sourceUrl, type RdraElement, type UseCase } from "../model";
 
 interface CardProps {
   element: RdraElement;
@@ -48,7 +48,7 @@ function usecaseRefs(uc: UseCase) {
   ];
 }
 
-export default function App() {
+export default function RdraView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const related = relatedIds(model, selectedId);
   const toggle = (id: string) => setSelectedId((cur) => (cur === id ? null : id));
@@ -58,19 +58,11 @@ export default function App() {
   });
 
   return (
-    <main className="board">
-      <header className="board__header">
-        <h1>Tabifuda RDRA ビューア</h1>
-        <p>
-          設計文書(docs/design)の要素を RDRA のレイヤーで一望する非規範の索引。
-          要素をクリックすると関係する要素がハイライトされる。規範は{" "}
-          <a href={sourceUrl("README.md")} target="_blank" rel="noreferrer">
-            docs/
-          </a>{" "}
-          の各文書。
-        </p>
-      </header>
-
+    <>
+      <p className="view-note">
+        設計文書の要素を RDRA のレイヤーで一望する非規範の索引。要素をクリックすると
+        関係する要素がハイライトされる。規範は docs/ の各文書。
+      </p>
       <section className="layer">
         <h2 className="layer__title">システム価値</h2>
         <p className="layer__hint">アクター(要求は C2 で追加)</p>
@@ -80,12 +72,10 @@ export default function App() {
           ))}
         </div>
       </section>
-
       <section className="layer">
         <h2 className="layer__title">システム外部環境</h2>
         <p className="layer__hint">業務フロー(1プレイの流れ)は C2 で追加</p>
       </section>
-
       <section className="layer">
         <h2 className="layer__title">システム境界</h2>
         <p className="layer__hint">ユースケース(= Command 1つに1ユースケース)</p>
@@ -101,11 +91,10 @@ export default function App() {
           ))}
         </div>
       </section>
-
       <section className="layer">
         <h2 className="layer__title">システム</h2>
         <p className="layer__hint">情報モデル・状態モデルは C2 で追加</p>
       </section>
-    </main>
+    </>
   );
 }

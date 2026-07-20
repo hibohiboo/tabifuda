@@ -1,6 +1,6 @@
 name: Deploy Pages
 
-# RDRAビューア(tools/rdra-viewer)を GitHub Pages へデプロイする。
+# docs-site(tools/docs-site)を GitHub Pages へデプロイする。
 # 経緯: docs/adr/0003-ci-pipeline.md「追記(2026-07-20): GitHub Pages」
 
 on:
@@ -36,7 +36,7 @@ jobs:
       - run: pnpm -r build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: tools/rdra-viewer/dist
+          path: tools/docs-site/dist
 
   deploy:
     needs: build

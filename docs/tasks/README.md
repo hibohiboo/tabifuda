@@ -13,11 +13,31 @@ tasks/
       plans/     このフェーズ専用の計画・決定ログ
     phase1/ ... phase5/(phase3.5 含む)
   tools/         どのフェーズにも属さない開発支援ツール
-    rdra-viewer/
+    docs-site/
       task.md
       plans/
   plans/         フェーズ横断の計画・決定ログ + plan mode の書き込み先(下記)
 ```
+
+## 進捗 frontmatter(サイクル粒度の進捗の正)
+
+各 `task.md` は先頭に YAML frontmatter を持つ:
+
+```yaml
+---
+status: in-progress   # done | in-progress | planned
+cycles:               # 本文のサイクル見出し(### C1: ...)と1対1。名前は書かない
+  C1: done
+  C2: planned
+---
+```
+
+- **サイクル完了と同じPRで frontmatter を更新する**。ここがサイクル粒度の
+  進捗の正であり、roadmap.md の状態列(フェーズ粒度の索引)と食い違ったら
+  frontmatter が正
+- サイクル見出しの無いタスク(phase0)は `status` のみでよい
+- frontmatter のキーと本文見出しの不一致は docs-site のビルドが検出する
+  (tools/docs-site。進捗は https://hibohiboo.github.io/tabifuda/#/progress で見る)
 
 ## plans の振り分けルール
 
