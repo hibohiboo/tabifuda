@@ -18,47 +18,47 @@ macro_rules! roundtrip_test {
     };
 }
 
-roundtrip_test!(roundtrip_scenario_id, ScenarioId);
-roundtrip_test!(roundtrip_scene_id, SceneId);
-roundtrip_test!(roundtrip_card_id, CardId);
-roundtrip_test!(roundtrip_card_instance_id, CardInstanceId);
-roundtrip_test!(roundtrip_character_id, CharacterId);
-roundtrip_test!(roundtrip_user_id, UserId);
-roundtrip_test!(roundtrip_proposal_id, ProposalId);
-roundtrip_test!(roundtrip_stat_id, StatId);
+roundtrip_test!(ScenarioIdの往復変換で値が保持される, ScenarioId);
+roundtrip_test!(SceneIdの往復変換で値が保持される, SceneId);
+roundtrip_test!(CardIdの往復変換で値が保持される, CardId);
+roundtrip_test!(CardInstanceIdの往復変換で値が保持される, CardInstanceId);
+roundtrip_test!(CharacterIdの往復変換で値が保持される, CharacterId);
+roundtrip_test!(UserIdの往復変換で値が保持される, UserId);
+roundtrip_test!(ProposalIdの往復変換で値が保持される, ProposalId);
+roundtrip_test!(StatIdの往復変換で値が保持される, StatId);
 
-roundtrip_test!(roundtrip_tag, Tag);
-roundtrip_test!(roundtrip_card_kind, CardKind);
-roundtrip_test!(roundtrip_target, Target);
-roundtrip_test!(roundtrip_effect, Effect);
-roundtrip_test!(roundtrip_condition, Condition);
-roundtrip_test!(roundtrip_card_def, CardDef);
+roundtrip_test!(Tagの往復変換で値が保持される, Tag);
+roundtrip_test!(CardKindの往復変換で値が保持される, CardKind);
+roundtrip_test!(Targetの往復変換で値が保持される, Target);
+roundtrip_test!(Effectの往復変換で値が保持される, Effect);
+roundtrip_test!(Conditionの往復変換で値が保持される, Condition);
+roundtrip_test!(CardDefの往復変換で値が保持される, CardDef);
 
-roundtrip_test!(roundtrip_phase, Phase);
-roundtrip_test!(roundtrip_scene_kind, SceneKind);
-roundtrip_test!(roundtrip_deal, Deal);
-roundtrip_test!(roundtrip_transition, Transition);
-roundtrip_test!(roundtrip_scene_def, SceneDef);
-roundtrip_test!(roundtrip_phase_def, PhaseDef);
-roundtrip_test!(roundtrip_scenario_meta, ScenarioMeta);
+roundtrip_test!(Phaseの往復変換で値が保持される, Phase);
+roundtrip_test!(SceneKindの往復変換で値が保持される, SceneKind);
+roundtrip_test!(Dealの往復変換で値が保持される, Deal);
+roundtrip_test!(Transitionの往復変換で値が保持される, Transition);
+roundtrip_test!(SceneDefの往復変換で値が保持される, SceneDef);
+roundtrip_test!(PhaseDefの往復変換で値が保持される, PhaseDef);
+roundtrip_test!(ScenarioMetaの往復変換で値が保持される, ScenarioMeta);
 
-roundtrip_test!(roundtrip_character, Character);
+roundtrip_test!(Characterの往復変換で値が保持される, Character);
 
-roundtrip_test!(roundtrip_outcome, Outcome);
-roundtrip_test!(roundtrip_proposal, Proposal);
-roundtrip_test!(roundtrip_card_instance, CardInstance);
-roundtrip_test!(roundtrip_session_status, SessionStatus);
+roundtrip_test!(Outcomeの往復変換で値が保持される, Outcome);
+roundtrip_test!(Proposalの往復変換で値が保持される, Proposal);
+roundtrip_test!(CardInstanceの往復変換で値が保持される, CardInstance);
+roundtrip_test!(SessionStatusの往復変換で値が保持される, SessionStatus);
 
-roundtrip_test!(roundtrip_role, Role);
+roundtrip_test!(Roleの往復変換で値が保持される, Role);
 
-roundtrip_test!(roundtrip_scenario, Scenario);
-roundtrip_test!(roundtrip_scenario_snapshot, ScenarioSnapshot);
-roundtrip_test!(roundtrip_session, Session);
+roundtrip_test!(Scenarioの往復変換で値が保持される, Scenario);
+roundtrip_test!(ScenarioSnapshotの往復変換で値が保持される, ScenarioSnapshot);
+roundtrip_test!(Sessionの往復変換で値が保持される, Session);
 
-roundtrip_test!(roundtrip_bounded_string, BoundedString<16>);
-roundtrip_test!(roundtrip_patch_op, PatchOp);
-roundtrip_test!(roundtrip_scenario_patch, ScenarioPatch);
-roundtrip_test!(roundtrip_patch_error, PatchError);
-roundtrip_test!(roundtrip_command, Command);
-roundtrip_test!(roundtrip_event, Event);
-roundtrip_test!(roundtrip_rule_error, RuleError);
+roundtrip_test!(BoundedStringの往復変換で値が保持される, BoundedString<16>);
+roundtrip_test!(PatchOpの往復変換で値が保持される, PatchOp);
+roundtrip_test!(ScenarioPatchの往復変換で値が保持される, ScenarioPatch);
+roundtrip_test!(PatchErrorの往復変換で値が保持される, PatchError);
+roundtrip_test!(Commandの往復変換で値が保持される, Command);
+roundtrip_test!(Eventの往復変換で値が保持される, Event);
+roundtrip_test!(RuleErrorの往復変換で値が保持される, RuleError);

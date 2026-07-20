@@ -4,6 +4,9 @@
 //! 出したカードは手札から消え、Markerは一覧に出ず、選ばなかった側の
 //! 選択肢カードもシーンを離れると消えるため(domain-model.md「カードの
 //! 消費・除去」参照)、番号は毎回`[1]`から振り直される。
+//!
+//! テスト名は日本語で検証内容を表す(docs/tasks/tools/docs-site/task.md D2)。
+#![allow(non_snake_case)]
 
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -44,7 +47,7 @@ fn run_play_at(path: &Path, input: &str) -> std::process::Output {
 const VICTORY_INPUT: &str = "1\n\n1\np\n近道を探したい\ny\n1\n1\n最後の一言\n";
 
 #[test]
-fn play_reaches_victory_and_prints_chronicle() {
+fn 通しプレイは勝利エンドに到達し冒険記を表示する() {
     let output = run_play(VICTORY_INPUT);
     assert!(
         output.status.success(),
@@ -61,7 +64,7 @@ fn play_reaches_victory_and_prints_chronicle() {
 }
 
 #[test]
-fn play_hides_marker_and_removes_played_and_unchosen_cards() {
+fn 通しプレイはMarkerを隠し使用済みと選ばなかったカードを一覧から消す() {
     let output = run_play(VICTORY_INPUT);
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -84,7 +87,7 @@ fn play_hides_marker_and_removes_played_and_unchosen_cards() {
 const ANSWER_CARD_BASE: &str = "p\n獣の姿や被害を知りたい\nc\n獣の目撃情報を尋ねる\n銀色の毛並みの大狼だという。家畜が三頭襲われた。\ny\n2\n1\n\n1\n1\n1\n\n";
 
 #[test]
-fn play_gm_deals_answer_card_and_text_is_revealed_on_play() {
+fn 通しプレイはGM配布カードの回答文を使用時に開示する() {
     let output = run_play(&format!("{ANSWER_CARD_BASE}n\n"));
     assert!(
         output.status.success(),
@@ -119,7 +122,7 @@ fn play_gm_deals_answer_card_and_text_is_revealed_on_play() {
 ///   (次のセッションでも同じ場面で配られる)
 /// - 出力物はそのまま lint を通る
 #[test]
-fn play_saves_fork_with_merged_deals_and_provenance() {
+fn 通しプレイは改編ありセッション終了時にdeals統合済みのフォークを由来付きで保存する() {
     // shared/ を汚さないよう一時ディレクトリへコピーして実行する。
     let dir = std::env::temp_dir().join(format!("tabifuda-fork-test-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
@@ -160,7 +163,7 @@ fn play_saves_fork_with_merged_deals_and_provenance() {
 }
 
 #[test]
-fn play_ops_log_omits_free_text_even_through_real_process() {
+fn 通しプレイの運用ログは実プロセスを通しても自由入力本文を漏らさない() {
     let secret = "近道を探したい";
     let output = run_play(VICTORY_INPUT);
     assert!(output.status.success());

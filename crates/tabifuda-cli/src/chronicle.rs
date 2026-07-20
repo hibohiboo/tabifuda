@@ -112,13 +112,15 @@ fn card_name(scenario: Option<&Scenario>, card: &CardId) -> String {
         .unwrap_or_else(|| card.0.clone())
 }
 
+// テスト名は日本語で検証内容を表す(docs/tasks/tools/docs-site/task.md D2)
 #[cfg(test)]
+#[allow(non_snake_case)]
 mod tests {
     use super::*;
     use tabifuda_core::{BoundedString, CharacterId, Outcome};
 
     #[test]
-    fn render_includes_free_text_body_unlike_oplog() {
+    fn 冒険記の描画はoplogと異なり自由入力本文を含める() {
         let secret = "討伐を終え、村へ戻ります。";
         let events = vec![Event::CardPlayed {
             by: CharacterId("hunter".to_string()),
@@ -130,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn render_falls_back_to_card_id_when_scenario_unknown() {
+    fn 冒険記の描画はシナリオ未知の時はCardIdへフォールバックする() {
         let events = vec![Event::CardDealt {
             to: CharacterId("hunter".to_string()),
             card: CardId("mystery".to_string()),
@@ -144,7 +146,7 @@ mod tests {
     /// カードがID表示に落ちないこと(domain-model.md「カード使用時のtext表示
     /// (CLIの決定)」)。
     #[test]
-    fn render_resolves_card_added_by_patch() {
+    fn 冒険記の描画はパッチで追加されたカードの名前も解決する() {
         use std::collections::HashMap;
         use tabifuda_core::{
             CardDef, CardInstanceId, CardKind, Phase, Scenario, ScenarioId, ScenarioMeta,
@@ -196,7 +198,7 @@ mod tests {
     }
 
     #[test]
-    fn render_shows_outcome_on_session_ended() {
+    fn 冒険記の描画はSessionEndedのoutcomeを表示する() {
         let events = vec![Event::SessionEnded {
             outcome: Outcome::Victory,
         }];

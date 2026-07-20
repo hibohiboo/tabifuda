@@ -29,7 +29,7 @@ fn replay_fixture() -> Session {
 }
 
 #[test]
-fn simple_hunt_playthrough_replays_to_expected_final_state() {
+fn 単純討伐の通しプレイfixtureをリプレイすると想定の最終状態になる() {
     let session = replay_fixture();
 
     // 両方向で固定表現と比較する(golden_tests.rsのassert_goldenと同じ理由:

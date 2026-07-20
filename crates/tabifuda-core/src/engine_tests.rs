@@ -207,7 +207,7 @@ fn fixture_session(hand_card: &str) -> Session {
 // ---- StartSession ----
 
 #[test]
-fn start_session_accepts_and_enters_initial_scene() {
+fn StartSessionは受理され初期シーンへ入場する() {
     let scenario = fixture_scenario();
     let party = fixture_party();
     let actor = usr("gm1");
@@ -232,7 +232,7 @@ fn start_session_accepts_and_enters_initial_scene() {
 }
 
 #[test]
-fn start_session_deals_initial_scene_cards() {
+fn StartSessionは初期シーンのdealsでカードを配布する() {
     let mut scenario = fixture_scenario();
     scenario.phases[0].scenes[0].deals = vec![Deal {
         card: cid("advance"),
@@ -257,7 +257,7 @@ fn start_session_deals_initial_scene_cards() {
 }
 
 #[test]
-fn start_session_rejects_when_already_started() {
+fn StartSessionは開始済みセッションでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -271,7 +271,7 @@ fn start_session_rejects_when_already_started() {
 }
 
 #[test]
-fn start_session_rejects_scenario_without_scenes() {
+fn StartSessionはシーンが無いシナリオでは拒否される() {
     let scenario = Scenario {
         meta: ScenarioMeta {
             id: ScenarioId("empty".to_string()),
@@ -296,7 +296,7 @@ fn start_session_rejects_scenario_without_scenes() {
 // ---- 状態が無い場合の共通拒否 ----
 
 #[test]
-fn commands_reject_when_no_active_session() {
+fn セッション未開始時は各種コマンドが拒否される() {
     let result = decide(
         None,
         &usr("u1"),
@@ -321,7 +321,7 @@ fn commands_reject_when_no_active_session() {
 // ---- PlayCard: 権限 ----
 
 #[test]
-fn play_card_accepts_for_owning_player() {
+fn PlayCardは担当プレイヤーには受理される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -336,7 +336,7 @@ fn play_card_accepts_for_owning_player() {
 }
 
 #[test]
-fn play_card_rejects_for_unregistered_actor() {
+fn PlayCardは未登録アクターでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -351,7 +351,7 @@ fn play_card_rejects_for_unregistered_actor() {
 }
 
 #[test]
-fn play_card_rejects_for_player_of_other_character() {
+fn PlayCardは他キャラ担当プレイヤーでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -366,7 +366,7 @@ fn play_card_rejects_for_player_of_other_character() {
 }
 
 #[test]
-fn play_card_accepts_for_gm_on_behalf_of_any_character() {
+fn PlayCardはGMなら任意キャラの代理で受理される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -383,7 +383,7 @@ fn play_card_accepts_for_gm_on_behalf_of_any_character() {
 // ---- PlayCard: セッション状態 ----
 
 #[test]
-fn play_card_rejects_when_paused() {
+fn PlayCardはPaused中は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Paused {
         proposal: crate::ids::ProposalId("p1".to_string()),
@@ -401,7 +401,7 @@ fn play_card_rejects_when_paused() {
 }
 
 #[test]
-fn play_card_rejects_when_ended() {
+fn PlayCardはEnded後は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Ended(Outcome::Victory);
     let result = decide(
@@ -419,7 +419,7 @@ fn play_card_rejects_when_ended() {
 // ---- PlayCard: カード解決 ----
 
 #[test]
-fn play_card_rejects_when_card_not_in_hand() {
+fn PlayCardは手札に無いカードでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -434,7 +434,7 @@ fn play_card_rejects_when_card_not_in_hand() {
 }
 
 #[test]
-fn play_card_rejects_condition_not_met() {
+fn PlayCardは条件未達では拒否される() {
     let session = fixture_session("need_key");
     let result = decide(
         Some(&session),
@@ -449,7 +449,7 @@ fn play_card_rejects_condition_not_met() {
 }
 
 #[test]
-fn play_card_accepts_has_card_condition_satisfied_via_table() {
+fn PlayCardはtable上のカードでHasCard条件を満たせば受理される() {
     let mut session = fixture_session("need_key");
     session.table.push(CardInstance {
         id: inst("key-0"),
@@ -468,7 +468,7 @@ fn play_card_accepts_has_card_condition_satisfied_via_table() {
 }
 
 #[test]
-fn play_card_rejects_stat_at_least_not_met() {
+fn PlayCardはStatAtLeast未達では拒否される() {
     let mut session = fixture_session("need_hp");
     session.party[0].stats.insert(stat("hp"), 4);
     let result = decide(
@@ -484,7 +484,7 @@ fn play_card_rejects_stat_at_least_not_met() {
 }
 
 #[test]
-fn play_card_accepts_stat_at_least_met() {
+fn PlayCardはStatAtLeast達成で受理される() {
     let session = fixture_session("need_hp"); // ch1.hp == 5
     let result = decide(
         Some(&session),
@@ -501,7 +501,7 @@ fn play_card_accepts_stat_at_least_met() {
 // ---- Effect解決 ----
 
 #[test]
-fn play_card_resolves_goto_scene() {
+fn PlayCardはGotoScene効果でシーン遷移する() {
     let session = fixture_session("advance");
     let events = decide(
         Some(&session),
@@ -537,7 +537,7 @@ fn play_card_resolves_goto_scene() {
 }
 
 #[test]
-fn play_card_rejects_goto_scene_to_missing_scene() {
+fn PlayCardは存在しないシーンへのGotoScene効果は拒否される() {
     let session = fixture_session("bad_goto");
     let result = decide(
         Some(&session),
@@ -552,7 +552,7 @@ fn play_card_rejects_goto_scene_to_missing_scene() {
 }
 
 #[test]
-fn play_card_resolves_deal_card_to_party() {
+fn PlayCardはDealCard効果でPartyにカードを配る() {
     let session = fixture_session("give");
     let events = decide(
         Some(&session),
@@ -581,7 +581,7 @@ fn play_card_resolves_deal_card_to_party() {
 }
 
 #[test]
-fn play_card_resolves_advance_phase() {
+fn PlayCardはAdvancePhase効果で次フェーズへ進む() {
     let session = fixture_session("next_phase");
     let events = decide(
         Some(&session),
@@ -615,7 +615,7 @@ fn play_card_resolves_advance_phase() {
 }
 
 #[test]
-fn play_card_rejects_advance_phase_at_climax() {
+fn PlayCardはClimaxでのAdvancePhase効果は拒否される() {
     let mut session = fixture_session("next_phase");
     session.phase = Phase::Climax;
     let result = decide(
@@ -631,7 +631,7 @@ fn play_card_rejects_advance_phase_at_climax() {
 }
 
 #[test]
-fn play_card_resolves_end_session_effect() {
+fn PlayCardはEndSession効果でセッションを終了する() {
     let session = fixture_session("victory");
     let events = decide(
         Some(&session),
@@ -674,7 +674,7 @@ fn play_card_resolves_end_session_effect() {
 }
 
 #[test]
-fn play_card_records_modify_stat_as_effect_applied_without_mutating_state() {
+fn PlayCardはModifyStat効果をEffectAppliedとして記録し状態は変更しない() {
     let session = fixture_session("hit");
     let stats_before = session.party[0].stats.clone();
 
@@ -710,7 +710,7 @@ fn text(s: &str) -> crate::primitives::BoundedString<4096> {
 }
 
 #[test]
-fn propose_accepts_for_owning_player_and_transitions_to_paused() {
+fn Proposeは担当プレイヤーに受理されPausedへ遷移する() {
     let session = fixture_session("advance");
     let events = decide(
         Some(&session),
@@ -746,7 +746,7 @@ fn propose_accepts_for_owning_player_and_transitions_to_paused() {
 }
 
 #[test]
-fn propose_accepts_for_gm_on_behalf_of_any_character() {
+fn ProposeはGMなら任意キャラの代理で受理される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -760,7 +760,7 @@ fn propose_accepts_for_gm_on_behalf_of_any_character() {
 }
 
 #[test]
-fn propose_rejects_for_player_of_other_character() {
+fn Proposeは他キャラ担当プレイヤーでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -774,7 +774,7 @@ fn propose_rejects_for_player_of_other_character() {
 }
 
 #[test]
-fn propose_rejects_when_paused() {
+fn Proposeは既にPaused中は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Paused {
         proposal: crate::ids::ProposalId("p1".to_string()),
@@ -791,7 +791,7 @@ fn propose_rejects_when_paused() {
 }
 
 #[test]
-fn propose_rejects_when_ended() {
+fn ProposeはEnded後は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Ended(Outcome::Victory);
     let result = decide(
@@ -821,7 +821,7 @@ fn paused_session(proposal_id: &str) -> Session {
 }
 
 #[test]
-fn judge_proposal_rejected_returns_to_running() {
+fn JudgeProposalは却下でもRunningに戻る() {
     let session = paused_session("p1");
     let events = decide(
         Some(&session),
@@ -850,7 +850,7 @@ fn judge_proposal_rejected_returns_to_running() {
 }
 
 #[test]
-fn judge_proposal_accepted_returns_to_running() {
+fn JudgeProposalは採用でRunningに戻る() {
     let session = paused_session("p1");
     let events = decide(
         Some(&session),
@@ -872,7 +872,7 @@ fn judge_proposal_accepted_returns_to_running() {
 }
 
 #[test]
-fn judge_proposal_rejects_for_player() {
+fn JudgeProposalはPlayerでは拒否される() {
     let session = paused_session("p1");
     let result = decide(
         Some(&session),
@@ -886,7 +886,7 @@ fn judge_proposal_rejects_for_player() {
 }
 
 #[test]
-fn judge_proposal_rejects_when_no_pending_proposal() {
+fn JudgeProposalは提案が無い時は拒否される() {
     let session = fixture_session("advance"); // Running、pending無し
     let result = decide(
         Some(&session),
@@ -900,7 +900,7 @@ fn judge_proposal_rejects_when_no_pending_proposal() {
 }
 
 #[test]
-fn judge_proposal_rejects_mismatched_id() {
+fn JudgeProposalはIDが一致しない提案では拒否される() {
     let session = paused_session("p1");
     let result = decide(
         Some(&session),
@@ -914,7 +914,7 @@ fn judge_proposal_rejects_mismatched_id() {
 }
 
 #[test]
-fn judge_proposal_rejects_when_ended() {
+fn JudgeProposalはEnded後は拒否される() {
     let mut session = paused_session("p1");
     session.status = SessionStatus::Ended(Outcome::Victory);
     let result = decide(
@@ -931,7 +931,7 @@ fn judge_proposal_rejects_when_ended() {
 // ---- GmAdvance ----
 
 #[test]
-fn gm_advance_accepts_for_gm_and_enters_scene() {
+fn GmAdvanceはGMに受理されシーンへ入場する() {
     let session = fixture_session("advance");
     let events = decide(
         Some(&session),
@@ -956,7 +956,7 @@ fn gm_advance_accepts_for_gm_and_enters_scene() {
 }
 
 #[test]
-fn gm_advance_allowed_while_paused() {
+fn GmAdvanceはPaused中でも許可される() {
     let session = paused_session("p1");
     let result = decide(
         Some(&session),
@@ -967,7 +967,7 @@ fn gm_advance_allowed_while_paused() {
 }
 
 #[test]
-fn gm_advance_rejects_for_player() {
+fn GmAdvanceはPlayerでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -978,7 +978,7 @@ fn gm_advance_rejects_for_player() {
 }
 
 #[test]
-fn gm_advance_rejects_missing_scene() {
+fn GmAdvanceは存在しないシーンでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -989,7 +989,7 @@ fn gm_advance_rejects_missing_scene() {
 }
 
 #[test]
-fn gm_advance_rejects_when_ended() {
+fn GmAdvanceはEnded後は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Ended(Outcome::Victory);
     let result = decide(
@@ -1003,7 +1003,7 @@ fn gm_advance_rejects_when_ended() {
 // ---- 状態機械: 全遷移の通し ----
 
 #[test]
-fn state_machine_running_propose_paused_judge_reject_running() {
+fn 状態機械はRunningからProposeでPausedへ却下でRunningへ戻る() {
     let session = fixture_session("advance");
     assert_eq!(session.status, SessionStatus::Running);
 
@@ -1043,7 +1043,7 @@ fn state_machine_running_propose_paused_judge_reject_running() {
 }
 
 #[test]
-fn state_machine_running_propose_paused_judge_accept_running() {
+fn 状態機械はRunningからProposeでPausedへ採用でRunningへ戻る() {
     let session = fixture_session("advance");
     let propose_events = decide(
         Some(&session),
@@ -1097,7 +1097,7 @@ fn paused_for_patch() -> Session {
 }
 
 #[test]
-fn apply_patch_accepts_for_gm_when_paused_and_adds_card_def() {
+fn ApplyPatchはPaused中のGMに受理されAddCardDefを反映する() {
     let session = paused_for_patch();
     let new_card = card_def("brand_new", CardKind::Item, vec![], vec![]);
     let patch = scenario_patch(vec![PatchOp::AddCardDef(new_card)]);
@@ -1121,7 +1121,7 @@ fn apply_patch_accepts_for_gm_when_paused_and_adds_card_def() {
 }
 
 #[test]
-fn apply_patch_deals_card_immediately() {
+fn ApplyPatchのDealCardは即座にカードを配布する() {
     let session = paused_for_patch();
     let patch = scenario_patch(vec![PatchOp::DealCard {
         card: cid("advance"),
@@ -1153,7 +1153,7 @@ fn apply_patch_deals_card_immediately() {
 }
 
 #[test]
-fn apply_patch_rejects_for_player() {
+fn ApplyPatchはPlayerでは拒否される() {
     let session = paused_for_patch();
     let result = decide(
         Some(&session),
@@ -1166,7 +1166,7 @@ fn apply_patch_rejects_for_player() {
 }
 
 #[test]
-fn apply_patch_rejects_when_running() {
+fn ApplyPatchはRunning中は拒否される() {
     let session = fixture_session("advance"); // 既定でRunning
     let result = decide(
         Some(&session),
@@ -1179,7 +1179,7 @@ fn apply_patch_rejects_when_running() {
 }
 
 #[test]
-fn apply_patch_rejects_when_ended() {
+fn ApplyPatchはEnded後は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Ended(Outcome::Victory);
     let result = decide(
@@ -1193,7 +1193,7 @@ fn apply_patch_rejects_when_ended() {
 }
 
 #[test]
-fn apply_patch_rejects_invalid_patch() {
+fn ApplyPatchはvalidate不合格のパッチでは拒否される() {
     let session = paused_for_patch();
     let duplicate = card_def("advance", CardKind::Action, vec![], vec![]);
     let result = decide(
@@ -1212,7 +1212,7 @@ fn apply_patch_rejects_invalid_patch() {
 // ---- 状態機械: Propose→Paused→ApplyPatch(0回以上)→JudgeProposal(採用)→Running ----
 
 #[test]
-fn state_machine_paused_apply_patch_then_judge_accept_running() {
+fn 状態機械はPaused中にApplyPatchを挟んでもJudgeProposal採用でRunningへ戻る() {
     let session = fixture_session("advance");
     let propose_events = decide(
         Some(&session),
@@ -1274,7 +1274,7 @@ fn state_machine_paused_apply_patch_then_judge_accept_running() {
 // ---- EndSession ----
 
 #[test]
-fn end_session_accepts_for_gm() {
+fn EndSessionはGMに受理される() {
     let session = fixture_session("advance");
     let events = decide(
         Some(&session),
@@ -1299,7 +1299,7 @@ fn end_session_accepts_for_gm() {
 }
 
 #[test]
-fn end_session_rejects_for_player() {
+fn EndSessionはPlayerでは拒否される() {
     let session = fixture_session("advance");
     let result = decide(
         Some(&session),
@@ -1312,7 +1312,7 @@ fn end_session_rejects_for_player() {
 }
 
 #[test]
-fn end_session_rejects_when_paused() {
+fn EndSessionはPaused中は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Paused {
         proposal: crate::ids::ProposalId("p1".to_string()),
@@ -1328,7 +1328,7 @@ fn end_session_rejects_when_paused() {
 }
 
 #[test]
-fn end_session_rejects_when_already_ended() {
+fn EndSessionは既にEnded後は拒否される() {
     let mut session = fixture_session("advance");
     session.status = SessionStatus::Ended(Outcome::Victory);
     let result = decide(
@@ -1421,7 +1421,7 @@ fn find_instance(session: &Session, character: &CharacterId, card: &CardId) -> C
 }
 
 #[test]
-fn play_card_goto_scene_consumes_played_card_and_cleans_up_unchosen_sibling() {
+fn PlayCardのGotoScene遷移は使用カードを消費し選ばなかった同室カードを除去する() {
     let session = start_removal_test_session();
     let chosen = find_instance(&session, &chr("ch1"), &cid("chosen"));
     let unchosen = find_instance(&session, &chr("ch1"), &cid("unchosen"));
@@ -1468,7 +1468,7 @@ fn play_card_goto_scene_consumes_played_card_and_cleans_up_unchosen_sibling() {
 }
 
 #[test]
-fn gm_advance_cleans_up_unplayed_scene_local_scenario_cards_but_keeps_marker() {
+fn GmAdvanceは未使用のシーン限定Scenarioカードを除去しMarkerは残す() {
     let session = start_removal_test_session();
     let chosen = find_instance(&session, &chr("ch1"), &cid("chosen"));
     let unchosen = find_instance(&session, &chr("ch1"), &cid("unchosen"));

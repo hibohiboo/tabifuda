@@ -106,7 +106,7 @@ fn fixture_session() -> Session {
 }
 
 #[test]
-fn validate_accepts_empty_patch() {
+fn validateは空パッチを受理する() {
     let session = fixture_session();
     assert!(validate(&session, &patch(vec![])).is_ok());
 }
@@ -114,13 +114,13 @@ fn validate_accepts_empty_patch() {
 // ---- AddCardDef ----
 
 #[test]
-fn validate_accepts_add_card_def_new_id() {
+fn validateは新規idのAddCardDefを受理する() {
     let session = fixture_session();
     assert!(validate(&session, &patch(vec![PatchOp::AddCardDef(card_def("new"))])).is_ok());
 }
 
 #[test]
-fn validate_rejects_add_card_def_duplicate() {
+fn validateは重複idのAddCardDefを拒否する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -132,7 +132,7 @@ fn validate_rejects_add_card_def_duplicate() {
 // ---- ReplaceScene ----
 
 #[test]
-fn validate_accepts_replace_scene_existing_target() {
+fn validateは既存シーンへのReplaceSceneを受理する() {
     let session = fixture_session();
     let mut replaced = scene("s1");
     replaced.narration = long("改訂後の描写");
@@ -141,7 +141,7 @@ fn validate_accepts_replace_scene_existing_target() {
 }
 
 #[test]
-fn validate_rejects_replace_scene_missing_target() {
+fn validateは存在しないシーンへのReplaceSceneを拒否する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -153,7 +153,7 @@ fn validate_rejects_replace_scene_missing_target() {
 // ---- AddScene ----
 
 #[test]
-fn validate_accepts_add_scene_new_id_in_existing_phase() {
+fn validateは既存フェーズ内の新規idのAddSceneを受理する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -166,7 +166,7 @@ fn validate_accepts_add_scene_new_id_in_existing_phase() {
 }
 
 #[test]
-fn validate_rejects_add_scene_duplicate_id() {
+fn validateは重複idのAddSceneを拒否する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -179,7 +179,7 @@ fn validate_rejects_add_scene_duplicate_id() {
 }
 
 #[test]
-fn validate_rejects_add_scene_phase_not_found() {
+fn validateは存在しないフェーズへのAddSceneを拒否する() {
     let session = fixture_session(); // Climaxのphaseは元から存在しない
     let result = validate(
         &session,
@@ -194,7 +194,7 @@ fn validate_rejects_add_scene_phase_not_found() {
 // ---- AddTransition ----
 
 #[test]
-fn validate_accepts_add_transition_existing_scenes() {
+fn validateは実在するシーン間のAddTransitionを受理する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -210,7 +210,7 @@ fn validate_accepts_add_transition_existing_scenes() {
 }
 
 #[test]
-fn validate_rejects_add_transition_missing_owner_scene() {
+fn validateは起点シーンが存在しないAddTransitionを拒否する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -226,7 +226,7 @@ fn validate_rejects_add_transition_missing_owner_scene() {
 }
 
 #[test]
-fn validate_rejects_add_transition_missing_target_scene() {
+fn validateは遷移先シーンが存在しないAddTransitionを拒否する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -244,7 +244,7 @@ fn validate_rejects_add_transition_missing_target_scene() {
 // ---- DealCard(「配布済みカードの定義が解決可能」の受理/拒否対) ----
 
 #[test]
-fn validate_accepts_deal_card_existing_def() {
+fn validateは定義済みカードのDealCardを受理する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -257,7 +257,7 @@ fn validate_accepts_deal_card_existing_def() {
 }
 
 #[test]
-fn validate_rejects_deal_card_missing_def() {
+fn validateは未定義カードのDealCardを拒否する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -270,7 +270,7 @@ fn validate_rejects_deal_card_missing_def() {
 }
 
 #[test]
-fn validate_accepts_deal_card_defined_earlier_in_same_patch() {
+fn validateは同一パッチ内で先に定義されたカードのDealCardを受理する() {
     let session = fixture_session();
     let result = validate(
         &session,
@@ -288,7 +288,7 @@ fn validate_accepts_deal_card_defined_earlier_in_same_patch() {
 // ---- 複数opの逐次適用 ----
 
 #[test]
-fn validate_rejects_second_op_referencing_first_ops_duplicate() {
+fn validateは同一パッチ内の2つ目のopが1つ目と重複するAddCardDefを拒否する() {
     let session = fixture_session();
     // 1つ目のopで追加したidに、2つ目のopが重複する。
     let result = validate(
@@ -302,7 +302,7 @@ fn validate_rejects_second_op_referencing_first_ops_duplicate() {
 }
 
 #[test]
-fn validate_ignores_unrelated_dealt_card_instances() {
+fn validateは既存の配布済みカードに影響しない無関係なパッチを受理する() {
     // 既存の手札が既存card_defを正しく参照している限り、無関係なパッチは影響しない。
     let mut session = fixture_session();
     session.hands.insert(

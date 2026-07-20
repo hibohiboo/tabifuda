@@ -81,12 +81,12 @@ fn minimal_valid_scenario() -> Scenario {
 }
 
 #[test]
-fn lint_accepts_minimal_valid_scenario() {
+fn lintは最小の壊れていないシナリオを受理する() {
     assert_eq!(issues(&minimal_valid_scenario()), vec![]);
 }
 
 #[test]
-fn lint_rejects_duplicate_card_id() {
+fn lintは重複するCardIdを検出する() {
     let s = scenario(
         vec![card_def("dup"), card_def("dup")],
         only(Phase::Opening, vec![scene("s1")]),
@@ -96,7 +96,7 @@ fn lint_rejects_duplicate_card_id() {
 }
 
 #[test]
-fn lint_rejects_duplicate_scene_id_across_phases() {
+fn lintはフェーズをまたぐ重複SceneIdを検出する() {
     let s = scenario(
         vec![],
         vec![
@@ -115,7 +115,7 @@ fn lint_rejects_duplicate_scene_id_across_phases() {
 }
 
 #[test]
-fn lint_rejects_unknown_card_id_in_deal() {
+fn lintはdealsの未知CardIdを検出する() {
     let mut s1 = scene("s1");
     s1.deals.push(Deal {
         card: cid("nowhere"),
@@ -126,7 +126,7 @@ fn lint_rejects_unknown_card_id_in_deal() {
 }
 
 #[test]
-fn lint_rejects_unknown_card_id_in_effect_deal_card() {
+fn lintはEffectDealCardの未知CardIdを検出する() {
     let mut card = card_def("c1");
     card.effects.push(Effect::DealCard {
         card: cid("nowhere"),
@@ -137,7 +137,7 @@ fn lint_rejects_unknown_card_id_in_effect_deal_card() {
 }
 
 #[test]
-fn lint_rejects_unknown_card_id_in_requires() {
+fn lintはrequiresの未知CardIdを検出する() {
     let mut card = card_def("c1");
     card.requires.push(Condition::HasCard(cid("nowhere")));
     let s = scenario(vec![card], only(Phase::Opening, vec![scene("s1")]));
@@ -145,7 +145,7 @@ fn lint_rejects_unknown_card_id_in_requires() {
 }
 
 #[test]
-fn lint_rejects_unknown_card_id_in_transition_condition() {
+fn lintはTransition条件の未知CardIdを検出する() {
     let mut s1 = scene("s1");
     s1.exits.push(Transition {
         condition: Condition::HasCard(cid("nowhere")),
@@ -156,7 +156,7 @@ fn lint_rejects_unknown_card_id_in_transition_condition() {
 }
 
 #[test]
-fn lint_rejects_unknown_scene_id_in_goto_scene() {
+fn lintはGotoSceneの未知SceneIdを検出する() {
     let mut card = card_def("c1");
     card.effects.push(Effect::GotoScene(scn("nowhere")));
     let s = scenario(vec![card], only(Phase::Opening, vec![scene("s1")]));
@@ -164,7 +164,7 @@ fn lint_rejects_unknown_scene_id_in_goto_scene() {
 }
 
 #[test]
-fn lint_rejects_unknown_scene_id_in_transition_to() {
+fn lintはTransition遷移先の未知SceneIdを検出する() {
     let mut s1 = scene("s1");
     s1.exits.push(Transition {
         condition: Condition::HasCard(cid("c1")),
@@ -175,7 +175,7 @@ fn lint_rejects_unknown_scene_id_in_transition_to() {
 }
 
 #[test]
-fn lint_rejects_character_target_in_deal() {
+fn lintはdealsでのCharacterTargetを検出する() {
     let mut s1 = scene("s1");
     s1.deals.push(Deal {
         card: cid("c1"),
@@ -186,7 +186,7 @@ fn lint_rejects_character_target_in_deal() {
 }
 
 #[test]
-fn lint_rejects_character_target_in_effect_deal_card() {
+fn lintはEffectDealCardでのCharacterTargetを検出する() {
     let mut card = card_def("c1");
     card.effects.push(Effect::DealCard {
         card: cid("c1"),
@@ -197,7 +197,7 @@ fn lint_rejects_character_target_in_effect_deal_card() {
 }
 
 #[test]
-fn lint_rejects_character_target_in_modify_stat() {
+fn lintはModifyStatでのCharacterTargetを検出する() {
     let mut card = card_def("c1");
     card.effects.push(Effect::ModifyStat {
         target: Target::Character(chr("ch1")),
@@ -209,13 +209,13 @@ fn lint_rejects_character_target_in_modify_stat() {
 }
 
 #[test]
-fn lint_rejects_empty_phases_as_no_initial_scene() {
+fn lintはphasesが空だと初期シーン無しとして検出する() {
     let s = scenario(vec![], vec![]);
     assert_eq!(issues(&s), vec![LintIssue::NoInitialScene]);
 }
 
 #[test]
-fn lint_rejects_first_phase_without_scenes_as_no_initial_scene() {
+fn lintは先頭フェーズにシーンが無いと初期シーン無しとして検出する() {
     let s = scenario(
         vec![],
         vec![
@@ -233,7 +233,7 @@ fn lint_rejects_first_phase_without_scenes_as_no_initial_scene() {
 }
 
 #[test]
-fn lint_accepts_reachable_scene_via_transition() {
+fn lintはTransitionで到達可能なシーンを到達不能扱いしない() {
     let mut end_card = card_def("end");
     end_card.effects.push(Effect::EndSession(Outcome::Victory));
     let mut s1 = scene("s1");
@@ -252,7 +252,7 @@ fn lint_accepts_reachable_scene_via_transition() {
 }
 
 #[test]
-fn lint_warns_unreachable_scene() {
+fn lintは到達不能シーンをWarningとして報告する() {
     let mut end_card = card_def("end");
     end_card.effects.push(Effect::EndSession(Outcome::Victory));
     let mut s1 = scene("s1");
@@ -270,7 +270,7 @@ fn lint_warns_unreachable_scene() {
 }
 
 #[test]
-fn lint_accepts_scene_that_can_reach_end_via_goto_scene() {
+fn lintはGotoScene経由でEndSessionへ届くシーンを詰みとして報告しない() {
     // s1はvictoryカードを配り、それがGotoSceneでs2へ、s2がEndSessionカードを配る。
     let mut victory = card_def("victory");
     victory.effects.push(Effect::GotoScene(scn("s2")));
@@ -291,7 +291,7 @@ fn lint_accepts_scene_that_can_reach_end_via_goto_scene() {
 }
 
 #[test]
-fn lint_warns_dead_end_scene() {
+fn lintはEndSessionへ届かないシーンをWarningとして報告する() {
     // s1は何のEndSessionにも到達できない(deals/exits無し)。
     let s1 = scene("s1");
     let s = scenario(vec![], only(Phase::Opening, vec![s1]));
@@ -303,7 +303,7 @@ fn lint_warns_dead_end_scene() {
 }
 
 #[test]
-fn lint_does_not_warn_dead_end_for_unreachable_scene() {
+fn lintは到達不能シーンには詰み警告を重複報告しない() {
     // s2は到達不能(既にUnreachableSceneで報告される)。詰み検知は到達可能な
     // シーンのみを対象とするため、DeadEndSceneは重複報告しない。
     let mut end_card = card_def("end");

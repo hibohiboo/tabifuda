@@ -57,7 +57,9 @@ fn add_deal(fork: &mut Scenario, scene_id: &SceneId, deal: Deal) {
     }
 }
 
+// テスト名は日本語で検証内容を表す(docs/tasks/tools/docs-site/task.md D2)
 #[cfg(test)]
+#[allow(non_snake_case)]
 mod tests {
     use super::*;
     use std::collections::HashMap;
@@ -120,7 +122,7 @@ mod tests {
     }
 
     #[test]
-    fn build_fork_sets_id_and_forked_from() {
+    fn build_forkはidとforked_fromを設定する() {
         let fork = build_fork(
             &fixture_scenario(),
             &[],
@@ -134,7 +136,7 @@ mod tests {
     /// (domain-model.md「フォーク出力」の核。これが無いとフォークを
     /// 次に遊んでも配られない)。
     #[test]
-    fn build_fork_merges_deal_card_into_scene_deals() {
+    fn build_forkはDealCardパッチを配布時シーンのdealsへ組み込む() {
         let fork = build_fork(
             &fixture_scenario(),
             &deal_patch_events(),
@@ -153,7 +155,7 @@ mod tests {
     /// 同一シーン×同一カード×同一宛先は1件にまとめる(同じ提案対応中に
     /// 誤って二度配っても、フォークで二重配布にしない)。
     #[test]
-    fn build_fork_deduplicates_identical_deals() {
+    fn build_forkは同一のdealsを重複させない() {
         let mut events = deal_patch_events();
         events.extend(deal_patch_events().into_iter().skip(1));
         let fork = build_fork(

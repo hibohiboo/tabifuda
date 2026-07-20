@@ -58,13 +58,15 @@ fn event_kind(event: &Event) -> &'static str {
     }
 }
 
+// テスト名は日本語で検証内容を表す(docs/tasks/tools/docs-site/task.md D2)
 #[cfg(test)]
+#[allow(non_snake_case)]
 mod tests {
     use super::*;
     use tabifuda_core::{BoundedString, CardId, CardInstanceId, CharacterId, ProposalId};
 
     #[test]
-    fn command_result_line_omits_play_card_free_text_body() {
+    fn 運用ログはPlayCardの自由入力本文を書かない() {
         let secret = "この自由入力の本文はログに書かれてはいけない";
         let cmd = Command::PlayCard {
             by: CharacterId("ch1".to_string()),
@@ -81,7 +83,7 @@ mod tests {
     }
 
     #[test]
-    fn command_result_line_omits_proposal_text_body() {
+    fn 運用ログはProposeの提案本文を書かない() {
         let secret = "この提案文もログに書かれてはいけない";
         let cmd = Command::Propose {
             by: CharacterId("ch1".to_string()),
@@ -100,7 +102,7 @@ mod tests {
     }
 
     #[test]
-    fn command_result_line_reports_error_kind_without_panicking() {
+    fn 運用ログはエラー時もpanicせず種別を記録する() {
         let cmd = Command::EndSession {
             outcome: tabifuda_core::Outcome::Victory,
         };

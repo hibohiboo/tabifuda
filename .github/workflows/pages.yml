@@ -31,6 +31,9 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+      # テストビュー(gen-test-report.mjs)が cargo test --workspace を実行するために必要
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r typecheck
       - run: pnpm -r build
