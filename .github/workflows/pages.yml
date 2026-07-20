@@ -1,0 +1,49 @@
+name: Deploy Pages
+
+# RDRAビューア(tools/rdra-viewer)を GitHub Pages へデプロイする。
+# 経緯: docs/adr/0003-ci-pipeline.md「追記(2026-07-20): GitHub Pages」
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Pages が未有効ならこのステップが有効化する(リポジトリ設定の手動操作を不要にする)
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+      - run: pnpm -r build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: tools/rdra-viewer/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

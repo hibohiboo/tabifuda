@@ -1,0 +1,4 @@
+# ワークスペース構成。apps/* packages/* はP3/P4で追加する
+# (パッケージマネージャの選定根拠: docs/adr/0002-package-manager.md)
+packages:
+  - "tools/*"
