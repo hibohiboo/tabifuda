@@ -54,7 +54,7 @@ fn stat(id: &str) -> StatId {
 }
 
 #[test]
-fn golden_target() {
+fn Targetのワイヤ形式を固定する() {
     assert_golden(Target::Party, r#""Party""#);
     assert_golden(
         Target::Character(character("ch1")),
@@ -63,13 +63,13 @@ fn golden_target() {
 }
 
 #[test]
-fn golden_outcome() {
+fn Outcomeのワイヤ形式を固定する() {
     assert_golden(Outcome::Victory, r#""Victory""#);
     assert_golden(Outcome::Defeat, r#""Defeat""#);
 }
 
 #[test]
-fn golden_effect() {
+fn Effectのワイヤ形式を固定する() {
     assert_golden(Effect::GotoScene(scene("s1")), r#"{"GotoScene":"s1"}"#);
     assert_golden(Effect::AdvancePhase, r#""AdvancePhase""#);
     assert_golden(
@@ -94,7 +94,7 @@ fn golden_effect() {
 }
 
 #[test]
-fn golden_condition() {
+fn Conditionのワイヤ形式を固定する() {
     assert_golden(Condition::HasCard(card("c1")), r#"{"HasCard":"c1"}"#);
     assert_golden(
         Condition::StatAtLeast(stat("hp"), 5),
@@ -103,7 +103,7 @@ fn golden_condition() {
 }
 
 #[test]
-fn golden_session_status() {
+fn SessionStatusのワイヤ形式を固定する() {
     assert_golden(SessionStatus::Running, r#""Running""#);
     assert_golden(
         SessionStatus::Paused {
@@ -118,7 +118,7 @@ fn golden_session_status() {
 }
 
 #[test]
-fn golden_card_instance() {
+fn CardInstanceのワイヤ形式を固定する() {
     assert_golden(
         CardInstance {
             id: crate::ids::CardInstanceId("ci1".to_string()),
@@ -129,7 +129,7 @@ fn golden_card_instance() {
 }
 
 #[test]
-fn golden_rule_error() {
+fn RuleErrorのワイヤ形式を固定する() {
     assert_golden(RuleError::Forbidden, r#""Forbidden""#);
     assert_golden(RuleError::SessionPaused, r#""SessionPaused""#);
     assert_golden(RuleError::SessionNotPaused, r#""SessionNotPaused""#);
@@ -142,7 +142,7 @@ fn golden_rule_error() {
 }
 
 #[test]
-fn golden_patch_error() {
+fn PatchErrorのワイヤ形式を固定する() {
     assert_golden(PatchError::DuplicateCardId, r#""DuplicateCardId""#);
     assert_golden(PatchError::DuplicateSceneId, r#""DuplicateSceneId""#);
     assert_golden(PatchError::SceneNotFound, r#""SceneNotFound""#);
@@ -151,7 +151,7 @@ fn golden_patch_error() {
 }
 
 #[test]
-fn golden_patch_op() {
+fn PatchOpのワイヤ形式を固定する() {
     assert_golden(
         PatchOp::AddCardDef(CardDef {
             id: card("c1"),
@@ -184,7 +184,7 @@ fn golden_patch_op() {
 }
 
 #[test]
-fn golden_scenario_patch() {
+fn ScenarioPatchのワイヤ形式を固定する() {
     assert_golden(
         ScenarioPatch {
             ops: vec![PatchOp::DealCard {
@@ -198,7 +198,7 @@ fn golden_scenario_patch() {
 }
 
 #[test]
-fn golden_proposal() {
+fn Proposalのワイヤ形式を固定する() {
     assert_golden(
         Proposal {
             id: ProposalId("proposal-0".to_string()),
@@ -210,7 +210,7 @@ fn golden_proposal() {
 }
 
 #[test]
-fn golden_event() {
+fn Eventのワイヤ形式を固定する() {
     assert_golden(
         Event::SceneEntered {
             scene: scene("s1"),

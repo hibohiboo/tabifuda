@@ -59,3 +59,12 @@ docs-site(旧rdra-viewer。[../tasks/tools/docs-site/task.md](../tasks/tools/doc
 - pnpm のバージョンはルート package.json の `packageManager` を正とする
 - PR 時の typecheck / build ゲート追加はビューアタスク C3 で ci.yml 側に入れる
   (その際は本文の表へ追記する)
+
+## 追記(2026-07-20): テストビュー生成のための Rust toolchain(D2)
+
+docs-site のテストビュー(`tools/docs-site/scripts/gen-test-report.mjs`)は
+`pnpm -r typecheck` / `pnpm -r build` の中で `cargo test --workspace` を実行し、
+その結果を GitHub Pages に表示する。そのため pages.yml の build ジョブに
+`dtolnay/rust-toolchain@stable` と `Swatinem/rust-cache@v2` を追加した
+(ci.yml と同じアクション。バージョン固定方針も同じ)。ci.yml と pages.yml は
+独立ワークフローのままだが、両方が Rust ツールチェーンを必要とする点は共通。

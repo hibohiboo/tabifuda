@@ -1,6 +1,9 @@
 //! `tabifuda-cli lint <file>` の翻訳(ファイル読込→lint呼び出し→終了コード)のみを
 //! 検証する薄いテスト。lintの検査ロジック自体はtabifuda-core側でテスト済み
 //! (docs/design/test-strategy.md §3「ルール分岐はテストしない」に対応)。
+//!
+//! テスト名は日本語で検証内容を表す(docs/tasks/tools/docs-site/task.md D2)。
+#![allow(non_snake_case)]
 
 use std::io::Write;
 use std::process::Command;
@@ -97,7 +100,7 @@ fn bin() -> Command {
 }
 
 #[test]
-fn lint_exits_success_on_valid_scenario() {
+fn lintコマンドは正常シナリオで成功終了する() {
     let path = write_temp_json("valid", &minimal_valid_scenario());
     let output = bin().arg("lint").arg(&path).output().unwrap();
     std::fs::remove_file(&path).ok();
@@ -109,7 +112,7 @@ fn lint_exits_success_on_valid_scenario() {
 }
 
 #[test]
-fn lint_exits_failure_on_scenario_with_unknown_reference() {
+fn lintコマンドは未知参照のシナリオで失敗終了する() {
     let path = write_temp_json("broken", &broken_scenario_with_unknown_card_ref());
     let output = bin().arg("lint").arg(&path).output().unwrap();
     std::fs::remove_file(&path).ok();
@@ -119,7 +122,7 @@ fn lint_exits_failure_on_scenario_with_unknown_reference() {
 }
 
 #[test]
-fn lint_exits_failure_on_missing_file() {
+fn lintコマンドは存在しないファイルで失敗終了する() {
     let output = bin().arg("lint").arg("no-such-file.json").output().unwrap();
     assert!(!output.status.success());
 }

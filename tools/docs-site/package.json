@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "npm run gen:test-report && tsc --noEmit",
+    "gen:test-report": "node scripts/gen-test-report.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",

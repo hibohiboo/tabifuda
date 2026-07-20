@@ -66,7 +66,7 @@ proptest! {
     /// かつ、その結果得られたイベント列(冒険記)を最初からfoldし直せば同じ状態に戻る
     /// (リプレイ可能性)。
     #[test]
-    fn invariant_decide_output_is_applyable_and_replay_is_deterministic(steps in steps_strategy()) {
+    fn 不変条件1_2_decideの出力は必ずapply可能でリプレイは決定的である(steps in steps_strategy()) {
         let mut state: Option<Session> = None;
         let mut log: Vec<Event> = Vec::new();
 
@@ -94,7 +94,7 @@ proptest! {
 
     /// 不変条件3(状態機械の合法性)。
     #[test]
-    fn invariant_state_machine_never_takes_illegal_transitions(steps in steps_strategy()) {
+    fn 不変条件3_状態機械は遷移図に無い遷移をしない(steps in steps_strategy()) {
         let mut state: Option<Session> = None;
 
         for step in steps {
@@ -120,7 +120,7 @@ proptest! {
     /// 不変条件4(保存則): カードは`CardDealt`イベント無しに手札/tableに現れず、
     /// `CardRemoved`イベント無しに消えない。
     #[test]
-    fn invariant_cards_only_change_via_card_dealt(steps in steps_strategy()) {
+    fn 不変条件4_カードはCardDealtとCardRemovedによってのみ増減する(steps in steps_strategy()) {
         let mut state: Option<Session> = None;
 
         for step in steps {
@@ -309,7 +309,7 @@ proptest! {
     /// 不変条件5(パッチ安全性): validateを通ったパッチ(=ApplyPatchが受理された)は、
     /// 適用後も「現在シーンが存在」「配布済みカードの定義が解決可能」を壊さない。
     #[test]
-    fn invariant_validated_patch_preserves_session_safety(
+    fn 不変条件5_validateを通ったパッチは適用後もセッションの安全性を保つ(
         session in small_session_strategy(),
         patch in small_patch_strategy(),
     ) {

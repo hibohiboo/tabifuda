@@ -5,7 +5,7 @@ cycles:
   C2: planned
   C3: planned
   D1: done
-  D2: planned
+  D2: done
 ---
 
 # ツールタスク: docs-site(docs 総合ビューア)
@@ -82,20 +82,25 @@ docs/ を GitHub Pages(https://hibohiboo.github.io/tabifuda/)で多面的に
 - 進捗ビュー: projects / tools の2セクション、タスクカード(状態バッジ+
   サイクルチップ+task.md への GitHub リンク)、全体サマリ
 
-### D2: テストビュー
+### D2: テストビュー(完了)
+- 全テスト関数名(12ファイル162件)を日本語(検証内容を表す文)へリネーム。
+  `cargo test`の出力自体が日本語の説明になるようにし、別途の日英対訳
+  マッピングを持たない(正の二重化を避ける)。Command/Event/型名などの
+  固有名詞(PlayCard、GmAdvanceなど)はASCIIのまま残しトレーサビリティを
+  優先。先頭が大文字ASCIIになる識別子があるため、対象の`mod`宣言
+  (lib.rs/各cliモジュール)に`#[allow(non_snake_case)]`を付与
 - `tools/docs-site/scripts/gen-test-report.mjs`: `cargo test --workspace`
-  (成否・スイート別件数を stdout からパース)+ `-- --list`(テスト名列挙)
-  → `src/generated/test-report.json`(.gitignore 対象。ローカルは
-  `pnpm gen:test-report` で生成)
-- スイート→戦略分類のマッピング: engine_tests / patch_tests / lint_tests →
-  例ベース(a)、invariant_tests → プロパティ(b)、golden / replay /
-  roundtrip → ゴールデン(c)、play_cli / lint_cli / scenario_lint →
-  CLIスモーク。**未分類のスイートが現れたら生成を失敗させる**
-  (テスト追加時の分類漏れ検知)
-- テストビュー: test-strategy.md の分類ごとに実テスト名・件数・成否・
-  生成時刻を表示。test-strategy.md への出典リンク
-- pages.yml に dtolnay/rust-toolchain + Swatinem/rust-cache とレポート生成
-  ステップを追加(**ADR 0003 の追記が先**)
+  を実行し、stdout(test結果行)とstderr(Runningヘッダー)を出現順で
+  対応付けてスイート単位に分類 → `src/generated/test-report.json`
+  (.gitignore対象。ローカルは`pnpm gen:test-report`で生成。`typecheck`/
+  `build`からも自動実行されるvite pluginとして組み込み済み)
+- スイート→test-strategy.md分類の対応はスクリプト内`SUITES`に手動定義
+  (各テストファイルの冒頭docコメントが実際に引用する節を根拠にした)。
+  **未分類のスイートが現れたら生成を失敗させる**(テスト追加時の分類漏れ検知)
+- テストビュー: スイートごとにラベル・説明・出典リンク・成否件数を表示し、
+  クリックで個々の日本語テスト名一覧を開閉できる
+- pages.ymlにdtolnay/rust-toolchain + Swatinem/rust-cacheを追加
+  (ADR 0003に追記済み)
 
 ### C2: RDRAデータ拡充+関係トレース
 - information / states / requirements / business-flow のYAML整備
