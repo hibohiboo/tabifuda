@@ -14,6 +14,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 | [requirements/future-requirements.md](requirements/future-requirements.md) | 将来要望メモ(**将来要望専用**)。今は作らないが壊さないよう意識する要望集。**「実装済み」と誤認しないこと**。「現在の要件」の正は design/ の規範文書(domain-model.md「ソロMVPでの簡略化」等)と tasks/ が兼ねる |
 | CLAUDE.md「用語」表(リポジトリ直下) | シナリオ/セッション/パッチ/提案/冒険記の定義。用語を揺らさない |
 | [design/reviews/](design/reviews/) | 設計レビューの記録(指摘と対応状況) |
+| [rdra/](rdra/) | RDRAモデルデータ(**非規範の索引**)。設計文書のアクター・ユースケース・情報・状態とその関係を構造化YAMLで持ち、tools/rdra-viewer が github.io に可視化する。規範と食い違ったらYAML側を直す |
 | [tasks/plans/](tasks/plans/) 内の `*-decisions.md` | **決定ログ**。人間の判断が要る論点の進捗と決定理由。判断待ちの案件はここを見る |
 
 ### 開発者視点(どう作るか。実装前に必ず読む「正」)
@@ -33,6 +34,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 | [roadmap.md](roadmap.md) | **フェーズ全体像の索引(非規範)**。P0〜P5(P3.5含む)の目的・完了条件・現在地と、フェーズ対応表3箇所への参照。各フェーズの正は tasks/ |
 | [agent-operations.md](agent-operations.md) | 運用の正: モデルラダー、開発サイクル、決定ログ運用、ハンドオフ、コスト |
 | [tasks/](tasks/) | フェーズ別タスク指示文(phase0〜5)。1サイクル=1セッション=1PR |
+| [tasks/tools/](tasks/tools/) | ツール系タスク指示文(どのフェーズにも属さない開発支援ツール。例: RDRAビューア)。再編計画は [tasks/plans/docs-tasks-restructure.md](tasks/plans/docs-tasks-restructure.md) |
 | [tasks/plans/](tasks/plans/) | plan mode成果物と実行計画・決定ログ(gitで進捗を追う) |
 | [agent-journal.md](agent-journal.md) | エージェント失敗ジャーナル(1行/件)。週次棚卸しの材料 |
 | handoff/ | ハンドオフ用の一時メモ置き場(通常は空。使い捨て運用。手順は agent-operations.md「コンテキスト管理とハンドオフ」) |

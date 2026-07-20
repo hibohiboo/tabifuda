@@ -1,0 +1,63 @@
+# システム境界レイヤー: ユースケース(= Command 1つに1ユースケース)
+# 出典の正: design/domain-model.md「コマンドとイベント」「進行の解決規則」「権限規則」
+# information / states の id は C2 の information.yaml / states.yaml で定義予定(先行参照)
+usecases:
+  - id: start-session
+    name: セッションを開始する(StartSession)
+    actors: [gm]
+    description: >-
+      シナリオとパーティを凍結コピーしてセッションを作る。呼んだ本人が
+      Gm として roles に登録される。
+    information: [scenario, party, session]
+    states: [running]
+    source: design/domain-model.md#進行の解決規則
+
+  - id: play-card
+    name: カードを出す(PlayCard)
+    actors: [player, gm]
+    description: 手札のカードを場に出し、効果を解決する。Dialogue は自由入力を添えられる。
+    information: [card, session, scene]
+    states: [running]
+    source: design/domain-model.md#playcard-の解決と拒否系
+
+  - id: propose
+    name: GMへ提案する(Propose)
+    actors: [player, gm]
+    description: 進行への提案を出す。セッションは裁定待ち(Paused)になる。
+    information: [proposal, session]
+    states: [running, paused]
+    source: design/domain-model.md#コマンドとイベント
+
+  - id: judge-proposal
+    name: 提案を裁定する(JudgeProposal)
+    actors: [gm]
+    description: 提案を採用/却下する。却下も冒険の記録として残る。セッションは Running へ戻る。
+    information: [proposal, session]
+    states: [paused, running]
+    source: design/domain-model.md#コマンドとイベント
+
+  - id: apply-patch
+    name: シナリオを改編する(ApplyPatch)
+    actors: [gm]
+    description: 構造化差分(PatchOp列)でセッション内のシナリオ凍結コピーを改編する。Paused 中のみ。
+    information: [patch, scenario, session]
+    states: [paused]
+    source: design/domain-model.md#applypatch-の実行
+
+  - id: gm-advance
+    name: 強制進行する(GmAdvance)
+    actors: [gm]
+    description: 指定シーンへ強制的に進める(進行の強制操作)。
+    information: [scene, session]
+    states: [running]
+    source: design/domain-model.md#gmadvance強制進行
+
+  - id: end-session
+    name: セッションを打ち切る(EndSession)
+    actors: [gm]
+    description: >-
+      物語上の決着(勝敗カードの Effect::EndSession)とは別の、GMによる
+      強制終了。Outcome(勝利/敗北)を確定させる。
+    information: [session, chronicle]
+    states: [running, ended]
+    source: design/domain-model.md#権限規則

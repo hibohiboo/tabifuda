@@ -1,0 +1,21 @@
+# システム価値レイヤー: アクター
+# 出典の正: design/domain-model.md「アクターと権限」、design/domain-guide.md「6. 権限」
+actors:
+  - id: player
+    name: プレイヤー
+    description: 担当キャラクターのカードを出し、台詞を入力し、GMへ提案する。
+    source: design/domain-model.md#アクターと権限
+
+  - id: gm
+    name: GM
+    description: >-
+      提案の裁定・シナリオパッチ・強制進行・強制終了を行う。
+      Player の権限を包含する(ソロMVPは単一ユーザーをGm登録するだけで成立)。
+    source: design/domain-model.md#アクターと権限
+
+  - id: author
+    name: シナリオ作者
+    description: >-
+      シナリオ(phases > scenes の木構造)を作るアクター。セッション進行の
+      Command は持たない。フォーク公開による還流は将来要望。
+    source: design/domain-guide.md#6-権限-誰が何をできるか
