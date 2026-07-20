@@ -1,7 +1,7 @@
 # Phase 3 実装タスク: WASM+Web版(ローカル)
 
 実行モデル: Sonnet 5。1サイクル=1セッション=1PR。
-開始前の儀式は phase2-task.md 冒頭と同じ(文書確認→差分報告→改訂→着手)。
+開始前の儀式は phase2/task.md 冒頭と同じ(文書確認→差分報告→改訂→着手)。
 **着手前にOpus 4.8でwasm境界API設計レビューを1回**(agent-operations.md)。
 
 ## 目的

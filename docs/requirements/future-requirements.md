@@ -13,7 +13,7 @@
 ## 1. セッションの中断と並行プレイ
 
 **採用予定**: 中断・再開(と、複数セッションファイルによる並行プレイの成立
-確認)は [tasks/phase3.5-task.md](../tasks/phase3.5-task.md) C1 で採用予定
+確認)は [tasks/projects/phase3.5/task.md](../tasks/projects/phase3.5/task.md) C1 で採用予定
 (2026-07-20)。同一キャラの並行参加制約(下記の派生論点)は本メモに残る。
 
 要望:
@@ -52,7 +52,7 @@ v0.1の構造のまま成立する。イベントソーシングとも整合(セ
 
 ## 3. 報酬とセッション終了処理
 
-**採用予定**: [tasks/phase3.5-task.md](../tasks/phase3.5-task.md) C3-C4 で
+**採用予定**: [tasks/projects/phase3.5/task.md](../tasks/projects/phase3.5/task.md) C3-C4 で
 採用予定(2026-07-20)。着手時に本節を規範文書へ移して削除する。
 
 要望:

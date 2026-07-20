@@ -1,6 +1,6 @@
 //! decide/applyのテーブル駆動テスト。docs/design/test-strategy.md §1(a)に対応。
 //! 各Commandについて受理/拒否を対で書く。シナリオはテスト用の最小構成
-//! (phase1-task.md C2の指示通り、テンプレシナリオはP2で別途作成)。
+//! (projects/phase1/task.md C2の指示通り、テンプレシナリオはP2で別途作成)。
 
 use std::collections::HashMap;
 

@@ -27,6 +27,11 @@
 plan modeの成果物は設計の中間生成物であり、docs/ 配下でレビュー・追跡する。
 既定の `~/.claude/plans/` はリポジトリ外でgit管理できないため変更する。
 
+追記(2026-07-20): tasks 再編(docs/tasks/README.md)後も書き込み先は
+`docs/tasks/plans` のまま。特定タスク向けの計画はセッションの終わりに
+対象タスクの `plans/`(例: `docs/tasks/projects/phase1/plans/`)へ
+`git mv` で振り分ける(ルールの正は docs/tasks/README.md)。
+
 ### メモリ置き場: `.claude/memory/`(autoMemoryDirectory)
 
 自動メモリの実体をリポジトリ内 `.claude/memory/` に置き、git管理する。

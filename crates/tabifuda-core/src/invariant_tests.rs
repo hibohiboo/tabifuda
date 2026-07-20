@@ -1,5 +1,5 @@
 //! プロパティテストによる不変条件1〜5の固定。docs/design/test-strategy.md §1(b)、
-//! phase1-task.md C5に対応。
+//! projects/phase1/task.md C5に対応。
 //!
 //! 不変条件5(パッチ安全性)は本来P2予定だったが、C4でPatchOp/validateがP1スコープ内に
 //! 前倒しで揃ったため、2026-07-19決定によりP1のうちにここへ含める

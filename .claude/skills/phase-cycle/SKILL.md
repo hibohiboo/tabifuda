@@ -1,17 +1,17 @@
 ---
 name: phase-cycle
-description: docs/tasks/phaseN-task.md のフェーズタスクを1サイクル実行するための手順書。「C2をやって」「Phase 1 の次のサイクルを進めて」「フェーズタスクに着手」等、docs/tasks 配下のタスク実行を求められたら、作業を始める前に必ずこのスキルを使うこと。開始の儀式・スコープ規律・停止ポイント・終わり方を含む。
+description: docs/tasks/projects/phaseN/task.md のフェーズタスクを1サイクル実行するための手順書。「C2をやって」「Phase 1 の次のサイクルを進めて」「フェーズタスクに着手」等、docs/tasks 配下のタスク実行を求められたら、作業を始める前に必ずこのスキルを使うこと。開始の儀式・スコープ規律・停止ポイント・終わり方を含む。
 ---
 
 # Phase Cycle
 
-docs/tasks/phaseN-task.md の1サイクルを、このリポジトリの規律に沿って実行する手順書。
+docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリの規律に沿って実行する手順書。
 **仕様はここに書かない。仕様は docs/ が正であり、このスキルは手順の索引である。**
 
 ## 0. 開始の儀式(スキップ禁止)
 
 1. 対象サイクルを特定する(例: Phase 1 / C2)。指定が曖昧なら着手前に質問する
-2. docs/tasks/phaseN-task.md の該当サイクルに加え、**同文書の共通制約・完了条件の
+2. docs/tasks/projects/phaseN/task.md の該当サイクルに加え、**同文書の共通制約・完了条件の
    節も必ず読む**(サイクル節だけ読んで着手しない)
 3. CLAUDE.md「必読文書」表に従い、該当する設計文書を読む。
    コアに触れるなら docs/design/domain-model.md、テストを書くなら

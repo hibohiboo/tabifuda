@@ -1,4 +1,4 @@
-//! CLIプレイループ。docs/tasks/phase2-task.md C3に対応。
+//! CLIプレイループ。docs/tasks/projects/phase2/task.md C3に対応。
 //! ここは翻訳層(標準入出力↔Command/Event)であり、ルール分岐は持たない。
 //! ソロプレイのため、単一ユーザーがPlayer/GM両ロールを兼ねる
 //! (domain-model.md「ソロMVPでの簡略化」)。

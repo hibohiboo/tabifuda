@@ -17,7 +17,7 @@ description: 人間の判断が要る論点(レビュー指摘・設計上の選
 
 ## 手順(新規作成)
 
-1. `docs/tasks/plans/<対象>-decisions.md` を作る。構成:
+1. 対象タスクの plans/(フェーズなら `docs/tasks/projects/phaseN/plans/`、ツールなら `docs/tasks/tools/<name>/plans/`、横断なら `docs/tasks/plans/`)に `<対象>-decisions.md` を作る。構成:
    - 冒頭: 元文書への参照、運用ルール、**状態表**(項目×状態×決定内容)
    - 論点ごとの節: 論点 / 選択肢 / 決定(未定) / 反映先。
      **新セッションがこの文書だけで再開できる自己完結度**にする

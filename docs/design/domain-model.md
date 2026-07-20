@@ -642,7 +642,7 @@ Running` がそのまま担う。コアの変更は不要で、以下はtabifuda
 ## 決定の経緯(参照)
 
 本文書は現在の仕様のみを保持する(正を二重化しない)。主要決定の「なぜ」は
-以下から辿る。「決定ログ」= tasks/plans/p1-c1-review-decisions.md。
+以下から辿る。「決定ログ」= tasks/projects/phase1/plans/p1-c1-review-decisions.md。
 
 | 決定 | 経緯の記録 |
 |---|---|
@@ -655,7 +655,7 @@ Running` がそのまま担う。コアの変更は不要で、以下はtabifuda
 | ProposalId の連番発番(UUID不採用の根拠訂正含む) | adr/0005-proposal-id-issuance.md / tasks/plans/proposal-id-issuance-decisions.md |
 | validate の「現在シーン削除」拒否テスト保留 | agent-journal.md 2026-07-19(P1 C4) |
 | カードの消費・除去 | retrospectives/phase2.md / tasks/plans/merry-leaping-tide.md |
-| シナリオファイル配置と lint 仕様 | tasks/phase2-task.md C1 / git履歴 |
+| シナリオファイル配置と lint 仕様 | tasks/projects/phase2/task.md C1 / git履歴 |
 
 ### 旧節名との対応(過去文書からの参照用)
 

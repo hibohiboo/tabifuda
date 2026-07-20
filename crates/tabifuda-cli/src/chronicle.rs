@@ -1,4 +1,4 @@
-//! 冒険記(イベント列→テキスト)の描画。docs/tasks/phase2-task.md C4に対応。
+//! 冒険記(イベント列→テキスト)の描画。docs/tasks/projects/phase2/task.md C4に対応。
 //! domain-model.md「ログUI(Web版)はEvent列をそのまま時系列カードとして
 //! 描画する」の思想をCLI向けのプレーンテキストとして翻訳したもの。
 //! ここは翻訳のみ(ルール分岐を持たない)。運用ログ(oplog)とは異なり、

@@ -32,6 +32,8 @@ docs/
   design/       設計文書(domain-model.md が中核)
   adr/          アーキテクチャ決定記録
   rdra/         RDRAモデルデータ(非規範の索引。tools/rdra-viewer が読む)
+  tasks/        タスク指示文と計画。projects/(フェーズ)・tools/(ツール)・
+                plans/(横断)。構造の正は docs/tasks/README.md
   agent-journal.md  エージェント失敗ジャーナル(1行/件)
 ```
 

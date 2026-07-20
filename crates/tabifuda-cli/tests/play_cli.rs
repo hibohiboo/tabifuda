@@ -1,5 +1,5 @@
 //! `tabifuda-cli play <file>` の標準入出力結合テスト(通しプレイのスモーク)。
-//! docs/tasks/phase2-task.md C4「CLIスモークテスト」に対応。ルール分岐は
+//! docs/tasks/projects/phase2/task.md C4「CLIスモークテスト」に対応。ルール分岐は
 //! テストしない(tabifuda-core側で済んでいる)。
 //!
 //! 出したカードは手札から消え、Markerは一覧に出ず、選ばなかった側の

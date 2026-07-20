@@ -3,7 +3,7 @@
 実行モデル: Sonnet 5。1サイクル=1セッション=1PR。
 **開始前の儀式(全フェーズ共通)**: CLAUDE.md と docs/design/ の関連文書を読む。
 どのフェーズにも属さないツール系タスク(置き場所の経緯:
-[plans/docs-tasks-restructure.md](../plans/docs-tasks-restructure.md))。
+[plans/docs-tasks-restructure.md](../../plans/docs-tasks-restructure.md))。
 
 ## 目的
 
