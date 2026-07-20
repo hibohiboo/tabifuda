@@ -2,7 +2,7 @@
 
 状態: **実行済み**(2026-07-20、RDRAビューアC1と同ブランチで実施)
 経緯: RDRAビューア計画時にユーザー決定
-([../tools/rdra-viewer/plans/serene-skipping-gadget.md](../tools/rdra-viewer/plans/serene-skipping-gadget.md))。
+([../tools/docs-site/plans/serene-skipping-gadget.md](../tools/docs-site/plans/serene-skipping-gadget.md))。
 当初は「projects/ と tools/ にファイルを移すだけ」の計画だったが、
 「どの plans がどのタスクのものか分かりにくい」というユーザー指摘を受け、
 **タスクごとにディレクトリを切り、専用 plans/ を同居させる**形に改めた。

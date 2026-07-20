@@ -1,9 +1,9 @@
 # docs/rdra/ — RDRAモデルデータ(非規範の索引)
 
 設計文書を RDRA(https://www.rdra.jp/)のレイヤー構造で可視化するための
-手動キュレーションデータ。[tools/rdra-viewer](../../tools/rdra-viewer/) が
+手動キュレーションデータ。[tools/docs-site](../../tools/docs-site/) が
 読み込み、GitHub Pages に表示する。
-タスクの正: [../tasks/tools/rdra-viewer/task.md](../tasks/tools/rdra-viewer/task.md)。
+タスクの正: [../tasks/tools/docs-site/task.md](../tasks/tools/docs-site/task.md)。
 
 ## 位置づけ(重要)
 

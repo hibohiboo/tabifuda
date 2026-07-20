@@ -1,3 +1,13 @@
+---
+status: planned
+cycles:
+  C1: planned
+  C2: planned
+  C3: planned
+  C4: planned
+  C5: planned
+---
+
 # Phase 4 実装タスク: バックエンド(Hono+Drizzle+Neon)
 
 実行モデル: Sonnet 5。1サイクル=1セッション=1PR。

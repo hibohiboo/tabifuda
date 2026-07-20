@@ -1,3 +1,13 @@
+---
+status: planned
+cycles:
+  C0: planned
+  C1: planned
+  C2: planned
+  C3: planned
+  C4: planned
+---
+
 # Phase 3 実装タスク: WASM+Web版(ローカル)
 
 実行モデル: Sonnet 5。1サイクル=1セッション=1PR。

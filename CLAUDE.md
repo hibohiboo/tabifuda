@@ -26,12 +26,12 @@ apps/
 packages/
   schema/       Drizzleスキーマ・共有型(P4〜)
 tools/
-  rdra-viewer/  docs可視化ビューア(RDRA風。GitHub Pagesへデプロイ。ゲーム本体と非依存)
+  docs-site/    docs可視化サイト(RDRA/進捗/テストの3ビュー。GitHub Pagesへデプロイ。ゲーム本体と非依存)
 docs/
   requirements/ 要件(将来要望メモ含む)
   design/       設計文書(domain-model.md が中核)
   adr/          アーキテクチャ決定記録
-  rdra/         RDRAモデルデータ(非規範の索引。tools/rdra-viewer が読む)
+  rdra/         RDRAモデルデータ(非規範の索引。tools/docs-site が読む)
   tasks/        タスク指示文と計画。projects/(フェーズ)・tools/(ツール)・
                 plans/(横断)。構造の正は docs/tasks/README.md
   agent-journal.md  エージェント失敗ジャーナル(1行/件)

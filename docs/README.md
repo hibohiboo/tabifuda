@@ -14,7 +14,7 @@ Tabifuda(旅札)の文書一覧。**「設計文書が正、実装が従」**(CL
 | [requirements/future-requirements.md](requirements/future-requirements.md) | 将来要望メモ(**将来要望専用**)。今は作らないが壊さないよう意識する要望集。**「実装済み」と誤認しないこと**。「現在の要件」の正は design/ の規範文書(domain-model.md「ソロMVPでの簡略化」等)と tasks/ が兼ねる |
 | CLAUDE.md「用語」表(リポジトリ直下) | シナリオ/セッション/パッチ/提案/冒険記の定義。用語を揺らさない |
 | [design/reviews/](design/reviews/) | 設計レビューの記録(指摘と対応状況) |
-| [rdra/](rdra/) | RDRAモデルデータ(**非規範の索引**)。設計文書のアクター・ユースケース・情報・状態とその関係を構造化YAMLで持ち、tools/rdra-viewer が github.io に可視化する。規範と食い違ったらYAML側を直す |
+| [rdra/](rdra/) | RDRAモデルデータ(**非規範の索引**)。設計文書のアクター・ユースケース・情報・状態とその関係を構造化YAMLで持ち、tools/docs-site が github.io に可視化する。規範と食い違ったらYAML側を直す |
 | tasks/ 配下の `*-decisions.md` | **決定ログ**。人間の判断が要る論点の進捗と決定理由。対象タスクの `plans/`(横断は [tasks/plans/](tasks/plans/))にある。置き場所のルールは [tasks/README.md](tasks/README.md) |
 
 ### 開発者視点(どう作るか。実装前に必ず読む「正」)

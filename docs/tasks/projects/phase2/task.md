@@ -1,3 +1,12 @@
+---
+status: done
+cycles:
+  C1: done
+  C2: done
+  C3: done
+  C4: done
+---
+
 # Phase 2 実装タスク: コンソール版ソロプレイMVP
 
 実行モデル: Sonnet 5。1サイクル=1セッション=1PR。

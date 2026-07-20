@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  tools/rdra-viewer:
+  tools/docs-site:
     dependencies:
       js-yaml:
         specifier: ^4.1.0
