@@ -2,7 +2,7 @@
 status: in-progress
 cycles:
   C1: done
-  C2: planned
+  C2: done
   C3: planned
   D1: done
   D2: done
@@ -103,12 +103,21 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
 - pages.ymlにdtolnay/rust-toolchain + Swatinem/rust-cacheを追加
   (ADR 0003に追記済み)
 
-### C2: RDRAデータ拡充+関係トレース
-- information / states / requirements / business-flow のYAML整備
-  (domain-model.md の「カード」「シナリオ構造」「セッション状態」、
-  future-requirements.md、domain-guide.md「1プレイの流れ」から起こす)
-- 要素クリックで関係要素をハイライト(アクター→関連UC→関連情報)
-- 状態遷移図・業務フロー図(Mermaid)
+### C2: RDRAデータ拡充+関係トレース(完了)
+- information.yaml(14要素)/ states.yaml(3状態+6遷移)/ requirements.yaml
+  (9要求。`status: realized|future`で将来要望メモとの誤認を防ぐ)/
+  business-flow.yaml(1プレイの流れ、5ステップ)を追加。domain-model.md の
+  「カード」「シナリオ構造」「セッション状態」「シナリオパッチ(構造化)」、
+  future-requirements.md、domain-guide.md「1プレイの流れ」から起こした
+- usecases.yamlのplay-card/apply-patchの情報・状態参照を実態に合わせて拡充
+  (Effect::EndSessionによる終了、patch-opの参照)
+- 関係ハイライト: `model.ts`の`relatedIds`をusecase専用から汎用化し、
+  usecase・requirement・業務フローステップを「関係を運ぶノード」として
+  扱う1ホップグラフに変更。どのレイヤーの要素をクリックしても関連要素が
+  ハイライトされる(アクター→関連UC→関連情報、を含む一般化)
+- Mermaidで状態遷移図(セッション状態機械)と業務フロー図を描画。
+  mermaid本体は動的importでRDRAビュー表示時のみ読み込み、初期バンドルを
+  軽く保つ(データはdocs/rdra由来の信頼済み文字列のみ扱う)
 
 ### C3: CI検証
 - RDRA YAMLスキーマ検証(zod等)+ `source` のリンク先ファイル・アンカー

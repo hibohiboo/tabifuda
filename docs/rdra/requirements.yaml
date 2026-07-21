@@ -1,0 +1,75 @@
+# システム価値レイヤー: 要求
+# status: realized(実装済みの価値) | future(将来要望。docs/requirements/future-requirements.md
+# は「実装済みと誤認しないこと」と明記している非規範メモのため、ここでも
+# 明確に区別する)
+requirements:
+  - id: play-tabletop-solo
+    name: 一人でもTRPG風のカード進行を遊びたい
+    status: realized
+    actors: [player, gm]
+    description: GM/プレイヤーを1人が兼任してもソロプレイとして成立する。
+    source: design/domain-guide.md#1-tabifuda-は何のソフトか
+
+  - id: review-adventure-log
+    name: セッション後に何が起きたか振り返りたい
+    status: realized
+    actors: [player, gm]
+    description: Event列(冒険記)として記録され、決定的にリプレイできる。
+    source: design/domain-model.md#コマンドとイベント
+
+  - id: propose-beyond-script
+    name: 台本にない行動を提案したい
+    status: realized
+    actors: [player]
+    description: Proposalカードで提案でき、GMの裁定を経て安全に取り込める。
+    source: design/domain-guide.md#5-gmの介入-提案休止パッチ
+
+  - id: improvise-safely
+    name: 台本を安全に即興改編したい
+    status: realized
+    actors: [gm]
+    description: 構造化パッチ(ScenarioPatch)は適用前にvalidateされ、壊れた改編は拒否される。
+    source: design/domain-model.md#シナリオパッチ構造化
+
+  - id: pause-and-resume
+    name: セッションを中断し、後で再開したい
+    status: future
+    actors: [player]
+    description: >-
+      採用予定(phase3.5 C1)。中断中は別パーティ・別セッションを使えるが、
+      他セッションで得たカード等は再開時に反映されない。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+
+  - id: take-rewards-home
+    name: クリア報酬を持ち帰りたい
+    status: future
+    actors: [player]
+    description: >-
+      採用予定(phase3.5 C3-C4)。持ち出しは既定不可・カード側でopt-in。
+      Markerカードは常に持ち出し不可。
+    source: requirements/future-requirements.md#3-報酬とセッション終了処理
+
+  - id: protect-scenario-secrets
+    name: 持ち出されたくないアイテムを守りたい
+    status: future
+    actors: [author]
+    description: シナリオ作者がportableフラグで持ち出し可否を制御できるようにしたい。
+    source: requirements/future-requirements.md#3-報酬とセッション終了処理
+
+  - id: reuse-cards-across-scenarios
+    name: カードをタグで疎結合に再利用したい
+    status: future
+    actors: [author]
+    description: >-
+      カード作者は用途を知らずにタグを付け、シナリオ作者はカードを知らずに
+      タグで受ける仕組みがほしい。
+    source: requirements/future-requirements.md#4-カードのタグシステム
+
+  - id: share-fork-back-to-author
+    name: GMの改編を作者へ還流したい
+    status: future
+    actors: [author, gm]
+    description: >-
+      フォーク(改編済みシナリオ)の差分を作者がレビューし、元シナリオへ
+      取り込む流れがほしい(Pull Request相当)。
+    source: requirements/future-requirements.md#6-フォーク公開とシナリオ作者への還流
