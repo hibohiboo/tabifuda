@@ -5,6 +5,7 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { loadTasks } from "./src/progress";
 import { generateTestReport } from "./scripts/gen-test-report.mjs";
+import { checkDocLinks } from "./scripts/check-doc-links.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -39,8 +40,22 @@ function progressFrontmatterCheck(): Plugin {
   };
 }
 
+// docs/ 配下のmarkdown間相対リンクが指すファイルの存在をビルド時に検証する
+// (リンク切れのある状態をPagesへ公開しない。scripts/check-doc-links.mjs参照)
+function docLinkCheckPlugin(): Plugin {
+  return {
+    name: "check-doc-links",
+    buildStart() {
+      const broken = checkDocLinks();
+      if (broken.length > 0) {
+        throw new Error(`docs/ 内でリンク切れが${broken.length}件見つかりました:\n` + broken.join("\n"));
+      }
+    },
+  };
+}
+
 // GitHub Pages(https://hibohiboo.github.io/tabifuda/)配下で配信するため base を固定
 export default defineConfig({
   base: "/tabifuda/",
-  plugins: [react(), progressFrontmatterCheck(), testReportPlugin()],
+  plugins: [react(), progressFrontmatterCheck(), testReportPlugin(), docLinkCheckPlugin()],
 });

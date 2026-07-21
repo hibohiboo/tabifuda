@@ -8,10 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "npm run gen:test-report && tsc --noEmit",
-    "gen:test-report": "node scripts/gen-test-report.mjs"
+    "gen:test-report": "node scripts/gen-test-report.mjs",
+    "check:doc-links": "node scripts/check-doc-links.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
+    "mermaid": "^11.16.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

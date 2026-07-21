@@ -15,9 +15,11 @@ usecases:
   - id: play-card
     name: カードを出す(PlayCard)
     actors: [player, gm]
-    description: 手札のカードを場に出し、効果を解決する。Dialogue は自由入力を添えられる。
-    information: [card, session, scene]
-    states: [running]
+    description: >-
+      手札のカードを場に出し、効果を解決する。Dialogue は自由入力を添えられる。
+      勝敗カード等でEffect::EndSessionが起きるとセッションが終了する。
+    information: [card, card-instance, session, scene]
+    states: [running, ended]
     source: design/domain-model.md#playcard-の解決と拒否系
 
   - id: propose
@@ -40,7 +42,7 @@ usecases:
     name: シナリオを改編する(ApplyPatch)
     actors: [gm]
     description: 構造化差分(PatchOp列)でセッション内のシナリオ凍結コピーを改編する。Paused 中のみ。
-    information: [patch, scenario, session]
+    information: [patch, patch-op, scenario, session]
     states: [paused]
     source: design/domain-model.md#applypatch-の実行
 

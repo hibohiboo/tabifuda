@@ -1,0 +1,46 @@
+# システムレイヤー: 状態モデル(セッション状態機械 = SessionStatus)
+# 出典の正: design/domain-model.md「セッション状態機械」
+states:
+  - id: running
+    name: Running(進行中)
+    description: 通常進行中。PlayCard/Propose/GmAdvanceなど大半のCommandが受理される。
+    source: design/domain-model.md#セッション状態機械
+
+  - id: paused
+    name: Paused(休止中)
+    description: >-
+      提案の裁定待ち。PlayCard/Proposeは拒否され、GMのJudgeProposal・
+      ApplyPatch・GmAdvanceのみ受理される。
+    source: design/domain-model.md#セッション状態機械
+
+  - id: ended
+    name: Ended(終了)
+    description: セッション終了。Outcome(Victory/Defeat)が確定し、以降どのCommandも拒否される。
+    source: design/domain-model.md#セッション状態機械
+
+# 遷移(from: null は「セッション未生成」)。矢印はビューアのMermaid状態遷移図の元データ
+transitions:
+  - from: null
+    to: running
+    via: start-session
+    label: StartSession
+  - from: running
+    to: paused
+    via: propose
+    label: ProposalSubmitted
+  - from: paused
+    to: running
+    via: judge-proposal
+    label: "ProposalJudged(却下)"
+  - from: paused
+    to: running
+    via: judge-proposal
+    label: "ApplyPatch(0回以上)+ProposalJudged(採用)"
+  - from: running
+    to: ended
+    via: end-session
+    label: "EndSession(GMの強制終了)"
+  - from: running
+    to: ended
+    via: play-card
+    label: "Effect::EndSession(勝敗カード等)"

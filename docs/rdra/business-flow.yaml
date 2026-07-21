@@ -1,0 +1,36 @@
+# システム外部環境レイヤー: 業務フロー(1プレイの流れ)
+# 出典の正: design/domain-guide.md「3. 1プレイの流れ(テンプレシナリオ「単純討伐」)」
+flows:
+  - id: simple-hunt-playthrough
+    name: 1プレイの流れ(テンプレシナリオ「単純討伐」)
+    source: design/domain-guide.md#3-1プレイの流れテンプレシナリオ単純討伐
+    steps:
+      - id: opening
+        name: オープニング(酒場のシーン)
+        description: シナリオが「依頼を受ける」カードを配る。プレイヤーが出すと次のシーンへ進む。
+        actors: [player, gm]
+        usecases: [start-session, play-card]
+      - id: middle
+        name: ミドル(街道のシーン)
+        description: 移動・準備のシーン。
+        actors: [player]
+        usecases: [play-card, gm-advance]
+      - id: climax
+        name: クライマックス(戦闘のシーン)
+        description: シナリオが「勝利」「敗北」の2枚を配る。プレイヤーがどちらかを選んで出すと結末シーンへ分岐する。
+        actors: [player]
+        usecases: [play-card]
+      - id: epilogue
+        name: エピローグ(勝敗に応じた結末)
+        description: 結末シーンを経てセッション終了。
+        actors: [player, gm]
+        usecases: [play-card, end-session]
+      - id: propose-and-judge
+        name: (任意)提案とGM裁定
+        description: >-
+          どのシーンでも、プレイヤーが台本にない行動を提案するとセッションは
+          休止し、GMの裁定(採用/却下)を経て再開する。採用時はパッチで
+          台本を改編できる。
+        actors: [player, gm]
+        usecases: [propose, judge-proposal, apply-patch]
+        branch: true

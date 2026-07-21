@@ -1,0 +1,87 @@
+# システムレイヤー: 情報モデル
+# 出典の正: design/domain-model.md「カード」「シナリオ構造」「セッション状態」
+# 「シナリオパッチ(構造化)」「コマンドとイベント」
+information:
+  - id: card
+    name: カード定義(CardDef)
+    description: >-
+      世界のすべてを表す基本単位。種別(Action/Scenario/Dialogue/Proposal/
+      Item/Marker)ごとに出所と役割が違う。効果(Effect)・出せる条件
+      (Condition)を持つ。
+    source: design/domain-model.md#カード
+
+  - id: card-instance
+    name: 配られた1枚(CardInstance)
+    description: CardDefから配布時に発行される実体。CardInstanceIdで手札/tableの1枚を特定する。
+    source: design/domain-model.md#セッション状態
+
+  - id: scenario
+    name: シナリオ(台本)
+    description: >-
+      作者が事前に書くデータ。phases(Opening/Middle/Climax) > scenes の
+      木構造+card_defsを持つ。セッション開始時に凍結コピーされる。
+    source: design/domain-model.md#シナリオ構造
+
+  - id: scenario-meta
+    name: シナリオのメタ情報(ScenarioMeta)
+    description: id/title/author/forked_from(フォーク元の由来追跡)。
+    source: design/domain-model.md#シナリオ構造
+
+  - id: phase
+    name: 幕(Phase)
+    description: Opening(オープニング)/ Middle(ミドル)/ Climax(クライマックス)の3段階。
+    source: design/domain-model.md#シナリオ構造
+
+  - id: scene
+    name: シーン(SceneDef)
+    description: 場面。入場時に配るカード(deals)と遷移条件(exits)を持つ。
+    source: design/domain-model.md#シナリオ構造
+
+  - id: deal
+    name: 入場時配布定義(Deal)
+    description: シーン入場時に配るカードと配布先(Target)の組。
+    source: design/domain-model.md#シナリオ構造
+
+  - id: transition
+    name: シーン遷移条件(Transition)
+    description: Conditionを満たしたら自動的に遷移先シーンへ進む定義。
+    source: design/domain-model.md#シナリオ構造
+
+  - id: session
+    name: セッション(上演)
+    description: >-
+      シナリオとパーティを凍結コピーして持つ、1回のプレイ。進行状態
+      (status)・手札(hands)・場(table)・提案(pending_proposal)を持つ。
+    source: design/domain-model.md#セッション状態
+    states: [running, paused, ended]
+
+  - id: party
+    name: パーティ/キャラクター(Character)
+    description: セッションに参加するキャラクター。id/name/stats/deckを持つ凍結コピー。
+    source: design/domain-model.md#セッション状態
+
+  - id: proposal
+    name: 提案(Proposal)
+    description: プレイヤーが出したProposalカードから生まれる、裁定待ちの提案。
+    source: design/domain-model.md#セッション状態
+
+  - id: patch
+    name: シナリオパッチ(ScenarioPatch)
+    description: >-
+      GMによる改編を表す構造化差分。PatchOpの列+GMのコメント(note)。
+      適用前にvalidateで安全性を検証する。
+    source: design/domain-model.md#シナリオパッチ構造化
+
+  - id: patch-op
+    name: パッチ操作の種別(PatchOp)
+    description: >-
+      AddCardDef / ReplaceScene / AddScene / AddTransition / DealCard の
+      5種(v0.1時点)。削除系操作はまだ無い。
+    source: design/domain-model.md#シナリオパッチ構造化
+
+  - id: chronicle
+    name: 冒険記(Event列)
+    description: >-
+      セッション中の出来事の記録。同じEvent列を再生すれば必ず同じ結果に
+      なる(決定性)。リプレイ可能。
+    source: design/domain-model.md#コマンドとイベント

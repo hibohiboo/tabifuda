@@ -247,6 +247,39 @@ body {
 
 .card__name {
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.card__badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.05rem 0.45rem;
+  border-radius: 1rem;
+  background: #d8cfbf;
+  color: #5c5449;
+  white-space: nowrap;
+}
+
+.layer__diagram {
+  background: #fffdf8;
+  border: 1px solid #e3d9c6;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+}
+
+.layer__diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid__error {
+  font-size: 0.8rem;
+  color: #a33;
 }
 
 .card__desc {
@@ -294,6 +327,14 @@ body {
   }
   .card__source {
     color: #d3a75f;
+  }
+  .card__badge {
+    background: #474034;
+    color: #b6ac9c;
+  }
+  .layer__diagram {
+    background: #2a251e;
+    border-color: #474034;
   }
   .nav {
     border-color: #474034;

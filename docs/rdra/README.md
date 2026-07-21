@@ -17,19 +17,21 @@
 | ファイル | RDRAレイヤー | 状態 |
 |---|---|---|
 | actors.yaml | システム価値(アクター) | あり |
+| requirements.yaml | システム価値(要求。`status: realized \| future`で実装済み/将来要望を区別) | あり(C2) |
+| business-flow.yaml | システム外部環境(業務フロー。ステップは`branch: true`で任意分岐を表現) | あり(C2) |
 | usecases.yaml | システム境界(ユースケース=Command) | あり |
-| requirements.yaml | システム価値(要求) | C2で追加 |
-| business-flow.yaml | システム外部環境(業務フロー) | C2で追加 |
-| information.yaml | システム(情報モデル) | C2で追加 |
-| states.yaml | システム(状態モデル) | C2で追加 |
+| information.yaml | システム(情報モデル) | あり(C2) |
+| states.yaml | システム(状態モデル。セッション状態機械の遷移も持つ) | あり(C2) |
 
 ## 形式
 
 各要素は `id`(kebab-case、ファイル横断で一意)/ `name` / `description` /
 `source`(docs/ からの相対パス+GitHub見出しアンカー)を持つ。
 関係は参照側の要素に id 配列で持つ(例: usecase の `actors:` `information:`
-`states:`)。未整備ファイルの id を先行参照してよい(ビューアは未解決idを
-プレーン表示する。C3でCI検証が入ったら解消必須)。
+`states:`)。ビューア(tools/docs-site)の`relatedIds`はusecase・requirement・
+業務フローステップを「関係を運ぶノード」として扱い、どの層の要素をクリックしても
+1ホップ関係を辿ってハイライトする(model.ts参照)。
+存在しないidを参照してもビルドは通る(未解決idはプレーン表示。C3でCI検証を追加する)。
 
 ## 更新の規律
 
