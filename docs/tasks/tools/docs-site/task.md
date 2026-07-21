@@ -120,8 +120,11 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
   軽く保つ(データはdocs/rdra由来の信頼済み文字列のみ扱う)
 
 ### C3: CI検証
-- RDRA YAMLスキーマ検証(zod等)+ `source` のリンク先ファイル・アンカー
-  存在チェックを CI に追加(設計文書の節名変更に追従漏れがあると落ちる)
+- **一部先行実施(2026-07-22)**: docs/ 内のmarkdown間相対リンクの存在検証
+  (`scripts/check-doc-links.mjs`。アンカーまでは検証しない)を
+  vite プラグインとしてビルド時ゲート化済み。ADR 0003 に追記
+- 残り: RDRA YAMLスキーマ検証(zod等)+ `source` のリンク先ファイル・
+  アンカー存在チェックを CI に追加(設計文書の節名変更に追従漏れがあると落ちる)
 - task.md frontmatter の検証(D1のビルド時チェックをCIゲート化)
 - PR時の typecheck / build チェックを ci.yml に追加(ADR 0003 の表へ追記)
 
