@@ -69,64 +69,64 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
 ## サイクル
 
 ### C1: 基盤+RDRA最小表示+デプロイ(完了)
-- pnpm workspace 導入、tools 配下に Vite+React+TS 雛形
-- docs/rdra/ に最小データ(actors + usecases。出典リンク付き)
-- レイヤー4段のボード表示(一覧+出典リンク。GitHub blob URLへ飛べる)
-- pages.yml 追加、Pages 有効化
-- docs/README.md・CLAUDE.md「リポジトリ構成」・ADR 0003 追記
+- [x] pnpm workspace 導入、tools 配下に Vite+React+TS 雛形
+- [x] docs/rdra/ に最小データ(actors + usecases。出典リンク付き)
+- [x] レイヤー4段のボード表示(一覧+出典リンク。GitHub blob URLへ飛べる)
+- [x] pages.yml 追加、Pages 有効化
+- [x] docs/README.md・CLAUDE.md「リポジトリ構成」・ADR 0003 追記
 
 ### D1: 進捗ビュー+docs-site への拡張(完了)
-- rdra-viewer → docs-site 改名(タスクディレクトリ・パッケージ・参照)
-- ナビ(3タブ)導入。テストビューは D2 までプレースホルダ
-- 全 task.md(8本)に frontmatter 導入、docs/tasks/README.md に規約追記、
+- [x] rdra-viewer → docs-site 改名(タスクディレクトリ・パッケージ・参照)
+- [x] ナビ(3タブ)導入。テストビューは D2 までプレースホルダ
+- [x] 全 task.md(8本)に frontmatter 導入、docs/tasks/README.md に規約追記、
   roadmap.md に「サイクル粒度の正は task.md frontmatter」の注記
-- 進捗ビュー: projects / tools の2セクション、タスクカード(状態バッジ+
+- [x] 進捗ビュー: projects / tools の2セクション、タスクカード(状態バッジ+
   サイクルチップ+task.md への GitHub リンク)、全体サマリ
 
 ### D2: テストビュー(完了)
-- 全テスト関数名(12ファイル162件)を日本語(検証内容を表す文)へリネーム。
+- [x] 全テスト関数名(12ファイル162件)を日本語(検証内容を表す文)へリネーム。
   `cargo test`の出力自体が日本語の説明になるようにし、別途の日英対訳
   マッピングを持たない(正の二重化を避ける)。Command/Event/型名などの
   固有名詞(PlayCard、GmAdvanceなど)はASCIIのまま残しトレーサビリティを
   優先。先頭が大文字ASCIIになる識別子があるため、対象の`mod`宣言
   (lib.rs/各cliモジュール)に`#[allow(non_snake_case)]`を付与
-- `tools/docs-site/scripts/gen-test-report.mjs`: `cargo test --workspace`
+- [x] `tools/docs-site/scripts/gen-test-report.mjs`: `cargo test --workspace`
   を実行し、stdout(test結果行)とstderr(Runningヘッダー)を出現順で
   対応付けてスイート単位に分類 → `src/generated/test-report.json`
   (.gitignore対象。ローカルは`pnpm gen:test-report`で生成。`typecheck`/
   `build`からも自動実行されるvite pluginとして組み込み済み)
-- スイート→test-strategy.md分類の対応はスクリプト内`SUITES`に手動定義
+- [x] スイート→test-strategy.md分類の対応はスクリプト内`SUITES`に手動定義
   (各テストファイルの冒頭docコメントが実際に引用する節を根拠にした)。
   **未分類のスイートが現れたら生成を失敗させる**(テスト追加時の分類漏れ検知)
-- テストビュー: スイートごとにラベル・説明・出典リンク・成否件数を表示し、
+- [x] テストビュー: スイートごとにラベル・説明・出典リンク・成否件数を表示し、
   クリックで個々の日本語テスト名一覧を開閉できる
-- pages.ymlにdtolnay/rust-toolchain + Swatinem/rust-cacheを追加
+- [x] pages.ymlにdtolnay/rust-toolchain + Swatinem/rust-cacheを追加
   (ADR 0003に追記済み)
 
 ### C2: RDRAデータ拡充+関係トレース(完了)
-- information.yaml(14要素)/ states.yaml(3状態+6遷移)/ requirements.yaml
+- [x] information.yaml(14要素)/ states.yaml(3状態+6遷移)/ requirements.yaml
   (9要求。`status: realized|future`で将来要望メモとの誤認を防ぐ)/
   business-flow.yaml(1プレイの流れ、5ステップ)を追加。domain-model.md の
   「カード」「シナリオ構造」「セッション状態」「シナリオパッチ(構造化)」、
   future-requirements.md、domain-guide.md「1プレイの流れ」から起こした
-- usecases.yamlのplay-card/apply-patchの情報・状態参照を実態に合わせて拡充
+- [x] usecases.yamlのplay-card/apply-patchの情報・状態参照を実態に合わせて拡充
   (Effect::EndSessionによる終了、patch-opの参照)
-- 関係ハイライト: `model.ts`の`relatedIds`をusecase専用から汎用化し、
+- [x] 関係ハイライト: `model.ts`の`relatedIds`をusecase専用から汎用化し、
   usecase・requirement・業務フローステップを「関係を運ぶノード」として
   扱う1ホップグラフに変更。どのレイヤーの要素をクリックしても関連要素が
   ハイライトされる(アクター→関連UC→関連情報、を含む一般化)
-- Mermaidで状態遷移図(セッション状態機械)と業務フロー図を描画。
+- [x] Mermaidで状態遷移図(セッション状態機械)と業務フロー図を描画。
   mermaid本体は動的importでRDRAビュー表示時のみ読み込み、初期バンドルを
   軽く保つ(データはdocs/rdra由来の信頼済み文字列のみ扱う)
 
 ### C3: CI検証
-- **一部先行実施(2026-07-22)**: docs/ 内のmarkdown間相対リンクの存在検証
+- [x] **一部先行実施(2026-07-22)**: docs/ 内のmarkdown間相対リンクの存在検証
   (`scripts/check-doc-links.mjs`。アンカーまでは検証しない)を
   vite プラグインとしてビルド時ゲート化済み。ADR 0003 に追記
-- 残り: RDRA YAMLスキーマ検証(zod等)+ `source` のリンク先ファイル・
+- [ ] 残り: RDRA YAMLスキーマ検証(zod等)+ `source` のリンク先ファイル・
   アンカー存在チェックを CI に追加(設計文書の節名変更に追従漏れがあると落ちる)
-- task.md frontmatter の検証(D1のビルド時チェックをCIゲート化)
-- PR時の typecheck / build チェックを ci.yml に追加(ADR 0003 の表へ追記)
+- [ ] task.md frontmatter の検証(D1のビルド時チェックをCIゲート化)
+- [ ] PR時の typecheck / build チェックを ci.yml に追加(ADR 0003 の表へ追記)
 
 ## 完了条件
 
