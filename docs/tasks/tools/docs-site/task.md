@@ -1,9 +1,9 @@
 ---
-status: in-progress
+status: done
 cycles:
   C1: done
   C2: done
-  C3: planned
+  C3: done
   D1: done
   D2: done
 ---
@@ -119,14 +119,19 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
   mermaid本体は動的importでRDRAビュー表示時のみ読み込み、初期バンドルを
   軽く保つ(データはdocs/rdra由来の信頼済み文字列のみ扱う)
 
-### C3: CI検証
+### C3: CI検証(完了)
 - [x] **一部先行実施(2026-07-22)**: docs/ 内のmarkdown間相対リンクの存在検証
   (`scripts/check-doc-links.mjs`。アンカーまでは検証しない)を
   vite プラグインとしてビルド時ゲート化済み。ADR 0003 に追記
-- [ ] 残り: RDRA YAMLスキーマ検証(zod等)+ `source` のリンク先ファイル・
-  アンカー存在チェックを CI に追加(設計文書の節名変更に追従漏れがあると落ちる)
-- [ ] task.md frontmatter の検証(D1のビルド時チェックをCIゲート化)
-- [ ] PR時の typecheck / build チェックを ci.yml に追加(ADR 0003 の表へ追記)
+- [x] RDRA YAMLスキーマ検証(zod)+ `source` のリンク先ファイル・アンカー
+  存在チェック+参照idの存在チェック+id一意性チェックを追加
+  (`scripts/check-rdra-data.mjs`。vite プラグイン `rdraDataCheckPlugin` として
+  ビルド時ゲート化。アンカーはGitHubの見出しスラグ生成を簡易再現して照合)
+- [x] task.md frontmatter の検証(D1で既にビルド時チェックはあった。今回は
+  下記のCIゲート化で PR でも実際に走るようにした)
+- [x] PR時の typecheck / build チェックを ci.yml に追加(`docs-site` ジョブ。
+  ADR 0003 の表へ追記済み)。これにより frontmatter 検証・docs内リンク切れ
+  検証・RDRAデータ検証がまとめて PR ゲート化された
 
 ## 完了条件
 

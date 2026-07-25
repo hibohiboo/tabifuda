@@ -6,6 +6,7 @@ import react from "@vitejs/plugin-react";
 import { loadTasks } from "./src/progress";
 import { generateTestReport } from "./scripts/gen-test-report.mjs";
 import { checkDocLinks } from "./scripts/check-doc-links.mjs";
+import { checkRdraData } from "./scripts/check-rdra-data.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -54,8 +55,28 @@ function docLinkCheckPlugin(): Plugin {
   };
 }
 
+// docs/rdra/*.yaml のスキーマ・source(ファイル・アンカー)・参照idをビルド時に検証する
+// (規範文書の節名変更への追従漏れや壊れた参照をPagesへ公開しない。scripts/check-rdra-data.mjs参照)
+function rdraDataCheckPlugin(): Plugin {
+  return {
+    name: "check-rdra-data",
+    buildStart() {
+      const errors = checkRdraData();
+      if (errors.length > 0) {
+        throw new Error(`docs/rdra/ のデータ検証で${errors.length}件のエラーが見つかりました:\n` + errors.join("\n"));
+      }
+    },
+  };
+}
+
 // GitHub Pages(https://hibohiboo.github.io/tabifuda/)配下で配信するため base を固定
 export default defineConfig({
   base: "/tabifuda/",
-  plugins: [react(), progressFrontmatterCheck(), testReportPlugin(), docLinkCheckPlugin()],
+  plugins: [
+    react(),
+    progressFrontmatterCheck(),
+    testReportPlugin(),
+    docLinkCheckPlugin(),
+    rdraDataCheckPlugin(),
+  ],
 });
