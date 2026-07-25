@@ -20,6 +20,7 @@ test-strategy.md(fmt/clippy/testを常時ゲートにする方針)にCIの**方�
 | lint-test | `cargo fmt --all -- --check` / `cargo clippy --workspace -- -D warnings` / `cargo test --workspace` | CI失敗(必須) |
 | gitleaks | `gitleaks/gitleaks-action` によるシークレットスキャン | CI失敗(必須) |
 | cargo-audit | `rustsec/audit-check` による依存脆弱性チェック | `continue-on-error: true`(P0は警告のみ。cross-cutting.md「依存関係」節よりP4から必須化) |
+| docs-site | pnpm install → `pnpm -r typecheck` → `pnpm -r build`(docs-siteの型検査・ビルド。RDRAデータ・task.md frontmatter・docs内リンク切れの各検証もbuild時に内包される。詳細は下記追記) | CI失敗(必須) |
 
 使用アクションとバージョン固定方針:
 
@@ -82,3 +83,25 @@ markdown間相対リンクが指すファイルの存在をビルド時に検証
 - リンク切れがあれば `vite build` がエラーで落ち、Pages への公開物に
   リンク切れが混入しない。ローカルの `pnpm build`/`pnpm dev` でも同様に検出する
 - 単体実行したい場合は `pnpm --dir tools/docs-site check:doc-links`
+
+## 追記(2026-07-25): PR時のdocs-site typecheck/buildゲート(C3)
+
+`pnpm -r typecheck` / `pnpm -r build` が実行されるのはこれまで pages.yml
+(master への push 時のみ)だけで、PR では docs-site 側の検証が一切走って
+いなかった(vite.config.ts の buildStart プラグイン群 —
+progressFrontmatterCheck / testReportPlugin / docLinkCheckPlugin /
+rdraDataCheckPlugin — は全て `vite build`/`vite dev` 経由でしか動かない)。
+ci.yml に `docs-site` ジョブを追加し、push/pull_request の両方でこれらの
+検証を必須ゲート化した。
+
+- ジョブ内容: `pnpm/action-setup` → `actions/setup-node`(pages.ymlと同じ
+  Node 22)→ `dtolnay/rust-toolchain@stable` + `Swatinem/rust-cache@v2`
+  (`gen-test-report.mjs` が `cargo test --workspace` を実行するため。
+  pages.yml と同じ理由) → `pnpm install --frozen-lockfile` →
+  `pnpm -r typecheck` → `pnpm -r build`
+- pages.yml とは別ワークフローのまま(本ADR冒頭の方針どおり、Rust CI の
+  ゲートと混ぜない)。内容が pages.yml の build ジョブとほぼ重複するが、
+  「PRでも同じ検証を通す」ことが目的でありワークフロー自体は分離を維持する
+- これにより、C3で追加した RDRA YAML スキーマ検証・`source` のリンク先/
+  アンカー存在チェック(`check-rdra-data.mjs`)と、既存の frontmatter
+  検証・docs内リンク切れ検証が PR 時にも効くようになった
