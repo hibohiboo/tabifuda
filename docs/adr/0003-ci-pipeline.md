@@ -105,3 +105,26 @@ ci.yml に `docs-site` ジョブを追加し、push/pull_request の両方でこ
 - これにより、C3で追加した RDRA YAML スキーマ検証・`source` のリンク先/
   アンカー存在チェック(`check-rdra-data.mjs`)と、既存の frontmatter
   検証・docs内リンク切れ検証が PR 時にも効くようになった
+
+## 追記(2026-07-27): アクション・Nodeバージョンの更新
+
+CI/pages.ymlで使用するアクションとNodeのバージョンが古くなっていたため、
+メジャーバージョンを追従させた(本ADR「メジャーバージョンの更新は
+本文の表を書き換えた上で実施する」に基づく確認・更新)。
+
+| アクション/設定 | 旧 | 新 |
+|---|---|---|
+| `actions/setup-node` | v4 | v7 |
+| `actions/configure-pages` | v5 | v6 |
+| `actions/deploy-pages` | v4 | v5 |
+| `actions/upload-pages-artifact` | v3 | v5 |
+| `pnpm/action-setup` | v4 | v6 |
+| Node.js (ci.yml docs-site job / pages.yml build job) | 22 | 24(2026-07時点のActive LTS。22はMaintenance LTS) |
+
+各メジャーバージョンのリリースノートを確認し、破壊的変更は
+Node.jsランタイムの引き上げ(node20→node24)やnpm限定の自動キャッシュ検出
+追加など、本リポジトリの使い方(`cache: pnpm`を明示指定、`packageManager`
+はpnpm)には影響しないことを確認済み。`actions/checkout@v7`・
+`Swatinem/rust-cache@v2`・`gitleaks/gitleaks-action@v3`・
+`rustsec/audit-check@v2`・`dtolnay/rust-toolchain@stable` は
+既に最新メジャーのため変更なし。
