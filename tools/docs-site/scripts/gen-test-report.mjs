@@ -95,10 +95,10 @@ const SUITES = {
 };
 
 // cargoは「どのターゲットを実行するか(Running.../Doc-tests...)」をstderrに、
-// 個々のtest結果をstdoutに出す。両者は同じ順序で1対1に並ぶため、出現順で対応付ける。
+// 個々のtest結果をstdoutに出す。stdout/stderrを別々に捕捉すると出現順の対応付けが
+// 環境依存で崩れうるため、2>&1でOSレベルに合流させ実際の出力順どおりに1本で読む。
 const RUNNING_RE = /^ {2,}Running (.+) \(.+\)$/;
 const DOC_TESTS_RE = /^ {2,}Doc-tests /;
-const RUNNING_TESTS_HEADER_RE = /^running \d+ tests?$/;
 const TEST_LINE_RE = /^test (.+) \.\.\. (ok|FAILED)$/;
 
 function suiteIdFor(runningPath, fullTestName) {
@@ -117,51 +117,42 @@ function suiteIdFor(runningPath, fullTestName) {
 }
 
 function runCargoTest() {
-  const result = spawnSync("cargo", ["test", "--workspace", "--no-fail-fast"], {
+  // shell:trueで2>&1を効かせ、stdout/stderrをOSレベルで1本の実出力順に合流させる。
+  const result = spawnSync("cargo test --workspace --no-fail-fast 2>&1", {
     cwd: repoRoot,
     encoding: "utf-8",
     maxBuffer: 32 * 1024 * 1024,
+    shell: true,
   });
   if (result.error) throw result.error;
-  return { stdout: result.stdout, stderr: result.stderr };
+  return result.stdout;
 }
 
-/** stderrから、cargoがターゲットを実行する順序どおりに境界ラベルを抜き出す。
- * 通常ターゲットはrunningPath、Doc-testsはnull(個別テストが来たらエラーにする)。 */
-function targetOrderFromStderr(stderr) {
-  const targets = [];
-  for (const line of stderr.split(/\r?\n/)) {
+function parse(output) {
+  const bySuite = new Map();
+  // 直前に見たRunning/Doc-testsの対象。undefined=未出現、null=Doc-tests中。
+  let currentTarget;
+
+  for (const line of output.split(/\r?\n/)) {
     const running = line.match(RUNNING_RE);
     if (running !== null) {
-      targets.push(running[1]);
+      currentTarget = running[1];
       continue;
     }
-    if (DOC_TESTS_RE.test(line)) targets.push(null);
-  }
-  return targets;
-}
-
-function parse(stdout, stderr) {
-  const targets = targetOrderFromStderr(stderr);
-  const bySuite = new Map();
-  let targetIndex = -1;
-
-  for (const line of stdout.split(/\r?\n/)) {
-    if (RUNNING_TESTS_HEADER_RE.test(line)) {
-      targetIndex += 1;
+    if (DOC_TESTS_RE.test(line)) {
+      currentTarget = null;
       continue;
     }
     const testLine = line.match(TEST_LINE_RE);
     if (testLine === null) continue;
-    if (targetIndex < 0 || targetIndex >= targets.length) {
+    if (currentTarget === undefined) {
       throw new Error(`test行に対応するRunning見出しが無い(cargoの出力形式が変わった可能性): ${line}`);
     }
-    const runningPath = targets[targetIndex];
-    if (runningPath === null) {
+    if (currentTarget === null) {
       throw new Error(`Doc-testsに個別テストが現れた(未対応の形): ${line}`);
     }
     const [, fullName, status] = testLine;
-    const suiteId = suiteIdFor(runningPath, fullName);
+    const suiteId = suiteIdFor(currentTarget, fullName);
     const meta = SUITES[suiteId];
     if (meta === undefined) {
       throw new Error(
@@ -194,8 +185,8 @@ function parse(stdout, stderr) {
 }
 
 export function generateTestReport() {
-  const { stdout, stderr } = runCargoTest();
-  const report = parse(stdout, stderr);
+  const output = runCargoTest();
+  const report = parse(output);
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, JSON.stringify(report, null, 2) + "\n", "utf-8");
   return report;
