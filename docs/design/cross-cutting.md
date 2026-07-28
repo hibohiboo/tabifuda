@@ -69,6 +69,20 @@
 ## 依存関係
 
 - cargo audit / pnpm audit をCIの警告ゲートに(P0で設定、P4から必須化)
+- **定期更新(2026-07-29追記)**: 脆弱性の検知(audit)だけでなく、依存を
+  最新に保つこと自体をセキュリティ・保守性の非機能要件とする。
+  放置すると、依存クレートのMSRV超過等でツールチェーン周辺が
+  ビルド不能になる形で顕在化する(2026-07に cargo-audit で実例あり)
+  - **タイミング**: フェーズ移行時などの節目に、次をまとめて確認・更新する
+    1. Rust toolchain(rust-toolchain.toml。最新stableへ追従)
+    2. Cargo依存(`cargo update`。メジャー更新は個別に判断)
+    3. pnpm依存(`pnpm update`。同上)
+    4. GitHub Actionsのメジャーバージョン
+       (方針・記録は [ADR 0003](../adr/0003-ci-pipeline.md) 側)
+  - **更新後の検証**: `cargo test` / `clippy -D warnings` / `fmt` と
+    `pnpm -r typecheck` / `pnpm -r build` を通してからコミットする
+  - Dependabot等の自動PRは現体制(少人数+エージェント)では導入しない。
+    運用コストが見合う規模になったら再検討する
 
 ## フェーズ対応
 
