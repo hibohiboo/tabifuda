@@ -102,6 +102,11 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
   クリックで個々の日本語テスト名一覧を開閉できる
 - [x] pages.ymlにdtolnay/rust-toolchain + Swatinem/rust-cacheを追加
   (ADR 0003に追記済み)
+- **既知の課題(2026-07-31、未対応)**: `gen-test-report.mjs`の
+  Running見出し対応付けは、cargo本体(stderr)とテストバイナリ(stdout)という
+  別プロセス間の書き込みタイミング競合に依存しており、Ubuntu CIでのみ
+  まれに失敗しうる。詳細・対応候補は
+  [plans/test-report-running-header-race.md](plans/test-report-running-header-race.md)
 
 ### C2: RDRAデータ拡充+関係トレース(完了)
 - [x] information.yaml(14要素)/ states.yaml(3状態+6遷移)/ requirements.yaml
