@@ -1,86 +1,74 @@
-# 調査メモ: gen-test-report.mjsの「Running見出し」対応がCIでのみ崩れる問題
+# 調査記録: gen-test-report.mjsの「Running見出しが無い」CI失敗(原因: CARGO_TERM_COLOR)
 
-状態: 未対応(今後の課題として保留)。発生日: 2026-07-31。
+状態: **解決済み**(2026-07-31)。原因は当初診断(プロセス間の出力タイミング競合)
+とは異なり、**CI環境の`CARGO_TERM_COLOR=always`によるANSI色付け**だった。
+ファイル名の`race`は当初の誤診断の名残(コミット済みのため改名していない)。
 
 ## 症状
 
-`.github/workflows/pages.yml` の `pnpm -r typecheck` が、Ubuntu CI上でのみ
-以下のエラーで落ちた(ローカルWindowsでは同じコミットで再現しない)。
+`.github/workflows/pages.yml` / `ci.yml` の `pnpm -r typecheck` が、
+Ubuntu CI上でのみ以下のエラーで落ちる(ローカルWindowsでは再現しない)。
 
 ```
 Error: test行に対応するRunning見出しが無い(cargoの出力形式が変わった可能性):
 test chronicle::tests::冒険記の描画はSessionEndedのoutcomeを表示する ... ok
 ```
 
-このエラー自体は
-[tools/docs-site/scripts/gen-test-report.mjs](../../../../../tools/docs-site/scripts/gen-test-report.mjs)
-の `parse()` が投げるガード(未知の出力形式を検知して落とす安全弁)であり、
-コミット ec9e74e「Fix gen-test-report.mjs: stdout/stderr分離パースを
-OS合流の単一ストリームへ」で一度直したのと**同じ症状**が別の形で再発したもの。
+コミット ec9e74e「stdout/stderr分離パースをOS合流の単一ストリームへ」で
+パース方式を根本から変えた後も、CIは同じ箇所で同じエラーを出し続けていた。
 
-## 調査結果(根本原因)
+## 根本原因
 
-`cargo test --workspace` の出力は、実は**2つの別プロセス**が書き込んでいる:
-
-- `   Running unittests src/main.rs (...)` … **cargo本体**がstderrに出す進捗表示
-- `running N tests` / `test ... ok` … **cargoが起動した子プロセス(テストバイナリ)**が
-  stdoutに出す結果
-
-ec9e74eの修正は「stdout/stderrを別々にNode側で捕捉し、出現順をインデックスで
-対応付ける」実装を「シェルの`2>&1`でOSレベルに合流させ、1本のストリームとして
-出現順どおりに読む」実装に変えた。これは**インデックス対応のズレ**という
-旧バグは直したが、**2つの独立したOSプロセスがそれぞれ同じパイプに書き込む際の
-書き込みタイミング競合**までは解消していない。`2>&1`は両者を同じ書き込み先に
-まとめるだけで、「cargoの`Running`メッセージが子プロセスの最初の出力より
-物理的に先に書き込まれる」ことまでは保証しない。
-
-親(cargo)の書き込みがわずかに遅延し、その間に子(テストバイナリ)が先に
-`running N tests`/`test ... ok`を書き込んでしまえば、パーサーから見た出現順は
-入れ替わる。これはプロセススケジューリングに依存する競合なので:
-
-- Windows(手元)ではこれまでのところ毎回「Running出力が先に確定する」
-  タイミングになっている(ローカル再現で確認。下記のログ抜粋を参照)
-- Ubuntu CIランナー(共有vCPU・仮想化環境)はプロセス切り替えの揺らぎが
-  ローカルより大きく、特に**ワークスペース中で最初に実行されるターゲット**
-  (今回は`chronicle::tests`を含む tabifuda-cli の `unittests src/main.rs`。
-  直前に既に確定済みの出力が無く「バッファの余裕」が無い最初のターゲットほど
-  競合が表面化しやすい)で顕在化しやすい
-
-と考えられる。非決定的な競合なので、**再実行すれば通る可能性がある**
-(実際に競合が起きるかはランナーのタイミング次第)。
-
-### ローカル再現ログ(参考。競合が起きなかった例)
+**`dtolnay/rust-toolchain`アクションが、未設定の場合に`CARGO_TERM_COLOR=always`を
+`$GITHUB_ENV`へ書き込む**(CIログのアクション実行部で確認)。これにより
+CI上のcargoは非TTYのパイプ相手でも自身の進捗見出しをANSI色付きで出力する:
 
 ```
-     Running unittests src\main.rs (target\debug\deps\tabifuda_cli-....exe)
-
-running 10 tests
-test chronicle::tests::冒険記の描画はSessionEndedのoutcomeを表示する ... ok
-...
+^[[1m^[[92m     Running^[[0m unittests src/main.rs (target/debug/deps/...)
 ```
 
-手元では常にRunning見出しが先に確定しており、この前提の脆さが
-可視化しにくかった。
+行頭がエスケープシーケンス(`\x1b[1m\x1b[92m`)で始まるため、
+[gen-test-report.mjs](../../../../../tools/docs-site/scripts/gen-test-report.mjs)の
+`RUNNING_RE = /^ {2,}Running .../`が**一度もマッチせず**、最初のtest行で
+「対応するRunning見出しが無い」で落ちる。一方、個々の`test ... ok`行は
+テストバイナリ(libtest)が自前のTTY判定で色を付けないため素のまま出力され、
+`TEST_LINE_RE`にはマッチする。この非対称が症状の形(見出しだけ消える)を説明する。
 
-## 今後の対応候補(未着手)
+ローカルでは`CARGO_TERM_COLOR`が未設定でcargoが非TTYを検知し色を付けないため
+再現しなかった。ローカルで`CARGO_TERM_COLOR=always`を設定すると、
+**Windows上でもCIと同一のエラーが同一のテスト行で再現**することを確認した。
 
-テキスト出力の出現順に依存する限り、この種の競合は原理的に完全には
-潰せない。確実にするなら、パース方式そのものを変える必要がある:
+## 当初の誤診断とその棄却
 
-**案: スイート(crate×target)ごとに`cargo test`を個別実行し、
-実行コマンド自体からスイートを特定する。** 「Running見出しをテキストから
-拾って対応付ける」処理自体を無くす。
+当初は「cargo本体(stderr)とテストバイナリ(stdout)という別プロセスの
+書き込みタイミング競合が`2>&1`合流後の出現順を崩す」と診断していたが、誤り:
 
-- 長所: プロセス間の出力タイミングに一切依存しなくなり、確定的になる
-- 短所: cargoの起動回数が増え`gen:test-report`の実行時間が伸びる。
-  `tools/docs-site/scripts/gen-test-report.mjs` の`SUITES`定義
-  (crate×target→スイートの対応)を今より詳細化する必要があり、
-  実装変更の規模は小さくない
-- 着手する場合は、実装前に本タスク(D2)のセクション記述
-  (「stdout/stderrを出現順で対応付けてスイート単位に分類」という現在の記述)
-  を新方式に合わせて更新すること(CLAUDE.md最重要ルール1)
+1. cargoは`Running`見出しを書き込んで**から**テストバイナリを起動する。
+   `2>&1`で両者が同一パイプを共有する場合、書き込みはwrite()の呼び出し順で
+   並ぶため、順序の逆転は構造的に起きにくい
+2. ec9e74eで実装方式を全く変えた後も**同一箇所で決定的に**失敗し続けた。
+   非決定的な競合なら失敗箇所・頻度が揺れるはず
+3. `gh run view <id> --log`でCIの実ログを確認したところ、失敗ステップのenvに
+   `CARGO_TERM_COLOR: always`が表示されており、上記のローカル再現で確定した
 
-## 現状の判断
+教訓: 「ローカルで通りCIで落ちる」問題は、理論で説明を組み立てる前に
+`gh run view --log`でCIの実ログ(特にステップのenvブロック)を見る。
+同一箇所で決定的に再現する失敗は、タイミング競合ではなく環境差をまず疑う。
 
-2026-07-31時点ではユーザー判断により**修正は保留**。再発時にCI再実行で
-様子を見るか、本メモの対応案に着手するかを判断する。
+## 対処(実施済み)
+
+`runCargoTest()`のspawnSyncに`env: { ...process.env, CARGO_TERM_COLOR: "never" }`を
+明示し、スクリプトが自分の子プロセスの出力形式を環境に依存せず固定するようにした。
+`CARGO_TERM_COLOR=always`環境下でローカル実行し、13スイート162件の
+生成成功を確認済み。
+
+検討したが採らなかった代替案:
+
+- **スイートごとに`cargo test`を個別実行し、コマンド自体からスイートを特定する**
+  (誤診断時の対応候補): 出力順への依存を消す点では最も堅牢だが、cargo起動回数が
+  増え実装変更も大きい。真因が判明した今、環境変数の固定で十分
+- **ワークフロー側で`CARGO_TERM_COLOR: never`を設定**: pages.ymlとci.ymlの
+  両方に書く必要があり、CIログの他のcargo出力(lint-test等)の色も失われる。
+  問題はスクリプトのパース都合なので、スクリプト側で閉じるのが正しい
+- **パース前にANSIエスケープを除去**: 動くが対症療法。色を出させない方が
+  出力全体の前提が単純になる

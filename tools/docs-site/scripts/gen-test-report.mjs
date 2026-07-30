@@ -118,11 +118,15 @@ function suiteIdFor(runningPath, fullTestName) {
 
 function runCargoTest() {
   // shell:trueで2>&1を効かせ、stdout/stderrをOSレベルで1本の実出力順に合流させる。
+  // CARGO_TERM_COLOR=neverの明示は必須: 環境側でalwaysが設定されていると(GitHub
+  // Actionsではdtolnay/rust-toolchainが設定する)Running等の見出しにANSI色が付き、
+  // 行頭アンカーの正規表現が一切マッチしなくなる。
   const result = spawnSync("cargo test --workspace --no-fail-fast 2>&1", {
     cwd: repoRoot,
     encoding: "utf-8",
     maxBuffer: 32 * 1024 * 1024,
     shell: true,
+    env: { ...process.env, CARGO_TERM_COLOR: "never" },
   });
   if (result.error) throw result.error;
   return result.stdout;

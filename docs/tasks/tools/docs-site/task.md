@@ -102,10 +102,10 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
   クリックで個々の日本語テスト名一覧を開閉できる
 - [x] pages.ymlにdtolnay/rust-toolchain + Swatinem/rust-cacheを追加
   (ADR 0003に追記済み)
-- **既知の課題(2026-07-31、未対応)**: `gen-test-report.mjs`の
-  Running見出し対応付けは、cargo本体(stderr)とテストバイナリ(stdout)という
-  別プロセス間の書き込みタイミング競合に依存しており、Ubuntu CIでのみ
-  まれに失敗しうる。詳細・対応候補は
+- [x] **CI失敗の修正(2026-07-31)**: CI(dtolnay/rust-toolchainが設定する
+  `CARGO_TERM_COLOR=always`)でcargoのRunning見出しにANSI色が付き、
+  `gen-test-report.mjs`の見出し正規表現が不マッチになる問題を、spawnSyncの
+  envで`CARGO_TERM_COLOR=never`を明示して解決。調査記録は
   [plans/test-report-running-header-race.md](plans/test-report-running-header-race.md)
 
 ### C2: RDRAデータ拡充+関係トレース(完了)
