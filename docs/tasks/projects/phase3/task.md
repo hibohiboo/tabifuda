@@ -1,8 +1,8 @@
 ---
-status: planned
+status: in-progress
 cycles:
-  C0: planned
-  C1: planned
+  C0: done
+  C1: done
   C2: planned
   C3: planned
   C4: planned
