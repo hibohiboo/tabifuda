@@ -157,9 +157,17 @@ Node.jsランタイムの引き上げ(node20→node24)やnpm限定の自動キ�
 
 同ジョブに、TS型定義(`crates/tabifuda-wasm/bindings/`。`ts-rs`による自動生成、
 wasm-boundary.md「決定した論点1」)のドリフト検査ステップも追加する:
+`TS_RS_EXPORT_DIR`を`crates/tabifuda-wasm/bindings`の絶対パスに設定した上で
 `cargo test -p tabifuda-core --features ts export_bindings` →
 `cargo test -p tabifuda-wasm --features ts export_bindings` で
 `bindings/`を再生成し、`git diff --exit-code -- crates/tabifuda-wasm/bindings`
 で差分が無いことを確認する(コミットされたbindings/が最新のRust型と
 同期していることを保証する)。`bindings/`はgit管理対象(生成物だが、
 apps/web(P3 C2〜)がこれをimportする配布物のため)。
+
+**`TS_RS_EXPORT_DIR`は省略しない。** 省略するとts-rsの既定出力先
+(`<crateのCargo.tomlがあるディレクトリ>/bindings/`)に書き出され、
+`tabifuda-core`側の型が`crates/tabifuda-core/bindings/`という別の場所に
+生成されてしまう。ドリフト検査の対象は`crates/tabifuda-wasm/bindings/`に
+固定しているため、これを忘れると`tabifuda-core`側の変更が実質検証されない
+まま緑になる(2026-08-01、ci.yml初版で発生・修正)。
