@@ -128,3 +128,38 @@ Node.jsランタイムの引き上げ(node20→node24)やnpm限定の自動キ�
 `Swatinem/rust-cache@v2`・`gitleaks/gitleaks-action@v3`・
 `rustsec/audit-check@v2`・`dtolnay/rust-toolchain@stable` は
 既に最新メジャーのため変更なし。
+
+## 追記(2026-08-01): wasm-testジョブ(P3 C1)
+
+`crates/tabifuda-wasm`(docs/design/wasm-boundary.md)を追加し、
+`#[wasm_bindgen_test]`による境界の型往復テストを実装した。
+このテストは`target_arch = "wasm32"`限定でコンパイルされるため
+`cargo test --workspace`(lint-testジョブ、ホストターゲット)の対象にならず、
+専用ジョブが必要(wasm-boundary.md「crateの物理配置」の指摘どおり、これを
+怠るとテストが1本も実行されずCIが緑になる)。
+
+`ci.yml`に`wasm-test`ジョブを追加する:
+
+| ジョブ | 内容 | 失敗時の扱い |
+|---|---|---|
+| wasm-test | `dtolnay/rust-toolchain`(`targets: wasm32-unknown-unknown`)→ `jetli/wasm-pack-action`でwasm-pack導入 → `wasm-pack test --node crates/tabifuda-wasm` | CI失敗(必須) |
+
+- 追加アクション: `jetli/wasm-pack-action`(メジャータグ`@v0.4.0`固定。
+  本ADR冒頭の「メジャー・パッチ更新は自動追従」の対象外とし、
+  wasm-pack自体の破壊的変更を待ってからバージョンを上げる)
+- `--node`でNode.js実行とする(ブラウザヘッドレス実行は導入しない。
+  Node.jsはdocs-siteジョブで既に導入実績があり、追加のブラウザ
+  インストールコストを避けるため)
+- `wasm-bindgen`クレートと`wasm-bindgen-cli`(wasm-packが内部で使う)の
+  バージョン不一致はビルド失敗の典型要因(wasm-boundary.md参照)。
+  不一致が起きたら`crates/tabifuda-wasm/Cargo.toml`の`wasm-bindgen`
+  バージョンを`wasm-pack`が解決したバージョンに合わせる
+
+同ジョブに、TS型定義(`crates/tabifuda-wasm/bindings/`。`ts-rs`による自動生成、
+wasm-boundary.md「決定した論点1」)のドリフト検査ステップも追加する:
+`cargo test -p tabifuda-core --features ts export_bindings` →
+`cargo test -p tabifuda-wasm --features ts export_bindings` で
+`bindings/`を再生成し、`git diff --exit-code -- crates/tabifuda-wasm/bindings`
+で差分が無いことを確認する(コミットされたbindings/が最新のRust型と
+同期していることを保証する)。`bindings/`はgit管理対象(生成物だが、
+apps/web(P3 C2〜)がこれをimportする配布物のため)。
