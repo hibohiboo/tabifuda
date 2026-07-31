@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::ids::CharacterId;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Role {
     /// 進行役。Player の権限を包含する(PlayCard/Propose も可)。

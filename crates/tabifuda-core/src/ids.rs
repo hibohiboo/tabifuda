@@ -3,6 +3,7 @@
 macro_rules! id_type {
     ($name:ident) => {
         #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+        #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
         #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
         pub struct $name(pub String);
     };

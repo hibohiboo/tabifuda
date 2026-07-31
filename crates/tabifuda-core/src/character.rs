@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::ids::{CardId, CharacterId, StatId};
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Character {
     pub id: CharacterId,

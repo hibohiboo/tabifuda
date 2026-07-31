@@ -11,6 +11,7 @@ use crate::primitives::{BoundedString, Outcome};
 use crate::scenario::Scenario;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum Command {

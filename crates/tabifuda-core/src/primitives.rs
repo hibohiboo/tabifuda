@@ -5,6 +5,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// セッションの結末。勝利/敗北カードの選択で分岐する(domain-model.md参照)。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Outcome {
     Victory,
@@ -56,6 +57,23 @@ impl<'de, const MAX: usize> Deserialize<'de> for BoundedString<MAX> {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let value = String::deserialize(deserializer)?;
         Self::try_new(value).map_err(serde::de::Error::custom)
+    }
+}
+
+/// ts-rsはconst genericをフィールド型として直接扱えないため手動実装する
+/// (`derive(TS)`不可。wasm-boundary.md「TS型定義の同期方法」の落とし穴)。
+/// 上限MAXの情報はTS側の型には反映されない(JSON上は単なる`string`)。
+#[cfg(feature = "ts")]
+impl<const MAX: usize> ts_rs::TS for BoundedString<MAX> {
+    type WithoutGenerics = Self;
+    type OptionInnerType = Self;
+
+    fn name(_: &ts_rs::Config) -> String {
+        String::from("string")
+    }
+
+    fn inline(cfg: &ts_rs::Config) -> String {
+        <Self as ts_rs::TS>::name(cfg)
     }
 }
 

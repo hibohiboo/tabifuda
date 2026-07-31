@@ -16,6 +16,7 @@ use crate::scenario::{Phase, Scenario, SceneDef, Transition};
 use crate::session::Session;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum PatchOp {
@@ -39,6 +40,7 @@ pub enum PatchOp {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScenarioPatch {
     #[cfg_attr(
@@ -54,6 +56,7 @@ pub struct ScenarioPatch {
 
 /// validateの拒否理由。tabifuda-coreの公開APIはpanicしない(CLAUDE.md規約)。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, thiserror::Error)]
 #[non_exhaustive]
 pub enum PatchError {

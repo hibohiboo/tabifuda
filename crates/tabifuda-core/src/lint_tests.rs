@@ -317,3 +317,27 @@ fn lintは到達不能シーンには詰み警告を重複報告しない() {
     let s = scenario(vec![end_card], only(Phase::Opening, vec![s1, s2]));
     assert!(!issues(&s).contains(&LintIssue::DeadEndScene(scn("s2"))));
 }
+
+#[test]
+fn lintが生成する全findingはseverityがissueから導出した値と一致する() {
+    use crate::lint::LintFinding;
+
+    // wasm境界越しにLintFindingをデコードしない設計(lint.rsのdoc comment
+    // 参照)のため、lintが自ら生成するfindingがseverity/issueの整合を
+    // 常に満たすことを確認する。
+    let mut end_card = card_def("end");
+    end_card.effects.push(Effect::EndSession(Outcome::Victory));
+    let mut s1 = scene("s1");
+    s1.deals.push(Deal {
+        card: cid("end"),
+        to: Target::Party,
+    });
+    let s2 = scene("unreachable");
+    let s = scenario(vec![end_card], only(Phase::Opening, vec![s1, s2]));
+
+    let findings: Vec<LintFinding> = lint(&s);
+    assert!(!findings.is_empty());
+    for f in &findings {
+        assert_eq!(f.severity, f.issue.severity());
+    }
+}
