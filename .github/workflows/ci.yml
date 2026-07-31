@@ -17,6 +17,22 @@ jobs:
       - run: cargo clippy --workspace -- -D warnings
       - run: cargo test --workspace
 
+  wasm-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+      - run: wasm-pack test --node crates/tabifuda-wasm
+      - name: Regenerate TS bindings and check drift
+        run: |
+          cargo test -p tabifuda-core --features ts export_bindings
+          cargo test -p tabifuda-wasm --features ts export_bindings
+          git diff --exit-code -- crates/tabifuda-wasm/bindings
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:
