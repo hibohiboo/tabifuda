@@ -8,7 +8,7 @@ export function SceneView({
 }: {
   narration: string | undefined;
   hand: HandCard[];
-  onPlay: (instanceId: string) => void;
+  onPlay: (instanceId: string, freeText: string | null) => void;
 }) {
   return (
     <section>

@@ -15,9 +15,9 @@ function App() {
     });
   };
 
-  const handlePlay = (instanceId: string) => {
+  const handlePlay = (instanceId: string, freeText: string | null) => {
     dispatch({
-      PlayCard: { by: SOLO_CHARACTER_ID, card: instanceId, free_text: null },
+      PlayCard: { by: SOLO_CHARACTER_ID, card: instanceId, free_text: freeText },
     });
   };
 
