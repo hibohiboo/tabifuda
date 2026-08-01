@@ -44,7 +44,6 @@ future-requirements.mdに残し、C3では実装しない(先回り実装の回�
 ## 終わり方
 
 - [x] cargo test --workspace / clippy / fmt / `--features ts`ビルド
-- [ ] design-syncで乖離チェック
-- [ ] demo.mdへの影響確認(portable/finalizeはCLI未配線のためC4まで
-      表面化しない想定。確認のみ)
-- [ ] agent-journal.mdへの追記(誤解があれば)
+- [x] design-syncで乖離チェック(乖離ゼロ。chronicle.rsのRewardsGranted/CardsDiscarded未対応をC4への申し送りとして記録)
+- [x] demo.mdへの影響確認(finalizeはCLI未配線でportableタグ付きカードも同梱シナリオに無いため、現状デモ挙動への影響なし。C4で再確認)
+- [x] agent-journal.mdへの追記(誤解があれば): 該当なし(記録に値する誤解は発生しなかった)
