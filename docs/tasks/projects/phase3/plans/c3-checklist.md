@@ -9,8 +9,10 @@
 1. [x] `core/taggedUnion.ts`追加 + `client-conventions.md`にハンドラマップ
    パターンを追記
 2. [x] `core/bindings.ts`拡張、`useGameSession.ts`が`events`を返すよう変更
-3. [ ] `chronicle/eventRenderers.tsx` + `chronicle/Timeline.tsx`
-   (CardRemoved非描画・カード名解決方針をclient-conventions.mdに追記)
+3. [x] `chronicle/eventRenderers.tsx` + `chronicle/Timeline.tsx`
+   (CardRemoved非描画・カード名解決方針をclient-conventions.mdに追記済み)。
+   App.tsxに配線。ハンドラマップのキー不足が実際にtscエラーになることを
+   手動確認済み(CardRemovedを一時削除→復元)
 4. [ ] `components/FreeTextInput.tsx` + `Hand.tsx`のDialogue自由入力
 5. [ ] `components/ProposalForm.tsx` + `SceneView.tsx`/`App.tsx`配線
 6. [ ] `session/gmResponse.ts` + `components/GmJudgePanel.tsx`(y/n/c) +

@@ -1,12 +1,13 @@
 import { ErrorBanner } from "./components/ErrorBanner";
 import { SceneView } from "./components/SceneView";
+import { Timeline } from "./chronicle/Timeline";
 import { findSceneDef, visibleHand } from "./session/scenarioLookup";
 import { createSoloCharacter, SOLO_ACTOR, SOLO_CHARACTER_ID } from "./session/soloParty";
 import { useGameSession } from "./session/useGameSession";
 import { simpleHunt } from "./scenario/simpleHunt";
 
 function App() {
-  const { session, error, dispatch } = useGameSession(SOLO_ACTOR);
+  const { events, session, error, dispatch } = useGameSession(SOLO_ACTOR);
 
   const handleStart = () => {
     dispatch({
@@ -44,6 +45,7 @@ function App() {
         typeof session.status === "object" &&
         "Paused" in session.status && <p>予期しない状態です(提案の裁定待ち)</p>}
       <ErrorBanner error={error} />
+      {session !== null && <Timeline events={events} scenario={session.scenario} />}
     </main>
   );
 }
