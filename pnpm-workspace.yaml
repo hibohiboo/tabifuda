@@ -1,5 +1,5 @@
 # ワークスペース構成(パッケージマネージャの選定根拠: docs/adr/0002-package-manager.md)。
-# packages/uiはcomponent-catalogタスクで前倒し追加(packages/schemaはP4のまま)
+# packages/ui・packages/eslint-configは前倒し追加(packages/schemaはP4のまま)
 packages:
   - "tools/*"
   - "apps/*"

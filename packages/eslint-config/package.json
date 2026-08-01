@@ -1,0 +1,19 @@
+{
+  "name": "@tabifuda/eslint-config",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./base": "./base.js",
+    "./frontend": "./frontend.js"
+  },
+  "peerDependencies": {
+    "eslint": "^10.0.0"
+  },
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-sonarjs": "^4.2.0",
+    "typescript-eslint": "^8.65.0"
+  }
+}

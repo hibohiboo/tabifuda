@@ -57,3 +57,20 @@ apps/webのUIコンポーネントをtools/docs-siteのコンポーネントカ�
 [../design/client-conventions.md](../design/client-conventions.md)「UIコンポーネントの
 置き場(packages/ui)」、経緯は
 [../tasks/tools/component-catalog/task.md](../tasks/tools/component-catalog/task.md)。
+
+## 追記(2026-08-01): packages/eslint-config追加(ESLint設定の共通化)
+
+apps/webとpackages/uiのESLint設定(flat config)がほぼ同一のまま重複していたため、
+`packages/eslint-config`(`base.js`+`frontend.js`)へ切り出した。あわせて
+`eslint-plugin-sonarjs`(recommended設定)を`base.js`に追加した(エージェントが
+実装主体のプロジェクトにおける自動品質ガードレールとして採用。人間との相談で決定)。
+
+- `base.js`はフロントエンド/バックエンド共通の土台として設計しており、
+  P4でapps/apiが加わる際は`backend.js`を追加して再利用する想定
+  (sonarjsを含む品質ルールを1箇所で管理できる)
+- `frontend.js`はbase.js+react-hooks+UGC禁止ルール(dangerouslySetInnerHTML)。
+  apps/web・packages/uiはこれをそのままexportするだけになった
+- tools/docs-siteは対象外(TypeScript 7系を使用しており、
+  typescript-eslintが現時点で未対応のため。ADR 0006参照)。docs-siteへの
+  lint導入は別途判断する
+- 経緯: [../tasks/tools/eslint-config/task.md](../tasks/tools/eslint-config/task.md)
