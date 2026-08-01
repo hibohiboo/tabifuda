@@ -54,6 +54,8 @@ fn event_kind(event: &Event) -> &'static str {
         Event::ScenarioPatched { .. } => "ScenarioPatched",
         Event::ProposalJudged { .. } => "ProposalJudged",
         Event::SessionEnded { .. } => "SessionEnded",
+        Event::RewardsGranted { .. } => "RewardsGranted",
+        Event::CardsDiscarded { .. } => "CardsDiscarded",
         _ => "Unknown",
     }
 }

@@ -98,6 +98,25 @@ pub fn render(events: &[Event]) -> String {
                 lines.push(String::new());
                 lines.push(format!("=== 冒険の終わり: {outcome:?} ==="));
             }
+            Event::RewardsGranted { to, cards } => {
+                let names: Vec<&str> = cards.iter().map(|def| def.name.as_str()).collect();
+                lines.push(format!(
+                    "{}は「{}」を持ち帰った。",
+                    to.0,
+                    names.join("」「")
+                ));
+            }
+            Event::CardsDiscarded { from, cards } => {
+                let names: Vec<String> = cards
+                    .iter()
+                    .map(|card| card_name(scenario.as_ref(), card))
+                    .collect();
+                lines.push(format!(
+                    "{}は「{}」を持ち出せなかった。",
+                    from.0,
+                    names.join("」「")
+                ));
+            }
             _ => lines.push("（未知の出来事が記録された)".to_string()),
         }
     }
@@ -204,5 +223,37 @@ mod tests {
         }];
         let text = render(&events);
         assert!(text.contains("Victory"));
+    }
+
+    /// finalize(domain-model.md「セッション終了処理(finalize)」)の
+    /// RewardsGranted/CardsDiscardedが「未知の出来事」に落ちず、
+    /// 持ち帰り・破棄を明示的に描画すること。
+    #[test]
+    fn 冒険記の描画はRewardsGrantedとCardsDiscardedを明示する() {
+        use tabifuda_core::{CardDef, CardKind};
+
+        let treasure = CardDef {
+            id: CardId("treasure".to_string()),
+            name: BoundedString::try_new("宝物").unwrap(),
+            kind: CardKind::Item,
+            text: BoundedString::try_new("").unwrap(),
+            tags: vec![],
+            effects: vec![],
+            requires: vec![],
+        };
+        let events = vec![
+            Event::RewardsGranted {
+                to: CharacterId("hunter".to_string()),
+                cards: vec![treasure],
+            },
+            Event::CardsDiscarded {
+                from: CharacterId("hunter".to_string()),
+                cards: vec![CardId("stone".to_string())],
+            },
+        ];
+        let text = render(&events);
+        assert!(!text.contains("未知の出来事"), "text:\n{text}");
+        assert!(text.contains("宝物") && text.contains("持ち帰った"));
+        assert!(text.contains("stone") && text.contains("持ち出せなかった"));
     }
 }

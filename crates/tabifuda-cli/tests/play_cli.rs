@@ -424,6 +424,12 @@ fn 持ち出したカードはパーティファイルへ書き戻される() {
     );
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("冒険の終わり: Victory"));
+    // 冒険記にRewardsGrantedが明示される(「未知の出来事」に落ちない)。
+    assert!(
+        stdout.contains("宝物") && stdout.contains("持ち帰った"),
+        "stdout:\n{stdout}"
+    );
+    assert!(!stdout.contains("未知の出来事"), "stdout:\n{stdout}");
     assert!(
         stdout.contains("パーティを書き戻しました"),
         "stdout:\n{stdout}"
