@@ -2,7 +2,7 @@
 status: planned
 cycles:
   C1: done
-  C2: planned
+  C2: done
   C3: planned
   C4: planned
 ---

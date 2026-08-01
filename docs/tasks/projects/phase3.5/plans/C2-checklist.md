@@ -21,22 +21,22 @@
 
 ## 実装
 
-- [ ] tabifuda-cli: `party.rs`モジュール新設(読み込み+検証)
-- [ ] play.rs: `run`が`party: Option<Vec<Character>>`を受け取れるように変更。
+- [x] tabifuda-cli: `party.rs`モジュール新設(読み込み+検証)
+- [x] play.rs: `run`が`party: Option<Vec<Character>>`を受け取れるように変更。
       Noneなら従来の既定ソロパーティ、Someならそれを使い`party[0]`を
       操作キャラとする
-- [ ] main.rs: `play <file> --party <party-file>`の引数解釈を追加
+- [x] main.rs: `play <file> --party <party-file>`の引数解釈を追加
 
 ## テスト
 
-- [ ] 結合テスト: `--party`で読み込んだパーティのキャラ名が画面に表示される
-- [ ] 結合テスト: 空配列のパーティファイルは拒否される
-- [ ] 結合テスト: CharacterId重複のパーティファイルは拒否される
-- [ ] party.rsの単体テスト(読み込み成功・各拒否系)
+- [x] 結合テスト: `--party`で読み込んだパーティのキャラ名が画面に表示される
+- [x] 結合テスト: 空配列のパーティファイルは拒否される
+- [x] 結合テスト: CharacterId重複のパーティファイルは拒否される
+- [x] party.rsの単体テスト(読み込み成功・各拒否系)
 
 ## 終わり方
 
-- [ ] cargo test --workspace / clippy / fmt
-- [ ] design-syncで乖離チェック
-- [ ] demo.mdへの影響確認(--partyの使い方を追記するか検討)
-- [ ] agent-journal.mdへの追記(誤解があれば)
+- [x] cargo test --workspace / clippy / fmt
+- [x] design-syncで乖離チェック
+- [x] demo.mdへの影響確認(--partyの使い方を追記するか検討)
+- [x] agent-journal.mdへの追記(誤解があれば)

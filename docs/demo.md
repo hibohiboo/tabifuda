@@ -25,6 +25,15 @@ cargo run -p tabifuda-cli -- play shared/scenarios/simple-hunt.json
 
 初回はビルドのため数十秒かかる。2回目以降は数秒で起動する。
 
+既定では「旅人」1人のソロパーティで始まる。`--party <party-file>` で
+`Vec<Character>`形式のJSONファイル(例:
+`[{"id":"traveler2","name":"旅人2","stats":{},"deck":[]}]`)を渡すと、
+そのパーティで始められる(先頭のキャラを操作する)。
+
+```
+cargo run -p tabifuda-cli -- play shared/scenarios/simple-hunt.json --party my-party.json
+```
+
 ## 3. 画面の読み方・操作方法
 
 各ターン、次の情報が表示される。
