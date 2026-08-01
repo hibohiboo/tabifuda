@@ -24,9 +24,12 @@ apps/
   web/          TS+WASMフロントエンド(P3〜)
   api/          Hono on Lambda(P4〜)
 packages/
+  ui/           共有UIコンポーネント(TS+React。apps/web・tools/docs-siteが利用。
+                wasmランタイム非依存・ビルドレスでソースを直接消費)
   schema/       Drizzleスキーマ・共有型(P4〜)
 tools/
-  docs-site/    docs可視化サイト(RDRA/進捗/テストの3ビュー。ゲーム本体と非依存)。
+  docs-site/    docs可視化サイト(RDRA/進捗/テスト/コンポーネントの4ビュー。
+                packages/ui以外はゲーム本体と非依存)。
                 公開中: https://hibohiboo.github.io/tabifuda/
 docs/
   requirements/ 要件(将来要望メモ含む)

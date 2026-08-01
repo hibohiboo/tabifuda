@@ -45,3 +45,15 @@ npmを採用しない理由: pnpmに対する優位が「追加インストー�
   上に追加で検討する(本ADRの範囲外)
 - 将来Lambdaランタイムをbun/LLRT等に置き換える判断がなされた場合、
   本ADRを再評価する
+
+## 追記(2026-08-01): packages/uiの前倒し追加(component-catalogタスク)
+
+`packages/*`はP4(バックエンド、`packages/schema`)からの導入を想定していたが、
+apps/webのUIコンポーネントをtools/docs-siteのコンポーネントカタログからも
+利用可能にするため、`packages/ui`(`@tabifuda/ui`)をP4を待たずに追加した。
+`pnpm-workspace.yaml`の`packages`に`packages/*`を追記(本ADR「帰結」の
+「apps/web・apps/api・packages/schema追加時に整備する」対象を`packages/ui`にも
+拡張)。`packages/schema`の導入時期(P4〜)自体は変更しない。詳細な設計判断は
+[../design/client-conventions.md](../design/client-conventions.md)「UIコンポーネントの
+置き場(packages/ui)」、経緯は
+[../tasks/tools/component-catalog/task.md](../tasks/tools/component-catalog/task.md)。

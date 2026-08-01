@@ -34,8 +34,13 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
   規範文書と食い違ったら**YAML側を直す**(正を二重化しない)
 - サイクル粒度の進捗の**正は各 task.md の frontmatter**
   (規約は docs/tasks/README.md)。ビューアはそれを表示するだけ
-- ビューア(tools/docs-site/)は表示専用。ゲーム本体(crates/, 将来のapps/)
-  とはコードを共有しない
+- ビューア(tools/docs-site/)は表示専用。ゲーム本体(crates/, apps/)
+  とはコードを共有しない。**例外**(2026-08-01追加、component-catalogタスク):
+  `packages/ui`(`@tabifuda/ui`)のみ依存してよい。同パッケージはwasm
+  ランタイム・ビルド成果物を含まない確定型の表示層のみで構成され、
+  「ゲーム本体のロジック・ビルド手順に引きずられない」という本原則の
+  趣旨(docs-siteのビルドを単純・独立に保つ)を壊さないため
+  (詳細: [../component-catalog/task.md](../component-catalog/task.md))
 
 ## RDRAレイヤーと既存docsの対応
 
