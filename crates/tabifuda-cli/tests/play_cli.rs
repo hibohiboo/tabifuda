@@ -436,6 +436,17 @@ fn 持ち出したカードはパーティファイルへ書き戻される() {
     assert_eq!(owned[0]["id"], "loot");
     assert_eq!(owned[0]["tags"], serde_json::json!(["#portable"]));
 
+    // パーティがセッションを跨いで持続する: owned_cards込みの書き戻し後の
+    // パーティファイルを、そのまま次のセッションの`--party`として問題なく
+    // 読み込める(空配列・CharacterId重複といった検証にも引っかからない)。
+    let output2 = run_play_with_party_at(&scenario_path, &party_path, "q\nn\n");
+    assert!(
+        output2.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output2.stdout),
+        String::from_utf8_lossy(&output2.stderr)
+    );
+
     std::fs::remove_dir_all(&dir).ok();
 }
 
