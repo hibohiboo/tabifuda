@@ -70,5 +70,25 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: pnpm install --frozen-lockfile
-      - run: pnpm -r typecheck
-      - run: pnpm -r build
+      # apps/web の巻き込みを避けるため --filter で絞る(docs/adr/0003-ci-pipeline.md参照)
+      - run: pnpm --filter @tabifuda/docs-site typecheck
+      - run: pnpm --filter @tabifuda/docs-site build
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @tabifuda/web typecheck
+      - run: pnpm --filter @tabifuda/web lint
+      - run: pnpm --filter @tabifuda/web build
