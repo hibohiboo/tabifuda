@@ -118,11 +118,13 @@ wasm-bindgen-testの型往復テストはこの内部関数に対しても書け
      custom `Serialize`/`Deserialize`のため`derive(TS)`が付かず、
      `impl<const MAX: usize> TS for BoundedString<MAX>`(`string`として
      出力。primitives.rs参照)を手書きした
-   - **検証**: `HashMap<UserId, Role>`のような「キーがstruct newtype」の
+   - **検証**: `BTreeMap<UserId, Role>`のような「キーがstruct newtype」の
      フィールドは`{ [key in UserId]: Role }`という形で出力される。
      `UserId`はJSON上は素の文字列(`type UserId = string`)なので、
      これは`{ [key: string]: Role }`と等価に解決されることをTypeScript
-     コンパイラで確認済み(mapped typeの`in`右辺がstring型の場合の挙動)
+     コンパイラで確認済み(mapped typeの`in`右辺がstring型の場合の挙動)。
+     `HashMap`から`BTreeMap`化(下記「既知の課題」参照)した後も
+     ts-rsの出力形は変わらないことを`export_bindings`再実行で確認済み
    - CIでのドリフト検査は adr/0003-ci-pipeline.md「wasm-testジョブ」参照
 2. **`LintFinding`/`LintIssue`/`Severity`へのSerialize/Deserialize追加**:
    C1スコープに含める。既存の`#[non_exhaustive]`・外部タグ付け方針と整合する。
@@ -148,11 +150,11 @@ wasm-bindgen-testの型往復テストはこの内部関数に対しても書け
    - `wasm-bindgen`クレートと`wasm-bindgen-cli`/`wasm-pack`のバージョン
      不一致は典型的な突然死要因のため、CIでバージョンを固定する
 
-## 既知の課題(P3.5より前に判断。C1スコープ外)
+## 既知の課題(解決済み)
 
-`Session.roles`/`hands`等の`HashMap`はキー順が非決定的なため、同じ状態でも
-JSON文字列が実行ごとに変わりうる。ソロMVP(要素数1〜2)では実害が出にくいが、
-P3.5(永続化)でセーブファイルの差分が無意味に発生する・状態文字列を
-memoキー等に使うと誤爆する、といった問題につながる。ID型に`Ord`を
-deriveして`HashMap`→`BTreeMap`に替える対応が機械的に可能。P3.5着手前に
-決定ログで判断する(本セッションでは着手しない)。
+`Session.roles`/`hands`等が`HashMap`だとキー順が非決定的なため、同じ状態でも
+JSON文字列が実行ごとに変わりうる問題があった(ソロMVP規模では実害が出にくいが、
+セーブファイルの差分が無意味に発生する等につながる)。P3.5 C1でID型に`Ord`を
+deriveして`HashMap`→`BTreeMap`へ置換済み(経緯:
+[wasm-boundary-decisions.md](../tasks/projects/phase3/plans/wasm-boundary-decisions.md)
+論点1)。domain-model.md「セッション状態」参照。

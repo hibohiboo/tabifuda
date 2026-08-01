@@ -685,6 +685,7 @@ struct SaveFile {
 | validate の「現在シーン削除」拒否テスト保留 | agent-journal.md 2026-07-19(P1 C4) |
 | カードの消費・除去 | retrospectives/phase2.md / tasks/plans/merry-leaping-tide.md |
 | シナリオファイル配置と lint 仕様 | tasks/projects/phase2/task.md C1 / git履歴 |
+| 実行時索引の HashMap→BTreeMap 化・セッションの保存と再開 | tasks/projects/phase3/plans/wasm-boundary-decisions.md 論点1 / tasks/projects/phase3.5/task.md C1 |
 
 ### 旧節名との対応(過去文書からの参照用)
 
