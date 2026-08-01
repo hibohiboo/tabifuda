@@ -26,6 +26,7 @@ apps/
 packages/
   ui/           共有UIコンポーネント(TS+React。apps/web・tools/docs-siteが利用。
                 wasmランタイム非依存・ビルドレスでソースを直接消費)
+  eslint-config/ ESLint共通設定(base.js+frontend.js。apps/web・packages/uiが利用)
   schema/       Drizzleスキーマ・共有型(P4〜)
 tools/
   docs-site/    docs可視化サイト(RDRA/進捗/テスト/コンポーネントの4ビュー。
