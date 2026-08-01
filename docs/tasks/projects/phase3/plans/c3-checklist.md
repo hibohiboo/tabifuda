@@ -15,9 +15,11 @@
    手動確認済み(CardRemovedを一時削除→復元)
 4. [x] `components/FreeTextInput.tsx` + `Hand.tsx`のDialogue自由入力
 5. [x] `components/ProposalForm.tsx` + `SceneView.tsx`/`App.tsx`配線
-6. [ ] `session/gmResponse.ts` + `components/GmJudgePanel.tsx`(y/n/c) +
+6. [x] `session/gmResponse.ts` + `components/GmJudgePanel.tsx`(y/n/c) +
    `App.tsx`のPaused分岐を本実装に置換。client-conventions.mdにGM裁定UI
-   (CLIパリティ)を追記
+   (CLIパリティ)を追記済み。Playwrightで提案→カードで応える(複数可)→
+   採用→再開→自由入力付きプレイ→最後まで勝利、を通しで手動確認済み
+   (コンソールエラー無し)
 7. [ ] `App.css`にタイムライン/吹き出し用スタイル追記
 8. [ ] 仕上げ: design-syncでの乖離チェック、task.mdのC3をdoneに更新、
    agent-journal.md追記

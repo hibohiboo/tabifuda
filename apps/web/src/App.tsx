@@ -1,4 +1,6 @@
+import type { ScenarioPatch } from "./core/bindings";
 import { ErrorBanner } from "./components/ErrorBanner";
+import { GmJudgePanel } from "./components/GmJudgePanel";
 import { SceneView } from "./components/SceneView";
 import { Timeline } from "./chronicle/Timeline";
 import { findSceneDef, visibleHand } from "./session/scenarioLookup";
@@ -25,6 +27,18 @@ function App() {
     dispatch({ Propose: { by: SOLO_CHARACTER_ID, text } });
   };
 
+  const handleJudge = (proposalId: string, accepted: boolean) => {
+    dispatch({ JudgeProposal: { proposal: proposalId, accepted } });
+  };
+
+  const handleRespond = (patch: ScenarioPatch) => {
+    dispatch({ ApplyPatch: { patch } });
+  };
+
+  // session.pending_proposalはstatus === {"Paused":...}の間だけnon-null
+  // (domain-model.md「提案と裁定」の状態機械の不変条件)
+  const pendingProposal = session?.pending_proposal ?? null;
+
   return (
     <main>
       <h1>{simpleHunt.meta.title}</h1>
@@ -46,9 +60,14 @@ function App() {
         "Ended" in session.status && (
           <p>{session.status.Ended === "Victory" ? "勝利" : "敗北"}</p>
         )}
-      {session !== null &&
-        typeof session.status === "object" &&
-        "Paused" in session.status && <p>予期しない状態です(提案の裁定待ち)</p>}
+      {session !== null && pendingProposal !== null && (
+        <GmJudgePanel
+          proposal={pendingProposal}
+          scenario={session.scenario}
+          onJudge={(accepted) => handleJudge(pendingProposal.id, accepted)}
+          onRespond={handleRespond}
+        />
+      )}
       <ErrorBanner error={error} />
       {session !== null && <Timeline events={events} scenario={session.scenario} />}
     </main>
