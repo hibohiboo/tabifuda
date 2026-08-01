@@ -9,6 +9,17 @@ export default tseslint.config(
   {
     files: ["src/**/*.{ts,tsx}"],
     plugins: { "react-hooks": reactHooks },
-    rules: { ...reactHooks.configs.recommended.rules },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      // cross-cutting.md「自由入力(UGC)の取り扱い」: 生HTML挿入の禁止をCIで機械的に強制する
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+          message:
+            "dangerouslySetInnerHTMLは禁止(cross-cutting.md「自由入力(UGC)の取り扱い」)。装飾が必要なら限定マークアップを検討する。",
+        },
+      ],
+    },
   },
 );
