@@ -34,3 +34,16 @@ Reactに劣り、消去法で外れる。将来UIが複雑化した場合の再�
   lint/CI組込)を React 前提で実装する
 - 状態管理はイベント列を正とし、UI状態はそこから導出する
   (phase3/task.md C2の方針どおり。Reduxのような別正は持ち込まない)
+
+## 追記(2026-08-01): apps/webのTypeScriptを6.0.3に固定(P3 C2)
+
+`typescript-eslint@8.65.0`が`typescript@7.0.x`系に未対応(2026-08-01時点、
+[typescript-eslint#10940](https://github.com/typescript-eslint/typescript-eslint/issues/10940)
+で追跡中)なため、`apps/web`の`typescript`は`tools/docs-site`(7.0.2)とは
+独立に`6.0.3`(typescript-eslintが対応する最新の6系)へ固定した。pnpm
+workspaceはパッケージごとに独立したtypescriptバージョンを許容するため、
+docs-site側への影響はない。
+
+**7系へ上げる条件**: typescript-eslintがTypeScript 7.0系に対応した安定版を
+リリースした時点で、`apps/web`の`typescript`をdocs-siteと同じ7系に統一する
+ことを検討する。それまでは6.0.3に固定したままとする。

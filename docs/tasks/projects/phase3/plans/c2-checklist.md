@@ -16,13 +16,15 @@
    `session/scenarioLookup.ts`+`session/soloParty.ts`+`scenario/simpleHunt.ts`
 5. [x] 機能: `components/`(SceneView/Hand/ErrorBanner)+`App.tsx`本実装+`App.css`
    (ブラウザでの通しプレイをPlaywrightで手動確認済み)
-6. [ ] 仕上げ: design-syncでの乖離チェック、`client-conventions.md`反映(必要なら)、
+6. [x] 仕上げ: design-syncでの乖離チェック、`client-conventions.md`反映(必要なら)、
    agent-journal.md追記、task.mdのC2をdoneに更新
 
 ## 実装中に判明した追加事項
 
 - `typescript-eslint@8.65.0`が`typescript@7.0.x`未対応のため、apps/webの
   `typescript`は`6.0.3`に固定した(docs-siteは7.0.2のまま。pnpm workspaceは
-  パッケージごとに独立したバージョンを許容する前提のため問題なし)
+  パッケージごとに独立したバージョンを許容する前提のため問題なし)。
+  **この判断はユーザー確認前に実施していた**(agent-journal.md 2026-08-01参照)。
+  7系へ上げる条件は[docs/adr/0006-frontend-framework.md](../../../../adr/0006-frontend-framework.md)の追記を参照
 - `playwright`をapps/webのdevDependenciesに追加した(C2の動作確認用、
   および将来のC4スモークテストで再利用する想定)
