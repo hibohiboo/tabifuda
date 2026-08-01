@@ -42,6 +42,25 @@ fn run_play_at(path: &Path, input: &str) -> std::process::Output {
     child.wait_with_output().unwrap()
 }
 
+fn run_resume_at(path: &Path, input: &str) -> std::process::Output {
+    let mut child = bin()
+        .arg("play")
+        .arg("--resume")
+        .arg(path)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(input.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
+}
+
 /// [1]依頼を受ける(自由入力スキップ)→[1]獣の巣に到着する→提案→GM裁定(採用)
 /// →[1]打ち倒す→[1]村に帰還を告げる(自由入力あり)、で勝利エンドまで到達する。
 const VICTORY_INPUT: &str = "1\n\n1\np\n近道を探したい\ny\n1\n1\n最後の一言\n";
@@ -157,6 +176,108 @@ fn 通しプレイは改編ありセッション終了時にdeals統合済みの
         lint.status.success(),
         "fork does not pass lint: {}",
         String::from_utf8_lossy(&lint.stdout)
+    );
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// 中断・再開(domain-model.md「セッションの保存と再開(CLIの決定)」)。
+/// Running中に`q`で中断・保存し、`play --resume`で続きから
+/// 勝利エンドまで到達できる(イベント列だけで自己完結する設計の確認)。
+#[test]
+fn 中断して保存したセッションはresumeで続きから勝利エンドまで到達する() {
+    let dir =
+        std::env::temp_dir().join(format!("tabifuda-save-test-running-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let playing_copy = dir.join("simple-hunt.json");
+    std::fs::copy(scenario_path(), &playing_copy).unwrap();
+
+    // [1]依頼を受ける(自由入力スキップ)→[1]獣の巣に到着する、で中断・保存する。
+    let output = run_play_at(&playing_copy, "1\n\n1\nq\ny\n");
+    assert!(
+        output.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("保存しました"), "stdout:\n{stdout}");
+
+    let save_path = dir.join("simple-hunt-save.json");
+    assert!(save_path.exists(), "save file was not written");
+
+    // 提案→GM裁定(採用)→打ち倒す→帰還を告げる、で勝利エンドまで到達する
+    // (VICTORY_INPUTの続き)。
+    let output = run_resume_at(&save_path, "p\n近道を探したい\ny\n1\n1\n最後の一言\n");
+    assert!(
+        output.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("セッションを再開しました"));
+    assert!(stdout.contains("冒険の終わり: Victory"));
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// Paused中(提案の裁定待ち)に`q`で中断・保存しても、再開すると裁定待ちの
+/// ままへ戻り、そこから通しプレイを継続できる(domain-model.md「セッション
+/// の保存と再開」: 状態機械はイベント列から復元されるため、中断した状態を
+/// 過不足なく再現する)。
+#[test]
+fn Paused中に中断して保存したセッションはresumeで裁定待ちに戻る() {
+    let dir =
+        std::env::temp_dir().join(format!("tabifuda-save-test-paused-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let playing_copy = dir.join("simple-hunt.json");
+    std::fs::copy(scenario_path(), &playing_copy).unwrap();
+
+    // 提案を出してPausedにしてから中断・保存する。
+    let output = run_play_at(&playing_copy, "1\n\n1\np\n近道を探したい\nq\ny\n");
+    assert!(
+        output.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(String::from_utf8_lossy(&output.stdout).contains("保存しました"));
+
+    let save_path = dir.join("simple-hunt-save.json");
+    assert!(save_path.exists(), "save file was not written");
+
+    // 再開直後の画面が裁定待ち(y/n/c/q)であること、かつy採用から
+    // 勝利エンドまで到達できることをあわせて確認する。
+    let output = run_resume_at(&save_path, "y\n1\n1\n最後の一言\n");
+    assert!(
+        output.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("提案が届いています"));
+    assert!(stdout.contains("冒険の終わり: Victory"));
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// セーブファイルのformat_versionが現在の実装と一致しない場合は拒否する
+/// (domain-model.md「セッションの保存と再開」: 警告付き読込はしない)。
+#[test]
+fn resumeはformat_version不一致の保存ファイルを拒否する() {
+    let dir =
+        std::env::temp_dir().join(format!("tabifuda-save-test-version-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let bad_save = dir.join("bad-save.json");
+    std::fs::write(&bad_save, r#"{"format_version":999,"events":[]}"#).unwrap();
+
+    let output = run_resume_at(&bad_save, "");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("保存ファイルを読み込めませんでした"),
+        "stdout:\n{stdout}"
     );
 
     std::fs::remove_dir_all(&dir).ok();

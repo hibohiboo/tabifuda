@@ -4,15 +4,18 @@ mod chronicle;
 mod fork;
 mod oplog;
 mod play;
+mod save;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.as_slice() {
         [cmd, path] if cmd == "lint" => run_lint(path),
         [cmd, path] if cmd == "play" => run_play(path),
+        [cmd, flag, path] if cmd == "play" && flag == "--resume" => run_play_resume(path),
         _ => {
             eprintln!("usage: tabifuda-cli lint <file>");
             eprintln!("       tabifuda-cli play <file>");
+            eprintln!("       tabifuda-cli play --resume <session-file>");
             ExitCode::FAILURE
         }
     }
@@ -35,6 +38,11 @@ fn run_play(path: &str) -> ExitCode {
         Err(code) => return code,
     };
     play::run(scenario, std::path::Path::new(path));
+    ExitCode::SUCCESS
+}
+
+fn run_play_resume(path: &str) -> ExitCode {
+    play::resume(std::path::Path::new(path));
     ExitCode::SUCCESS
 }
 
