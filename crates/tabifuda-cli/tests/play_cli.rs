@@ -42,6 +42,26 @@ fn run_play_at(path: &Path, input: &str) -> std::process::Output {
     child.wait_with_output().unwrap()
 }
 
+fn run_play_with_party_at(scenario: &Path, party: &Path, input: &str) -> std::process::Output {
+    let mut child = bin()
+        .arg("play")
+        .arg(scenario)
+        .arg("--party")
+        .arg(party)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(input.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
+}
+
 fn run_resume_at(path: &Path, input: &str) -> std::process::Output {
     let mut child = bin()
         .arg("play")
@@ -281,6 +301,77 @@ fn resumeはformat_version不一致の保存ファイルを拒否する() {
     );
 
     std::fs::remove_dir_all(&dir).ok();
+}
+
+/// パーティファイル(domain-model.md「パーティファイル(CLIの決定)」):
+/// `--party`で読み込んだキャラで通しプレイでき、冒険記にその名前が載る
+/// (CLIはパーティ先頭を操作対象キャラとする)。
+#[test]
+fn partyで読み込んだキャラで通しプレイでき冒険記に名前が載る() {
+    let dir =
+        std::env::temp_dir().join(format!("tabifuda-party-test-valid-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let party_path = dir.join("party.json");
+    std::fs::write(
+        &party_path,
+        r#"[{"id":"traveler2","name":"旅人2","stats":{},"deck":[]}]"#,
+    )
+    .unwrap();
+
+    let output = run_play_with_party_at(&scenario_path(), &party_path, VICTORY_INPUT);
+    assert!(
+        output.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("冒険の終わり: Victory"));
+    assert!(stdout.contains("参加者: 旅人2"));
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// 空配列のパーティファイルは拒否される(domain-model.md「パーティファイル
+/// (CLIの決定)」: 空配列を拒否)。
+#[test]
+fn 空配列のパーティファイルは拒否される() {
+    let dir =
+        std::env::temp_dir().join(format!("tabifuda-party-test-empty-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let party_path = dir.join("party.json");
+    std::fs::write(&party_path, "[]").unwrap();
+
+    let output = run_play_with_party_at(&scenario_path(), &party_path, "");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    std::fs::remove_dir_all(&dir).ok();
+
+    assert!(!output.status.success());
+    assert!(stderr.contains("パーティが空です"), "stderr:\n{stderr}");
+}
+
+/// `CharacterId`が重複するパーティファイルは拒否される(domain-model.md
+/// 「パーティファイル(CLIの決定)」: 重複を拒否)。
+#[test]
+fn CharacterId重複のパーティファイルは拒否される() {
+    let dir = std::env::temp_dir().join(format!("tabifuda-party-test-dup-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let party_path = dir.join("party.json");
+    std::fs::write(
+        &party_path,
+        r#"[{"id":"a","name":"A","stats":{},"deck":[]},{"id":"a","name":"A2","stats":{},"deck":[]}]"#,
+    )
+    .unwrap();
+
+    let output = run_play_with_party_at(&scenario_path(), &party_path, "");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    std::fs::remove_dir_all(&dir).ok();
+
+    assert!(!output.status.success());
+    assert!(
+        stderr.contains("CharacterIdが重複しています"),
+        "stderr:\n{stderr}"
+    );
 }
 
 #[test]

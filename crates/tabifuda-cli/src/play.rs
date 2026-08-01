@@ -18,25 +18,34 @@ use crate::{chronicle, fork, oplog, save};
 const SOLO_CHARACTER_ID: &str = "hunter";
 const SOLO_CHARACTER_NAME: &str = "旅人";
 
-pub fn run(scenario: Scenario, scenario_path: &Path) {
-    let actor = UserId("solo".to_string());
-    let character_id = CharacterId(SOLO_CHARACTER_ID.to_string());
-    let character = Character {
-        id: character_id.clone(),
+fn default_party() -> Vec<Character> {
+    vec![Character {
+        id: CharacterId(SOLO_CHARACTER_ID.to_string()),
         name: SOLO_CHARACTER_NAME.to_string(),
         stats: BTreeMap::new(),
         deck: vec![],
-    };
+    }]
+}
+
+/// `party`が`None`なら従来の既定ソロパーティ(「旅人」1人)を使う。
+/// CLIは複数キャラを同時に操作するUIを持たないため、パーティ先頭
+/// (`party[0]`)を操作対象キャラとする(domain-model.md「パーティファイル
+/// (CLIの決定)」)。呼び出し側(main.rs)が空でないことを検証済み。
+pub fn run(scenario: Scenario, scenario_path: &Path, party: Option<Vec<Character>>) {
+    let actor = UserId("solo".to_string());
+    let party = party.unwrap_or_else(default_party);
+    let character_id = party
+        .first()
+        .expect("呼び出し側がpartyの非空を検証済み")
+        .id
+        .clone();
 
     let mut event_log: Vec<Event> = Vec::new();
     let mut state: Option<Session> = None;
     let (next, result) = issue(
         state,
         &actor,
-        Command::StartSession {
-            scenario,
-            party: vec![character],
-        },
+        Command::StartSession { scenario, party },
         &mut event_log,
     );
     state = next;
