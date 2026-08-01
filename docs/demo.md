@@ -113,7 +113,28 @@ domain-guide.md「GMの介入」参照)。GMの応答は3種類。
 | 文字が崩れる | ターミナルの文字コードをUTF-8にする |
 | 途中でおかしくなった | `q` で中断し、`cargo run -p tabifuda-cli -- play ...` を撃ち直せば最初からやり直せる(セッションは保存されない) |
 
-## 7. シナリオデータを覗いてみたい場合
+## 7. Web版で遊ぶ(概要)
+
+上記はCLI版の手順。ブラウザで遊ぶ場合は次で起動する。
+
+```
+pnpm --filter @tabifuda/web dev
+```
+
+表示されるURL(既定 http://localhost:5173)をブラウザで開く。「はじめる」→
+手札のカードをクリックして出す、という操作はCLI版とおおむね対応する
+(自由入力欄・提案フォーム・GM裁定ボタンも同様に使える)。画面下には
+これまでの出来事が時系列のタイムラインとして表示される。
+
+CLI版との違い:
+
+- **フォーク保存は未対応**(2026-08-01時点。改編したシナリオを次回に
+  持ち越したい場合はCLI版を使う。将来要望:
+  [requirements/future-requirements.md](requirements/future-requirements.md) §7)
+- ダークモード固定・モバイル優先のレイアウト
+  ([design/ui-visual-design.md](design/ui-visual-design.md))
+
+## 8. シナリオデータを覗いてみたい場合
 
 「単純討伐」のシナリオデータ本体は `shared/scenarios/simple-hunt.json`。
 テキストエディタで開けば、どのシーンでどのカードが配られ、どんな効果を
