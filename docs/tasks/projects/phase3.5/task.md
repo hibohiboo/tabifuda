@@ -1,10 +1,10 @@
 ---
-status: planned
+status: done
 cycles:
   C1: done
   C2: done
   C3: done
-  C4: planned
+  C4: done
 ---
 
 # Phase 3.5 実装タスク: CLI永続化(中断・再開/パーティ/持ち帰り)
