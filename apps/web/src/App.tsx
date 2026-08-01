@@ -21,6 +21,10 @@ function App() {
     });
   };
 
+  const handlePropose = (text: string) => {
+    dispatch({ Propose: { by: SOLO_CHARACTER_ID, text } });
+  };
+
   return (
     <main>
       <h1>{simpleHunt.meta.title}</h1>
@@ -34,6 +38,7 @@ function App() {
           narration={findSceneDef(session.scenario, session.scene)?.narration}
           hand={visibleHand(session, SOLO_CHARACTER_ID)}
           onPlay={handlePlay}
+          onPropose={handlePropose}
         />
       )}
       {session !== null &&
