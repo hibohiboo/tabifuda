@@ -1,11 +1,11 @@
 ---
-status: in-progress
+status: done
 cycles:
   C0: done
   C1: done
   C2: done
   C3: done
-  C4: planned
+  C4: done
 ---
 
 # Phase 3 実装タスク: WASM+Web版(ローカル)
