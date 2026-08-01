@@ -206,3 +206,24 @@ docs-siteと無関係な理由で両方とも壊れる。
    `eslint-plugin-react-hooks`のrecommendedのみ)の基盤導入までとする。
    UGC専用ルール(`dangerouslySetInnerHTML`検出)はP3 C4で追加する
    (cross-cutting.md「自由入力(UGC)の取り扱い」参照)
+
+## 追記(2026-08-01): `web`ジョブへのPlaywrightスモーク追加(P3 C4)
+
+test-strategy.md「E2E/スモーク」の「P3: Webでテンプレシナリオを1本通す
+Playwrightスモーク1本」を`web`ジョブに追加する。新規ジョブは起こさず
+既存`web`ジョブの末尾に追加する(`build`までの前段(wasm-pack導入・
+pnpm install)をそのまま再利用できるため)。
+
+| ジョブ | 追加内容 | 失敗時の扱い |
+|---|---|---|
+| web | (既存ステップに続けて) `pnpm exec playwright install --with-deps chromium` → `pnpm --filter @tabifuda/web test:e2e` | CI失敗(必須) |
+
+- `apps/web/playwright.config.ts`の`webServer`が`pnpm run build`
+  (wasm-pack build含む)→`vite preview`を自前で起動するため、CI側は
+  ブラウザインストールとテスト実行のみを追加すればよい
+  (直前の`typecheck`/`lint`/`build`ステップとは独立に、
+  テスト実行時にもう一度buildが走る。実行時間より単純さを優先する判断)
+- `--with-deps`はUbuntu runnerでChromium実行に必要なOS依存パッケージを
+  同時導入するため(Playwright公式推奨のCI手順)
+- ブラウザは`chromium`のみ導入する(クロスブラウザ検証はスモークの
+  目的外。test-strategy.md「重複を作らないためのルール」と同じ判断)
