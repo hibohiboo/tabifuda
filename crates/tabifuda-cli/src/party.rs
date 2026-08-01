@@ -39,6 +39,15 @@ pub fn load(path: &Path) -> Result<Vec<Character>, LoadError> {
     Ok(party)
 }
 
+/// パーティを`Vec<Character>`のJSONとして書き戻す(読み込み時と同じ、
+/// ラッパーの無い形式)。セッション終了処理(finalize)で更新された
+/// `owned_cards`を含む、セッション跨ぎの持続に使う(domain-model.md
+/// 「パーティファイル(CLIの決定)」)。
+pub fn write(party: &[Character], path: &Path) -> io::Result<()> {
+    let json = serde_json::to_string_pretty(party).expect("Vec<Character>はシリアライズ可能");
+    std::fs::write(path, json + "\n")
+}
+
 fn validate(party: &[Character]) -> Result<(), LoadError> {
     if party.is_empty() {
         return Err(LoadError::Empty);

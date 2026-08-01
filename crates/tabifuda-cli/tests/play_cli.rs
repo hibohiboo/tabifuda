@@ -374,6 +374,110 @@ fn CharacterId重複のパーティファイルは拒否される() {
     );
 }
 
+/// 持ち出し可能カードの最小シナリオ。`loot`(`#portable`、Item)を配り、
+/// `finish`(Dialogue)を出すとVictoryで終わる。simple-huntにはportableな
+/// カードが無いため、finalize(RewardsGranted)を実際に発火させるには
+/// 専用の最小シナリオが要る(shared/scenarios/は汚さない)。
+const PORTABLE_TEST_SCENARIO: &str = r##"{
+  "meta": {"id": "portable-test", "title": "t", "author": "t", "forked_from": null},
+  "card_defs": [
+    {"id": "loot", "name": "宝物", "kind": "Item", "text": "", "tags": ["#portable"], "effects": [], "requires": []},
+    {"id": "finish", "name": "終える", "kind": "Dialogue", "text": "", "tags": [], "effects": [{"EndSession": "Victory"}], "requires": []}
+  ],
+  "phases": [
+    {"phase": "Opening", "scenes": [
+      {"id": "s1", "kind": "Conversation", "narration": "n", "deals": [
+        {"card": "loot", "to": "Party"},
+        {"card": "finish", "to": "Party"}
+      ], "exits": []}
+    ]}
+  ]
+}"##;
+
+/// 持ち出し(domain-model.md「セッション終了処理(finalize)」・「パーティ
+/// ファイル(CLIの決定)」): `#portable`なカードを手札に残したままVictoryで
+/// 終えると、RewardsGrantedが発行され、`y`でパーティファイルへ書き戻される。
+/// 書き戻し後のファイルにはCardDef凍結コピー(`owned_cards`)が載る。
+#[test]
+fn 持ち出したカードはパーティファイルへ書き戻される() {
+    let dir = std::env::temp_dir().join(format!(
+        "tabifuda-party-test-writeback-{}",
+        std::process::id()
+    ));
+    std::fs::create_dir_all(&dir).unwrap();
+    let scenario_path = dir.join("portable-test.json");
+    std::fs::write(&scenario_path, PORTABLE_TEST_SCENARIO).unwrap();
+    let party_path = dir.join("party.json");
+    std::fs::write(
+        &party_path,
+        r#"[{"id":"hunter","name":"旅人","stats":{},"deck":[]}]"#,
+    )
+    .unwrap();
+
+    // [1]宝物を拾う(消費されず残る)→[2]終える(自由入力スキップ)→Victory→書き戻しy。
+    let output = run_play_with_party_at(&scenario_path, &party_path, "1\n2\n\ny\n");
+    assert!(
+        output.status.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("冒険の終わり: Victory"));
+    assert!(
+        stdout.contains("パーティを書き戻しました"),
+        "stdout:\n{stdout}"
+    );
+
+    let written: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&party_path).unwrap()).unwrap();
+    let owned = written[0]["owned_cards"].as_array().unwrap();
+    assert_eq!(owned.len(), 1);
+    assert_eq!(owned[0]["id"], "loot");
+    assert_eq!(owned[0]["tags"], serde_json::json!(["#portable"]));
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// 並行プレイの確認(task.md C4「複数セッションファイルによる並行プレイが
+/// 自然に成立することの確認」)。同じシナリオから2つのセッションを開始して
+/// 中断・保存しても、保存ファイル名が連番で衝突せず、それぞれ独立して
+/// resumeできる(セッションはSessionStartedにシナリオ・パーティの凍結
+/// コピーを持つため自己完結。domain-model.md「セッションの保存と再開」)。
+#[test]
+fn 同じシナリオから開始した複数セッションは保存ファイルが衝突せず独立して再開できる() {
+    let dir = std::env::temp_dir().join(format!("tabifuda-parallel-test-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let playing_copy = dir.join("simple-hunt.json");
+    std::fs::copy(scenario_path(), &playing_copy).unwrap();
+
+    // 1つ目のセッション: [1]依頼を受ける→[1]獣の巣に到着する、で中断・保存。
+    let first = run_play_at(&playing_copy, "1\n\n1\nq\ny\n");
+    assert!(first.status.success());
+    let first_save = dir.join("simple-hunt-save.json");
+    assert!(first_save.exists(), "first save file was not written");
+
+    // 2つ目のセッション(1つ目をまだ削除せず、同じシナリオから開始)。
+    let second = run_play_at(&playing_copy, "1\n\n1\nq\ny\n");
+    assert!(second.status.success());
+    let second_save = dir.join("simple-hunt-save-2.json");
+    assert!(
+        second_save.exists(),
+        "second save file was not written (naming collided with the first)"
+    );
+
+    // それぞれ独立して続きから勝利エンドまで到達できる(互いに干渉しない)。
+    let resume_first = run_resume_at(&first_save, "p\n近道を探したい\ny\n1\n1\n最初の冒険\n");
+    assert!(resume_first.status.success());
+    assert!(String::from_utf8_lossy(&resume_first.stdout).contains("冒険の終わり: Victory"));
+
+    let resume_second = run_resume_at(&second_save, "p\n近道を探したい\ny\n1\n1\n二つ目の冒険\n");
+    assert!(resume_second.status.success());
+    assert!(String::from_utf8_lossy(&resume_second.stdout).contains("冒険の終わり: Victory"));
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
 #[test]
 fn 通しプレイの運用ログは実プロセスを通しても自由入力本文を漏らさない() {
     let secret = "近道を探したい";

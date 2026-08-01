@@ -51,7 +51,12 @@ fn run_play(path: &str, party_path: Option<&str>) -> ExitCode {
         },
         None => None,
     };
-    play::run(scenario, std::path::Path::new(path), party);
+    play::run(
+        scenario,
+        std::path::Path::new(path),
+        party,
+        party_path.map(std::path::Path::new),
+    );
     ExitCode::SUCCESS
 }
 

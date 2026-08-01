@@ -13,7 +13,7 @@ use tabifuda_core::{
     SessionStatus, Target, UserId,
 };
 
-use crate::{chronicle, fork, oplog, save};
+use crate::{chronicle, fork, oplog, party, save};
 
 const SOLO_CHARACTER_ID: &str = "hunter";
 const SOLO_CHARACTER_NAME: &str = "旅人";
@@ -32,7 +32,16 @@ fn default_party() -> Vec<Character> {
 /// CLIは複数キャラを同時に操作するUIを持たないため、パーティ先頭
 /// (`party[0]`)を操作対象キャラとする(domain-model.md「パーティファイル
 /// (CLIの決定)」)。呼び出し側(main.rs)が空でないことを検証済み。
-pub fn run(scenario: Scenario, scenario_path: &Path, party: Option<Vec<Character>>) {
+/// `party_path`は`--party`で読み込んだファイルのパス(セッション終了時、
+/// 持ち出したカードをこのファイルへ書き戻す。domain-model.md「セッション
+/// 終了処理(finalize)」)。無指定パーティ(既定ソロ)には書き戻し先が
+/// 無いため、その場合は`None`のまま渡す。
+pub fn run(
+    scenario: Scenario,
+    scenario_path: &Path,
+    party: Option<Vec<Character>>,
+    party_path: Option<&Path>,
+) {
     let actor = UserId("solo".to_string());
     let party = party.unwrap_or_else(default_party);
     let character_id = party
@@ -63,6 +72,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path, party: Option<Vec<Character
         &character_id,
         scenario_path,
         default_save_path,
+        party_path,
     );
 }
 
@@ -92,6 +102,9 @@ pub fn resume(save_path: &Path) {
     let actor = UserId("solo".to_string());
     let character_id = CharacterId(SOLO_CHARACTER_ID.to_string());
     let default_save_path = save_path.to_path_buf();
+    // 再開経路はどのパーティファイルから始まったかを追跡していないため
+    // 書き戻し先が無い(domain-model.md「セッションの保存と再開」。§1の
+    // 派生論点「同一パーティの並行参加制約」と同様、将来要望として残す)。
     play_loop(
         state,
         events,
@@ -99,11 +112,14 @@ pub fn resume(save_path: &Path) {
         &character_id,
         save_path,
         default_save_path,
+        None,
     );
 }
 
 /// プレイループ本体(翻訳層。ルール分岐は持たない)。`base_path`はフォーク
 /// 出力のファイル名解決に使う。`default_save_path`は`q`中断時の保存先。
+/// `party_path`はセッション終了時のパーティ書き戻し先(`--party`未指定・
+/// 再開時は`None`)。
 fn play_loop(
     mut state: Option<Session>,
     mut event_log: Vec<Event>,
@@ -111,6 +127,7 @@ fn play_loop(
     character_id: &CharacterId,
     base_path: &Path,
     default_save_path: PathBuf,
+    party_path: Option<&Path>,
 ) {
     let stdin = io::stdin();
     let mut lines = stdin.lock().lines();
@@ -126,6 +143,7 @@ fn play_loop(
                 println!("\n=== 冒険の終わり: {outcome:?} ===");
                 println!("\n{}", chronicle::render(&event_log));
                 maybe_save_fork(session, &event_log, base_path, &mut lines);
+                maybe_write_back_party(&session.party, &event_log, party_path, &mut lines);
                 return;
             }
             SessionStatus::Paused { .. } => {
@@ -397,6 +415,41 @@ fn maybe_save_fork(
     match std::fs::write(&path, json + "\n") {
         Ok(()) => println!("フォークを保存しました: {}", path.display()),
         Err(err) => println!("フォークを保存できませんでした: {err}"),
+    }
+}
+
+/// 持ち出しカードのパーティファイルへの書き戻し(domain-model.md「セッション
+/// 終了処理(finalize)」)。`--party`未指定(既定ソロパーティ)・再開時は
+/// `party_path`が`None`のため書き戻し先が無く、何もしない。`RewardsGranted`
+/// が1回も無ければ(何も持ち帰っていなければ)尋ねない。EOF・y以外の入力・
+/// 書き込み失敗はいずれも書き戻さず終了する(冒険記の表示は済んでいるため、
+/// ここでの失敗はセッション自体を壊さない)。
+fn maybe_write_back_party(
+    party: &[Character],
+    events: &[Event],
+    party_path: Option<&Path>,
+    lines: &mut impl Iterator<Item = io::Result<String>>,
+) {
+    let Some(path) = party_path else {
+        return;
+    };
+    if !events
+        .iter()
+        .any(|e| matches!(e, Event::RewardsGranted { .. }))
+    {
+        return;
+    }
+    print!("持ち帰ったカードをパーティファイルへ書き戻しますか? [y/n]: ");
+    io::stdout().flush().ok();
+    let Some(Ok(input)) = lines.next() else {
+        return;
+    };
+    if !input.trim().eq_ignore_ascii_case("y") {
+        return;
+    }
+    match party::write(party, path) {
+        Ok(()) => println!("パーティを書き戻しました: {}", path.display()),
+        Err(err) => println!("パーティを書き戻せませんでした: {err}"),
     }
 }
 
