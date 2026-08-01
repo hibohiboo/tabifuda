@@ -227,3 +227,22 @@ pnpm install)をそのまま再利用できるため)。
   同時導入するため(Playwright公式推奨のCI手順)
 - ブラウザは`chromium`のみ導入する(クロスブラウザ検証はスモークの
   目的外。test-strategy.md「重複を作らないためのルール」と同じ判断)
+
+## 追記(2026-08-01): `packages/ui`用`ui`ジョブ新設(component-catalogタスク)
+
+apps/webのUIコンポーネントを`packages/ui`(`@tabifuda/ui`)へ切り出すのに伴い
+(docs/design/client-conventions.md「UIコンポーネントの置き場」)、
+専用のtypecheck/lintジョブを追加する。`packages/ui`はwasmランタイムに
+依存しないビルドレスパッケージのため、`wasm-test`/`web`ジョブのような
+wasm32ツールチェーンは不要(`docs-site`ジョブと同じ軽量構成)。
+
+| ジョブ | 内容 | 失敗時の扱い |
+|---|---|---|
+| ui | `pnpm/action-setup@v6` → `actions/setup-node@v7`(Node24)→ `pnpm install --frozen-lockfile` → `pnpm --filter @tabifuda/ui typecheck` → `pnpm --filter @tabifuda/ui lint` | CI失敗(必須) |
+
+- `docs-site`ジョブ・`web`ジョブは`pnpm install --frozen-lockfile`が
+  ワークスペース全体を解決するため、`@tabifuda/ui`への依存追加に伴う
+  変更は不要(`docs-site`が`@tabifuda/ui`をimportするようになった件は
+  [../tasks/tools/component-catalog/task.md](../tasks/tools/component-catalog/task.md)
+  C2参照。`packages/ui`はビルド手順を持たないため、依存先として
+  取り込まれるだけでdocs-site/webそれぞれのジョブ構成は変わらない)

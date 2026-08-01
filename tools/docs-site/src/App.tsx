@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import RdraView from "./views/RdraView";
 import ProgressView from "./views/ProgressView";
 import TestsView from "./views/TestsView";
+import ComponentsView from "./views/ComponentsView";
 
 const VIEWS = [
   { hash: "#/rdra", label: "RDRA", component: RdraView },
   { hash: "#/progress", label: "進捗", component: ProgressView },
   { hash: "#/tests", label: "テスト", component: TestsView },
+  { hash: "#/components", label: "コンポーネント", component: ComponentsView },
 ] as const;
 
 function useHash(): string {

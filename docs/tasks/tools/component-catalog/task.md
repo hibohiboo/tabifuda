@@ -1,8 +1,8 @@
 ---
-status: in-progress
+status: done
 cycles:
   C1: done
-  C2: planned
+  C2: done
 ---
 
 # ツールタスク: コンポーネントカタログ(packages/ui切り出し)

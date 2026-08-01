@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
@@ -72,6 +72,13 @@ function rdraDataCheckPlugin(): Plugin {
 // GitHub Pages(https://hibohiboo.github.io/tabifuda/)配下で配信するため base を固定
 export default defineConfig({
   base: "/tabifuda/",
+  server: {
+    fs: {
+      // packages/ui(component-catalogタスク)とshared/scenarios/を
+      // tools/docs-siteの外から読めるようにする(apps/webのvite.config.tsと同じ理由)
+      allow: [resolve(here, "../..")],
+    },
+  },
   plugins: [
     react(),
     progressFrontmatterCheck(),
