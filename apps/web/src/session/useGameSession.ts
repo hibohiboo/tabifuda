@@ -7,6 +7,7 @@ function appendEvents(state: Event[], added: Event[]): Event[] {
 }
 
 export interface GameSession {
+  events: Event[];
   session: Session | null;
   error: WasmError | null;
   dispatch: (command: Command) => void;
@@ -37,5 +38,5 @@ export function useGameSession(actor: UserId): GameSession {
     [session, actor],
   );
 
-  return { session, error, dispatch };
+  return { events, session, error, dispatch };
 }

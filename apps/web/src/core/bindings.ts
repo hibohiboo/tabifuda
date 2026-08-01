@@ -21,3 +21,8 @@ export type { SceneId } from "../../../../crates/tabifuda-wasm/bindings/SceneId"
 export type { SceneDef } from "../../../../crates/tabifuda-wasm/bindings/SceneDef";
 export type { Outcome } from "../../../../crates/tabifuda-wasm/bindings/Outcome";
 export type { RuleError } from "../../../../crates/tabifuda-wasm/bindings/RuleError";
+export type { Proposal } from "../../../../crates/tabifuda-wasm/bindings/Proposal";
+export type { ProposalId } from "../../../../crates/tabifuda-wasm/bindings/ProposalId";
+export type { PatchOp } from "../../../../crates/tabifuda-wasm/bindings/PatchOp";
+export type { ScenarioPatch } from "../../../../crates/tabifuda-wasm/bindings/ScenarioPatch";
+export type { Target } from "../../../../crates/tabifuda-wasm/bindings/Target";

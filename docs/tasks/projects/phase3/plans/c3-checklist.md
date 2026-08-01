@@ -8,7 +8,7 @@
 
 1. [x] `core/taggedUnion.ts`追加 + `client-conventions.md`にハンドラマップ
    パターンを追記
-2. [ ] `core/bindings.ts`拡張、`useGameSession.ts`が`events`を返すよう変更
+2. [x] `core/bindings.ts`拡張、`useGameSession.ts`が`events`を返すよう変更
 3. [ ] `chronicle/eventRenderers.tsx` + `chronicle/Timeline.tsx`
    (CardRemoved非描画・カード名解決方針をclient-conventions.mdに追記)
 4. [ ] `components/FreeTextInput.tsx` + `Hand.tsx`のDialogue自由入力
