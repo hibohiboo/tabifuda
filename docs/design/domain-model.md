@@ -37,7 +37,8 @@ struct CardDef {
     name: BoundedString<200>,
     kind: CardKind,
     text: BoundedString<2000>, // フレーバー/説明
-    tags: Vec<Tag>,            // 現状は常に空。将来のタグシステム用に予約
+    tags: Vec<Tag>,            // 将来のタグシステム用に予約(v0.1は空が既定)。
+                               // 例外: `#portable`は持ち出し可否に使う(下記)
     effects: Vec<Effect>,      // 出したときの効果
     requires: Vec<Condition>,  // 出せる条件(任意)
 }
@@ -79,6 +80,28 @@ enum Target {
 Effect / Condition / Target は今後の追加が前提(タグ条件、シナリオ経験条件、
 Party/Actor等の対象追加など)。シリアライズは種別名を含むタグ付き形式
 (serdeの外部タグ等)とし、`#[non_exhaustive]` を付けて後方互換の追加を許容する。
+
+### 持ち出し可否(portable)
+
+セッション終了時にカードを次のセッションへ持ち出せるかどうか
+(「セッション終了処理(finalize)」参照)。2026-07-20決定の§3
+(将来要望メモ§3)を採用:
+
+- **既定は持ち出し不可・明示したカードのみ可**(opt-in)。指定漏れの事故
+  方向を比較すると、既定可では「秘匿すべき鍵アイテムの流出」(作者の
+  意図を壊す・回収不能)、既定不可では「報酬のつもりが渡らない」
+  (次版で直せる)であり、後者のほうが軽い
+- 明示は`CardDef.tags`に予約済みの`#portable`(`CardDef::PORTABLE_TAG`)を
+  含めることで行う。専用の`portable: bool`フィールドは追加しない
+  (タグシステム§4がv0.1から`tags`を予約している設計と整合させるため)
+- **`CardKind::Marker`は`#portable`タグを持っていても常に持ち出し不可**
+  (世界の状態はセッションのもの。`CardDef::is_portable`が
+  `kind != Marker`をタグ判定に先立って確認する)
+- portableなカードの`effects`/`requires`は**シナリオ非依存に制約**する。
+  `GotoScene`(他シナリオでは解決不能なSceneId)、`AdvancePhase`、
+  シナリオ固有`CardId`を指す`DealCard`/`HasCard`を含むカードはportableに
+  できない。違反はシナリオlintの`PortableCardIsScenarioDependent`
+  (Error)で検出する
 
 ## シナリオ構造
 
@@ -246,6 +269,10 @@ struct Character {
     name: String,
     stats: BTreeMap<StatId, i32>,  // MVPはHP程度から
     deck: Vec<CardId>,            // キャラメイク時取得のAction群
+    owned_cards: Vec<CardDef>,    // 持ち帰ったカードの凍結コピー(下記
+                                  // 「セッション終了処理(finalize)」参照)。
+                                  // CardIdはそのシナリオ内でしか解決できない
+                                  // ため、参照ではなく値そのものを持つ
 }
 ```
 
@@ -358,6 +385,10 @@ enum Event {
     ProposalJudged { id: ProposalId, accepted: bool }, // → Running
     PhaseAdvanced { phase: Phase },
     SessionEnded { outcome: Outcome },
+    RewardsGranted { to: CharacterId, cards: Vec<CardDef> },  // finalize。
+                     // 下記「セッション終了処理(finalize)」参照。空にはならない
+                     // (空ならイベント自体を発行しない)
+    CardsDiscarded { from: CharacterId, cards: Vec<CardId> }, // finalize。監査記録のみ
 }
 
 enum RemovalReason {
@@ -418,6 +449,33 @@ decide が各コマンドをどう解決し、apply が状態をどう進める�
 (`HasCard` は実行者キャラの手札+`table`、`StatAtLeast` は実行者キャラの
 `stats` を見る)。`card`(CardInstanceId)が実行者キャラの手札に無ければ
 `RuleError::CardNotFound`。
+
+### セッション終了処理(finalize)
+
+`SessionEnded`(`Effect::EndSession`経由・`Command::EndSession`(GM強制終了)
+経由のどちらでも)の直後に、`SessionEnded`を発行した`decide`が続けて
+finalizeイベントを発行する(2026-07-20決定の§3。将来要望メモ§3のうち、
+手札からの持ち出し選別部分の採用)。outcomeによる分岐はしない
+(Victory/Defeatいずれでも、手元にあるportableなカードは持ち帰れる)。
+
+- party各キャラの手札を、`CardDef::is_portable`が`true`のカードと
+  それ以外に分ける
+  - portableなカードは`CardDef`の凍結コピーとして`RewardsGranted{to, cards}`
+    を1件発行する(該当が無ければ発行しない)
+  - それ以外は`CardId`の一覧として`CardsDiscarded{from, cards}`を1件
+    発行する(該当が無ければ発行しない)
+- `table`は現状どの経路からもカードが置かれないため対象外
+- `apply`は`RewardsGranted`を`Character.owned_cards`への追記として適用する。
+  `CardsDiscarded`は監査記録のみで状態を変更しない(セッションはこの時点で
+  既に`Ended`であり、`hands`を読む経路が以降に無いため)
+- `Effect::EndSession`経由の場合、判定対象の手札は`session`(decide呼び出し
+  時点のスナップショット)そのものではなく、**同じ効果解決内でそれより前に
+  発行された`CardDealt`/`CardRemoved`を`session.hands`へ畳み込んだもの**を
+  使う(いま出したカード自身の消費等を反映するため)
+
+マスターデータ(パーティファイル)への書き戻しはCLI層の役目
+(C4「持ち帰りのCLI配線」)。coreはセッション内の`Character.owned_cards`を
+更新するところまでを担う。
 
 ### カードの消費・除去
 
@@ -705,6 +763,8 @@ struct SaveFile {
 | カードの消費・除去 | retrospectives/phase2.md / tasks/plans/merry-leaping-tide.md |
 | シナリオファイル配置と lint 仕様 | tasks/projects/phase2/task.md C1 / git履歴 |
 | 実行時索引の HashMap→BTreeMap 化・セッションの保存と再開 | tasks/projects/phase3/plans/wasm-boundary-decisions.md 論点1 / tasks/projects/phase3.5/task.md C1 |
+| パーティファイル・操作対象キャラの決定 | tasks/projects/phase3.5/task.md C2 |
+| 持ち出し可否(portable)・セッション終了処理(finalize) | future-requirements.md旧§3(2026-07-20決定) / tasks/projects/phase3.5/task.md C3 |
 
 ### 旧節名との対応(過去文書からの参照用)
 
