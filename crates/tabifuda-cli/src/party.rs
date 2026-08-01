@@ -66,6 +66,7 @@ mod tests {
             name: id.to_string(),
             stats: BTreeMap::new(),
             deck: vec![],
+            owned_cards: vec![],
         }
     }
 

@@ -79,6 +79,20 @@ pub enum Condition {
     StatAtLeast(StatId, i32),
 }
 
+impl CardDef {
+    /// 持ち出し可否を示す予約済みタグ(domain-model.md「持ち出し可否
+    /// (portable)」。2026-07-20決定の§3: 専用のbool フィールドではなく
+    /// v0.1から予約済みの`tags`を使う)。
+    pub const PORTABLE_TAG: &'static str = "#portable";
+
+    /// このカードがセッション終了時に持ち出し可能か。既定は不可・
+    /// `#portable`タグの明示でのみ可、`Marker`は常に不可
+    /// (domain-model.md「持ち出し可否(portable)」)。
+    pub fn is_portable(&self) -> bool {
+        self.kind != CardKind::Marker && self.tags.iter().any(|tag| tag.0 == Self::PORTABLE_TAG)
+    }
+}
+
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -24,6 +24,7 @@ fn default_party() -> Vec<Character> {
         name: SOLO_CHARACTER_NAME.to_string(),
         stats: BTreeMap::new(),
         deck: vec![],
+        owned_cards: vec![],
     }]
 }
 

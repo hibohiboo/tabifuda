@@ -140,6 +140,15 @@ fn apply_to_existing(mut session: Session, event: &Event) -> Option<Session> {
         Event::SessionEnded { outcome } => {
             session.status = SessionStatus::Ended(outcome.clone());
         }
+        Event::RewardsGranted { to, cards } => {
+            if let Some(character) = session.party.iter_mut().find(|c| &c.id == to) {
+                character.owned_cards.extend(cards.iter().cloned());
+            }
+        }
+        Event::CardsDiscarded { .. } => {
+            // 監査記録のみ。セッションはこの時点で既にEndedのためhandsは
+            // 変更しない(domain-model.md「セッション終了処理(finalize)」)。
+        }
     }
     Some(session)
 }
@@ -258,6 +267,8 @@ fn decide_play_card(
                 events.push(Event::SessionEnded {
                     outcome: outcome.clone(),
                 });
+                let hands = hands_after(session, &events);
+                events.extend(finalize_events(session, &hands));
                 ended = true;
             }
             Effect::ModifyStat { .. } => {
@@ -364,7 +375,79 @@ fn decide_end_session(
     check_not_ended(session)?;
     check_not_paused(session)?;
     check_gm(session, actor)?;
-    Ok(vec![Event::SessionEnded { outcome }])
+    let mut events = vec![Event::SessionEnded { outcome }];
+    events.extend(finalize_events(session, &session.hands));
+    Ok(events)
+}
+
+/// `events`のうち`CardDealt`/`CardRemoved`だけを`session.hands`へ畳み込んだ
+/// 手札を返す(不変条件4「カードはCardDealtとCardRemovedによってのみ増減する」
+/// と同じ前提)。`Effect::EndSession`が同じカードの効果列の途中にある場合、
+/// それより前の効果(このカード自身の消費含む)による手札の変化を
+/// finalizeへ反映するために使う(`session`自体はdecide呼び出し時点の
+/// スナップショットのまま変わらないため)。
+fn hands_after(session: &Session, events: &[Event]) -> BTreeMap<CharacterId, Vec<CardInstance>> {
+    let mut hands = session.hands.clone();
+    for event in events {
+        match event {
+            Event::CardDealt { to, card, instance } => {
+                hands.entry(to.clone()).or_default().push(CardInstance {
+                    id: instance.clone(),
+                    card: card.clone(),
+                });
+            }
+            Event::CardRemoved { from, instance, .. } => {
+                if let Some(hand) = hands.get_mut(from) {
+                    hand.retain(|ci| &ci.id != instance);
+                }
+            }
+            _ => {}
+        }
+    }
+    hands
+}
+
+/// セッション終了処理(finalize)。party各キャラの手札を、持ち出し可
+/// (`CardDef::is_portable`)なカードは`RewardsGranted`として持ち帰らせ、
+/// それ以外は`CardsDiscarded`として破棄する(domain-model.md「セッション
+/// 終了処理(finalize)」。2026-07-20決定の§3のうち、手札からの持ち出し
+/// 選別部分)。`table`は現状どの経路からもカードが置かれないため対象外。
+/// 該当が無いキャラには何も発行しない。
+fn finalize_events(
+    session: &Session,
+    hands: &BTreeMap<CharacterId, Vec<CardInstance>>,
+) -> Vec<Event> {
+    let mut events = Vec::new();
+    for character in &session.party {
+        let Some(hand) = hands.get(&character.id) else {
+            continue;
+        };
+        let mut granted = Vec::new();
+        let mut discarded = Vec::new();
+        for instance in hand {
+            let Some(def) = session.scenario.0.card_def(&instance.card) else {
+                continue;
+            };
+            if def.is_portable() {
+                granted.push(def.clone());
+            } else {
+                discarded.push(def.id.clone());
+            }
+        }
+        if !granted.is_empty() {
+            events.push(Event::RewardsGranted {
+                to: character.id.clone(),
+                cards: granted,
+            });
+        }
+        if !discarded.is_empty() {
+            events.push(Event::CardsDiscarded {
+                from: character.id.clone(),
+                cards: discarded,
+            });
+        }
+    }
+    events
 }
 
 /// シーン入場+入場時配布(初期シーン入場・GotoScene効果の両方から共有)。

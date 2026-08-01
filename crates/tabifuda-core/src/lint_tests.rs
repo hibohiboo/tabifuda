@@ -318,6 +318,87 @@ fn lintは到達不能シーンには詰み警告を重複報告しない() {
     assert!(!issues(&s).contains(&LintIssue::DeadEndScene(scn("s2"))));
 }
 
+fn portable_card_def(id: &str) -> CardDef {
+    CardDef {
+        tags: vec![crate::card::Tag(CardDef::PORTABLE_TAG.to_string())],
+        ..card_def(id)
+    }
+}
+
+/// domain-model.md「持ち出し可否(portable)」: `#portable`カードの
+/// `GotoScene`はシナリオ非依存制約に違反する(Error)。
+#[test]
+fn lintはportableカードのGotoScene効果を検出する() {
+    let mut card = portable_card_def("map");
+    card.effects.push(Effect::GotoScene(scn("s2")));
+    let s = scenario(
+        vec![card],
+        only(Phase::Opening, vec![scene("s1"), scene("s2")]),
+    );
+    assert!(issues(&s).contains(&LintIssue::PortableCardIsScenarioDependent(cid("map"))));
+}
+
+/// 同上: `AdvancePhase`。
+#[test]
+fn lintはportableカードのAdvancePhase効果を検出する() {
+    let mut card = portable_card_def("badge");
+    card.effects.push(Effect::AdvancePhase);
+    let s = scenario(vec![card], only(Phase::Opening, vec![scene("s1")]));
+    assert!(issues(&s).contains(&LintIssue::PortableCardIsScenarioDependent(cid("badge"))));
+}
+
+/// 同上: `DealCard`効果(シナリオ固有CardIdへの参照を含む)。
+#[test]
+fn lintはportableカードのDealCard効果を検出する() {
+    let mut card = portable_card_def("box");
+    card.effects.push(Effect::DealCard {
+        card: cid("box"),
+        to: Target::Party,
+    });
+    let s = scenario(vec![card], only(Phase::Opening, vec![scene("s1")]));
+    assert!(issues(&s).contains(&LintIssue::PortableCardIsScenarioDependent(cid("box"))));
+}
+
+/// 同上: `HasCard`条件(requires)。
+#[test]
+fn lintはportableカードのHasCard条件を検出する() {
+    let mut card = portable_card_def("key");
+    card.requires.push(Condition::HasCard(cid("key")));
+    let s = scenario(vec![card], only(Phase::Opening, vec![scene("s1")]));
+    assert!(issues(&s).contains(&LintIssue::PortableCardIsScenarioDependent(cid("key"))));
+}
+
+/// 受理系: シナリオ非依存な効果(ModifyStat)しか持たないportableカードは
+/// 検出されない。
+#[test]
+fn lintはシナリオ非依存なportableカードを受理する() {
+    let mut card = portable_card_def("sword");
+    card.effects.push(Effect::ModifyStat {
+        target: Target::Party,
+        stat: crate::ids::StatId("atk".to_string()),
+        delta: 1,
+    });
+    let s = scenario(vec![card], only(Phase::Opening, vec![scene("s1")]));
+    assert!(!issues(&s)
+        .iter()
+        .any(|i| matches!(i, LintIssue::PortableCardIsScenarioDependent(_))));
+}
+
+/// 受理系: `#portable`タグの無いカードは(GotoScene等を持っていても)
+/// この検査の対象外(既定不可のため持ち出し自体が起きない)。
+#[test]
+fn lintは非portableカードのGotoScene効果を検出しない() {
+    let mut card = card_def("normal");
+    card.effects.push(Effect::GotoScene(scn("s2")));
+    let s = scenario(
+        vec![card],
+        only(Phase::Opening, vec![scene("s1"), scene("s2")]),
+    );
+    assert!(!issues(&s)
+        .iter()
+        .any(|i| matches!(i, LintIssue::PortableCardIsScenarioDependent(_))));
+}
+
 #[test]
 fn lintが生成する全findingはseverityがissueから導出した値と一致する() {
     use crate::lint::LintFinding;
