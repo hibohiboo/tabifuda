@@ -33,6 +33,18 @@ cycles:
   Event enum は `#[non_exhaustive]` で追加前提のため、古い保存ファイルの
   読み込み方針(拒否/警告付き読込)を決める
 
+## P2からの申し送り(継続、phase3ふりかえりより)
+
+P2完了時([phase2/task.md](../phase2/task.md)由来)の下記2点は、P3で
+シナリオデータの追加・変更が発生しなかったため未消化のまま残っている。
+本フェーズで`shared/scenarios/`配下のデータを追加・変更するサイクル
+(想定: C3のportableカード導入でシナリオlintの動作確認用データを触る場合)
+があれば、そのサイクルの着手時チェック項目に含める。
+
+- シナリオデータの人間レビューは実プレイ(docs/demo.mdの手順)で行う
+- lintのWarning(到達不能・詰み)を実際に出すシナリオが未検証。
+  検出ロジックはテスト済みだが作者体験(見え方・直しやすさ)は未確認
+
 ## 着手時の文書運用
 
 §1・§3 の該当部分を採用するサイクルでは、着手時に future-requirements.md の
@@ -49,6 +61,11 @@ cycles:
   future-requirements.md §7(Web版のシナリオフォーク保存)を読み、同じ
   保存思想をWeb版に応用できないか検討する(採用を約束するものではない。
   本サイクルはあくまでCLIのセッション保存が主眼)
+- **決定事項(P3 C1由来、着手前に判断)**: `Session`内`HashMap`
+  (`roles`/`hands`等)はキー順が非決定的なため、同じ状態でも実行ごとに
+  保存ファイルのJSON文字列が変わりうる。保存形式を設計する前に
+  [phase3/plans/wasm-boundary-decisions.md](../phase3/plans/wasm-boundary-decisions.md)
+  論点1(HashMap→BTreeMap化)を決定する(phase3ふりかえり参照)
 - 保存形式の設計を先に文書化(イベント列のシリアライズ。`SessionStarted` に
   シナリオ・パーティの凍結コピーが入るためファイルは自己完結。
   リプレイ決定性は P1 の replay_tests で固定済み)。置き場は P3 C0 の

@@ -68,7 +68,10 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
 ## 4. 終わり方(CLAUDE.md「作業の終わり方」の実行)
 
 1. `cargo test --workspace` / `cargo clippy --workspace -- -D warnings` /
-   `cargo fmt --all` を通す
+   `cargo fmt --all` を通す。CI設定(ci.yml等)を変更するサイクルでは、
+   ローカル動作確認に使った環境変数・コマンド文字列をそのままCI設定へ
+   転記する(再入力すると暗黙の前提が抜け落ちやすい。P3 C1で
+   `TS_RS_EXPORT_DIR`未設定のままコミットした教訓)
 2. design-sync スキルで設計文書との乖離チェック(乖離があれば同PRで文書も直す)
 3. **非規範文書(domain-guide.md / demo.md)への影響を確認する。**
    遊び方・操作手順に見える変更(カードの挙動、UI操作の追加等)があれば
