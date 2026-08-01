@@ -3,7 +3,7 @@ status: in-progress
 cycles:
   C0: done
   C1: done
-  C2: planned
+  C2: done
   C3: planned
   C4: planned
 ---

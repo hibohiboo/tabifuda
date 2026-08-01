@@ -17,4 +17,4 @@ domain-model.mdが正であり、本文書はそれを**どう見せる/どう�
 - `session.hands` のデータ自体は変更しない(除外は表示層のみの決定。
   `Condition::HasCard` の判定にも影響しない)
 - CLI(tabifuda-cli)は本規約に従って実装済み
-- Web版UIもC2以降でこの規約に従う
+- Web版UI(apps/web)も実装済み
