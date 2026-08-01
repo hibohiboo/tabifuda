@@ -447,11 +447,9 @@ future-requirements.mdへ)。
 
 **Markerは除去対象外**: 消費ルール・シーン離脱クリーンアップのどちらの
 対象にもならない(「選んだ記録」として`Session.hands`に残り続ける。
-`Condition::HasCard`の判定にも影響しない)。ただし**CLIの手札表示からは
-`CardKind::Marker`を除外する**(domain-guide.md「世界はすべてカード」の
-Markerの用途どおり、プレイヤーが選ぶ対象ではなく世界の状態を示す印である
-ため)。これは規範(decide/apply)ではなくCLI(tabifuda-cli)の表示ロジックの
-決定であり、`session.hands`のデータ自体は変更しない。
+`Condition::HasCard`の判定にも影響しない)。クライアントの手札表示からの
+除外は規範(decide/apply)ではなく表示層の決定であり、
+[client-conventions.md](client-conventions.md)に分離した。
 
 **冒険記(chronicle)**: `CardRemoved`は明示的に扱うが、テキストとしては
 描画しない(プレイヤー行動の物語的な流れを主役にする。housekeeping detail

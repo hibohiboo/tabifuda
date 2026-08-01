@@ -8,6 +8,14 @@ dist/
 *.log
 tools/docs-site/src/generated/
 
+# wasm-pack出力(crates/tabifuda-wasm/bindings/はts-rs生成の型定義でこれとは別物。
+# git管理対象。docs/adr/0003-ci-pipeline.md「webジョブ新設」参照)
+crates/tabifuda-wasm/pkg/
+
+# Playwright(P3 C4)
+apps/web/playwright-report/
+apps/web/test-results/
+
 # env
 .env
 .env.*

@@ -17,6 +17,24 @@ jobs:
       - run: cargo clippy --workspace -- -D warnings
       - run: cargo test --workspace
 
+  wasm-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+      - run: wasm-pack test --node crates/tabifuda-wasm
+      - name: Regenerate TS bindings and check drift
+        env:
+          TS_RS_EXPORT_DIR: ${{ github.workspace }}/crates/tabifuda-wasm/bindings
+        run: |
+          cargo test -p tabifuda-core --features ts export_bindings
+          cargo test -p tabifuda-wasm --features ts export_bindings
+          git diff --exit-code -- crates/tabifuda-wasm/bindings
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:
@@ -52,5 +70,28 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: pnpm install --frozen-lockfile
-      - run: pnpm -r typecheck
-      - run: pnpm -r build
+      # apps/web の巻き込みを避けるため --filter で絞る(docs/adr/0003-ci-pipeline.md参照)
+      - run: pnpm --filter @tabifuda/docs-site typecheck
+      - run: pnpm --filter @tabifuda/docs-site build
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/wasm-pack-action@v0.4.0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @tabifuda/web typecheck
+      - run: pnpm --filter @tabifuda/web lint
+      - run: pnpm --filter @tabifuda/web build
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: pnpm --filter @tabifuda/web test:e2e

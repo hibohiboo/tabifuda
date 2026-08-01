@@ -6,18 +6,23 @@
 
 use std::collections::{HashSet, VecDeque};
 
+use serde::{Deserialize, Serialize};
+
 use crate::card::{CardDef, Condition, Effect, Target};
 use crate::ids::{CardId, SceneId};
 use crate::scenario::{Deal, Scenario, SceneDef, Transition};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum Severity {
     Error,
     Warning,
 }
 
 /// 検査で見つかった問題。docs/design/scenario-lint.md「検査項目と重大度」の表に対応。
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum LintIssue {
     DuplicateCardId(CardId),
@@ -44,7 +49,13 @@ impl LintIssue {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// `severity`は`issue.severity()`から導出可能な値であり、両者が矛盾する
+/// インスタンスも型上は構築できてしまう(deriveされた`Deserialize`は
+/// この不変条件を検証しない)。そのため外部入力(wasm境界越しのJSON等)を
+/// この型へ直接デコードしない。境界を越えたJSONは常に`lint()`が生成した
+/// ものをTS側が読むだけの用途に限る。
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export))]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LintFinding {
     pub severity: Severity,
     pub issue: LintIssue,

@@ -1,0 +1,31 @@
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: #14141a;
+  color: #e8e6df;
+  font-family: system-ui, sans-serif;
+}
+
+.timeline {
+  padding-left: 1.5em;
+}
+
+.timeline li {
+  margin-bottom: 0.75em;
+}
+
+.chronicle-minor {
+  color: #9a9a9a;
+  font-size: 0.9em;
+}
+
+blockquote {
+  margin: 0.25em 0 0 1em;
+  padding-left: 0.75em;
+  border-left: 3px solid #55555a;
+  color: #cfcfc7;
+  font-style: italic;
+}

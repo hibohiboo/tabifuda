@@ -1,11 +1,11 @@
 ---
-status: planned
+status: done
 cycles:
-  C0: planned
-  C1: planned
-  C2: planned
-  C3: planned
-  C4: planned
+  C0: done
+  C1: done
+  C2: done
+  C3: done
+  C4: done
 ---
 
 # Phase 3 実装タスク: WASM+Web版(ローカル)

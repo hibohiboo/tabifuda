@@ -128,3 +128,102 @@ Node.jsランタイムの引き上げ(node20→node24)やnpm限定の自動キ�
 `Swatinem/rust-cache@v2`・`gitleaks/gitleaks-action@v3`・
 `rustsec/audit-check@v2`・`dtolnay/rust-toolchain@stable` は
 既に最新メジャーのため変更なし。
+
+## 追記(2026-08-01): wasm-testジョブ(P3 C1)
+
+`crates/tabifuda-wasm`(docs/design/wasm-boundary.md)を追加し、
+`#[wasm_bindgen_test]`による境界の型往復テストを実装した。
+このテストは`target_arch = "wasm32"`限定でコンパイルされるため
+`cargo test --workspace`(lint-testジョブ、ホストターゲット)の対象にならず、
+専用ジョブが必要(wasm-boundary.md「crateの物理配置」の指摘どおり、これを
+怠るとテストが1本も実行されずCIが緑になる)。
+
+`ci.yml`に`wasm-test`ジョブを追加する:
+
+| ジョブ | 内容 | 失敗時の扱い |
+|---|---|---|
+| wasm-test | `dtolnay/rust-toolchain`(`targets: wasm32-unknown-unknown`)→ `jetli/wasm-pack-action`でwasm-pack導入 → `wasm-pack test --node crates/tabifuda-wasm` | CI失敗(必須) |
+
+- 追加アクション: `jetli/wasm-pack-action`(メジャータグ`@v0.4.0`固定。
+  本ADR冒頭の「メジャー・パッチ更新は自動追従」の対象外とし、
+  wasm-pack自体の破壊的変更を待ってからバージョンを上げる)
+- `--node`でNode.js実行とする(ブラウザヘッドレス実行は導入しない。
+  Node.jsはdocs-siteジョブで既に導入実績があり、追加のブラウザ
+  インストールコストを避けるため)
+- `wasm-bindgen`クレートと`wasm-bindgen-cli`(wasm-packが内部で使う)の
+  バージョン不一致はビルド失敗の典型要因(wasm-boundary.md参照)。
+  不一致が起きたら`crates/tabifuda-wasm/Cargo.toml`の`wasm-bindgen`
+  バージョンを`wasm-pack`が解決したバージョンに合わせる
+
+同ジョブに、TS型定義(`crates/tabifuda-wasm/bindings/`。`ts-rs`による自動生成、
+wasm-boundary.md「決定した論点1」)のドリフト検査ステップも追加する:
+`TS_RS_EXPORT_DIR`を`crates/tabifuda-wasm/bindings`の絶対パスに設定した上で
+`cargo test -p tabifuda-core --features ts export_bindings` →
+`cargo test -p tabifuda-wasm --features ts export_bindings` で
+`bindings/`を再生成し、`git diff --exit-code -- crates/tabifuda-wasm/bindings`
+で差分が無いことを確認する(コミットされたbindings/が最新のRust型と
+同期していることを保証する)。`bindings/`はgit管理対象(生成物だが、
+apps/web(P3 C2〜)がこれをimportする配布物のため)。
+
+**`TS_RS_EXPORT_DIR`は省略しない。** 省略するとts-rsの既定出力先
+(`<crateのCargo.tomlがあるディレクトリ>/bindings/`)に書き出され、
+`tabifuda-core`側の型が`crates/tabifuda-core/bindings/`という別の場所に
+生成されてしまう。ドリフト検査の対象は`crates/tabifuda-wasm/bindings/`に
+固定しているため、これを忘れると`tabifuda-core`側の変更が実質検証されない
+まま緑になる(2026-08-01、ci.yml初版で発生・修正)。
+
+## 追記(2026-08-01): apps/web用`web`ジョブ新設と`docs-site`/pages.ymlの`--filter`化(P3 C2)
+
+`pnpm-workspace.yaml`に`apps/*`を追加し`apps/web`を新設するにあたり、
+`docs-site`ジョブ(ci.yml)と`pages.yml`のbuildジョブが両方とも`pnpm -r typecheck`/
+`pnpm -r build`で**ワークスペース全体を再帰実行**している点が問題になる。
+apps/webのビルドは`wasm-pack build`(wasm32ターゲット必須)を前段で要するが、
+この2ジョブにはwasm32ツールチェーンが無いため、apps/web追加後にそのままでは
+docs-siteと無関係な理由で両方とも壊れる。
+
+対応:
+
+1. `docs-site`ジョブ(ci.yml)・`pages.yml`のbuildジョブのコマンドを
+   `pnpm -r typecheck`/`pnpm -r build`から**`pnpm --filter @tabifuda/docs-site
+   typecheck`/`pnpm --filter @tabifuda/docs-site build`**に絞る。これにより
+   両ジョブはapps/web(や将来追加されるworkspaceパッケージ)の状態に左右されなくなる
+   (「Rust CI のゲートと混ぜない」というpages.ymlの既存方針を、他パッケージとの
+   巻き込み事故防止にも広げる形)
+2. ci.ymlに新規`web`ジョブを追加する:
+
+| ジョブ | 内容 | 失敗時の扱い |
+|---|---|---|
+| web | `dtolnay/rust-toolchain`(`targets: wasm32-unknown-unknown`)→ `Swatinem/rust-cache@v2` → `jetli/wasm-pack-action@v0.4.0`(`wasm-test`ジョブと同一設定)→ `pnpm/action-setup@v6` → `actions/setup-node@v7`(Node24)→ `pnpm install --frozen-lockfile` → `pnpm --filter @tabifuda/web typecheck` → `pnpm --filter @tabifuda/web lint` → `pnpm --filter @tabifuda/web build` | CI失敗(必須) |
+
+   `apps/web`の`typecheck`/`build`/`dev`スクリプトはいずれも前段で
+   `wasm-pack build --target web --out-dir ../../crates/tabifuda-wasm/pkg`を
+   実行する(生成物はコミットしない。`.gitignore`に`crates/tabifuda-wasm/pkg/`を
+   追記する。ts-rs生成の`bindings/`とは別物で、こちらは配布物ではなくビルド前提物
+   のため非コミット)。`wasm-test`ジョブと同じ`jetli/wasm-pack-action@v0.4.0`を
+   使うことで、wasm-bindgenバージョン不一致のリスクを`wasm-test`ジョブと共通の
+   運用(バージョン固定・不一致時の対処)に揃える
+3. lintは`web`ジョブでESLint flat config(`@typescript-eslint`+
+   `eslint-plugin-react-hooks`のrecommendedのみ)の基盤導入までとする。
+   UGC専用ルール(`dangerouslySetInnerHTML`検出)はP3 C4で追加する
+   (cross-cutting.md「自由入力(UGC)の取り扱い」参照)
+
+## 追記(2026-08-01): `web`ジョブへのPlaywrightスモーク追加(P3 C4)
+
+test-strategy.md「E2E/スモーク」の「P3: Webでテンプレシナリオを1本通す
+Playwrightスモーク1本」を`web`ジョブに追加する。新規ジョブは起こさず
+既存`web`ジョブの末尾に追加する(`build`までの前段(wasm-pack導入・
+pnpm install)をそのまま再利用できるため)。
+
+| ジョブ | 追加内容 | 失敗時の扱い |
+|---|---|---|
+| web | (既存ステップに続けて) `pnpm exec playwright install --with-deps chromium` → `pnpm --filter @tabifuda/web test:e2e` | CI失敗(必須) |
+
+- `apps/web/playwright.config.ts`の`webServer`が`pnpm run build`
+  (wasm-pack build含む)→`vite preview`を自前で起動するため、CI側は
+  ブラウザインストールとテスト実行のみを追加すればよい
+  (直前の`typecheck`/`lint`/`build`ステップとは独立に、
+  テスト実行時にもう一度buildが走る。実行時間より単純さを優先する判断)
+- `--with-deps`はUbuntu runnerでChromium実行に必要なOS依存パッケージを
+  同時導入するため(Playwright公式推奨のCI手順)
+- ブラウザは`chromium`のみ導入する(クロスブラウザ検証はスモークの
+  目的外。test-strategy.md「重複を作らないためのルール」と同じ判断)

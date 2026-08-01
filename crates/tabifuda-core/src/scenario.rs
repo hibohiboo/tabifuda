@@ -11,6 +11,7 @@ use crate::ids::{CardId, ScenarioId, SceneId};
 use crate::primitives::BoundedString;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Phase {
     Opening,
@@ -19,6 +20,7 @@ pub enum Phase {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum SceneKind {
@@ -29,6 +31,7 @@ pub enum SceneKind {
 
 /// シーン入場時に配るカード。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Deal {
     pub card: CardId,
@@ -37,6 +40,7 @@ pub struct Deal {
 
 /// Conditionによる自動遷移。カードのGotoScene効果による遷移とは別経路。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Transition {
     pub condition: Condition,
@@ -44,6 +48,7 @@ pub struct Transition {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SceneDef {
     pub id: SceneId,
@@ -64,6 +69,7 @@ pub struct SceneDef {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PhaseDef {
     pub phase: Phase,
@@ -77,6 +83,7 @@ pub struct PhaseDef {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScenarioMeta {
     pub id: ScenarioId,
@@ -86,6 +93,7 @@ pub struct ScenarioMeta {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Scenario {
     pub meta: ScenarioMeta,

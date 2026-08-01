@@ -7,10 +7,12 @@ use crate::ids::{CardId, CharacterId, SceneId, StatId};
 use crate::primitives::BoundedString;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Tag(pub String);
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum CardKind {
@@ -39,6 +41,7 @@ impl CardKind {
 /// - `Character` は実名参照で**上演中専用**。シナリオデータ内での使用は不正
 ///   (解決不能。P2のシナリオlintで検出)
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum Target {
@@ -47,6 +50,7 @@ pub enum Target {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum Effect {
@@ -67,6 +71,7 @@ pub enum Effect {
 /// アクターの手札 or table に存在するかで判定する(FlagIsはv0.2で廃止。
 /// docs/design/domain-model.md参照)。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum Condition {
@@ -75,6 +80,7 @@ pub enum Condition {
 }
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CardDef {
     pub id: CardId,

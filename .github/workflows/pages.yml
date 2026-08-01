@@ -35,8 +35,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: pnpm install --frozen-lockfile
-      - run: pnpm -r typecheck
-      - run: pnpm -r build
+      # apps/web の巻き込みを避けるため --filter で絞る(docs/adr/0003-ci-pipeline.md参照)
+      - run: pnpm --filter @tabifuda/docs-site typecheck
+      - run: pnpm --filter @tabifuda/docs-site build
       - uses: actions/upload-pages-artifact@v5
         with:
           path: tools/docs-site/dist

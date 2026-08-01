@@ -17,6 +17,7 @@ use crate::scenario::Phase;
 use crate::session::ScenarioSnapshot;
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum Event {
@@ -106,6 +107,7 @@ pub enum Event {
 
 /// `Event::CardRemoved`の理由。domain-model.md「カードの消費・除去」参照。
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum RemovalReason {
