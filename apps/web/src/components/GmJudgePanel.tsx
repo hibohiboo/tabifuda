@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Proposal, Scenario, ScenarioPatch } from "../core/bindings";
 import { buildAnswerPatch } from "../session/gmResponse";
-import { FREE_TEXT_MAX } from "../session/limits";
+import { CARD_NAME_MAX, CARD_TEXT_MAX } from "../session/limits";
 
 export function GmJudgePanel({
   proposal,
@@ -24,13 +24,17 @@ export function GmJudgePanel({
         <p>提案:「{proposal.text}」</p>
         <label>
           カード名
-          <input value={cardName} maxLength={200} onChange={(e) => setCardName(e.target.value)} />
+          <input
+            value={cardName}
+            maxLength={CARD_NAME_MAX}
+            onChange={(e) => setCardName(e.target.value)}
+          />
         </label>
         <label>
           回答文
           <textarea
             value={answerText}
-            maxLength={FREE_TEXT_MAX}
+            maxLength={CARD_TEXT_MAX}
             onChange={(e) => setAnswerText(e.target.value)}
           />
         </label>

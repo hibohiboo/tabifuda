@@ -21,5 +21,12 @@
    採用→再開→自由入力付きプレイ→最後まで勝利、を通しで手動確認済み
    (コンソールエラー無し)
 7. [x] `App.css`にタイムライン/吹き出し用スタイル追記
-8. [ ] 仕上げ: design-syncでの乖離チェック、task.mdのC3をdoneに更新、
+8. [x] 仕上げ: design-syncでの乖離チェック、task.mdのC3をdoneに更新、
    agent-journal.md追記
+
+## design-syncで検出した乖離(修正済み)
+
+- `GmJudgePanel.tsx`の回答文入力が`FREE_TEXT_MAX`(4096)を誤用していた。
+  `CardDef.text`は作者データとしてdomain-model.md上2000文字が正しい上限。
+  `session/limits.ts`に`CARD_NAME_MAX`/`CARD_TEXT_MAX`を追加して修正
+  (agent-journal.md 2026-08-01参照)
