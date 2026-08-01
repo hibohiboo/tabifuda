@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useReducer, useState } from "react";
-import type { Command, Event, Session, UserId, WasmError } from "../core/bindings";
+import type { Command, Event, Session, UserId, WasmError } from "@tabifuda/ui";
 import { applyAll, decide } from "../core/wasmClient";
 
 function appendEvents(state: Event[], added: Event[]): Event[] {

@@ -68,6 +68,13 @@ body {
   gap: 0.75rem;
 }
 
+.catalog__preview {
+  border: 1px dashed #cbbfa9;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  background: #faf7f0;
+}
+
 .task {
   border: 1px solid #cbbfa9;
   border-radius: 0.5rem;

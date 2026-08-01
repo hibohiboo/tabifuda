@@ -74,6 +74,19 @@ jobs:
       - run: pnpm --filter @tabifuda/docs-site typecheck
       - run: pnpm --filter @tabifuda/docs-site build
 
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @tabifuda/ui typecheck
+      - run: pnpm --filter @tabifuda/ui lint
+
   web:
     runs-on: ubuntu-latest
     steps:

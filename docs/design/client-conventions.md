@@ -56,6 +56,32 @@ CardIdを使い、`ApplyPatch{ops:[AddCardDef{...,kind:Scenario,...},
 DealCard{card,to:Party}], note}`を発行する。一意性検証はCLIと同様
 `decide`内の`validate`が担い、TS側はルール分岐を持たない。
 
+## UIコンポーネントの置き場(packages/ui、2026-08-01決定)
+
+component-catalogタスク(tools/docs-siteにコンポーネントカタログを追加する)の
+前提として、apps/webのUIコンポーネント一式を`packages/ui`(`@tabifuda/ui`)
+ワークスペースパッケージへ切り出す。
+
+- **対象**: プレゼンテーション層一式。`components/`(ErrorBanner・
+  FreeTextInput・GmJudgePanel・Hand・ProposalForm・SceneView)、
+  `chronicle/`(Timeline・eventRenderers)、およびこれらだけが使う純粋な
+  補助モジュール(`core/bindings.ts`の型再エクスポート、
+  `core/taggedUnion.ts`、`session/scenarioLookup.ts`、`session/limits.ts`、
+  `session/gmResponse.ts`)
+- **対象外(apps/webに残す)**: `core/wasmClient.ts`(wasmモジュールの実ロード)、
+  `session/useGameSession.ts`(wasmClient配線)、`session/soloParty.ts`
+  (ソロプレイ固有の配線)、`scenario/simpleHunt.ts`(このアプリのシナリオ
+  読込)。packages/uiは**wasmランタイムに依存しない**ことが要件
+  (tools/docs-siteのコンポーネントカタログが、wasm32ツールチェーン無しで
+  静的サンプルデータからコンポーネントを描画できるようにするため)
+- **ビルドレス**: packages/uiは`dist`ビルドを持たず、`src/`をソースのまま
+  export する(利用側のVite/tscがそのままトランスパイルする前提。
+  apps/web・tools/docs-siteの両方が既にVite製のため成立する)
+- **docs-siteの例外**: tools/docs-site/task.md「ビューアはゲーム本体と
+  コードを共有しない」の原則に対し、`packages/ui`のみ例外として依存を
+  許可する(同パッケージはwasmランタイム・ビルド成果物を含まないため、
+  原則の趣旨=docs-siteのビルドを単純・独立に保つ、を壊さない)
+
 ## 手札表示からの Marker 除外
 
 `CardKind::Marker` は世界の状態・選択の成立を示す印であり

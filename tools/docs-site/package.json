@@ -13,6 +13,7 @@
     "check:rdra-data": "node scripts/check-rdra-data.mjs"
   },
   "dependencies": {
+    "@tabifuda/ui": "workspace:*",
     "js-yaml": "^5.2.2",
     "mermaid": "^11.16.0",
     "react": "^19.2.8",
