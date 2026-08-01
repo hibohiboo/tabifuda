@@ -1,6 +1,6 @@
 //! セッション状態。docs/design/domain-model.md「セッション状態」節に対応。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -58,19 +58,19 @@ pub struct Session {
     #[cfg_attr(
         test,
         proptest(
-            strategy = "proptest::collection::hash_map(proptest::prelude::any::<UserId>(), proptest::prelude::any::<Role>(), 0..=2)"
+            strategy = "proptest::collection::btree_map(proptest::prelude::any::<UserId>(), proptest::prelude::any::<Role>(), 0..=2)"
         )
     )]
-    pub roles: HashMap<UserId, Role>,
+    pub roles: BTreeMap<UserId, Role>,
     pub phase: Phase,
     pub scene: SceneId,
     #[cfg_attr(
         test,
         proptest(
-            strategy = "proptest::collection::hash_map(proptest::prelude::any::<CharacterId>(), proptest::collection::vec(proptest::prelude::any::<CardInstance>(), 0..=3), 0..=2)"
+            strategy = "proptest::collection::btree_map(proptest::prelude::any::<CharacterId>(), proptest::collection::vec(proptest::prelude::any::<CardInstance>(), 0..=3), 0..=2)"
         )
     )]
-    pub hands: HashMap<CharacterId, Vec<CardInstance>>,
+    pub hands: BTreeMap<CharacterId, Vec<CardInstance>>,
     #[cfg_attr(
         test,
         proptest(

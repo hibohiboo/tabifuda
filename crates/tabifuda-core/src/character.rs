@@ -1,6 +1,6 @@
 //! キャラクター(セッションのparty内。マスターデータの凍結コピー)。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -15,10 +15,10 @@ pub struct Character {
     #[cfg_attr(
         test,
         proptest(
-            strategy = "proptest::collection::hash_map(proptest::prelude::any::<StatId>(), proptest::prelude::any::<i32>(), 0..=3)"
+            strategy = "proptest::collection::btree_map(proptest::prelude::any::<StatId>(), proptest::prelude::any::<i32>(), 0..=3)"
         )
     )]
-    pub stats: HashMap<StatId, i32>,
+    pub stats: BTreeMap<StatId, i32>,
     #[cfg_attr(
         test,
         proptest(

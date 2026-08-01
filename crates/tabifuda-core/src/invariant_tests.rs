@@ -1,7 +1,7 @@
 //! プロパティテストによる不変条件1〜5の固定。docs/design/test-strategy.md §1(b)に対応
 //! (不変条件5をここに含める根拠は同文書「フェーズ別の導入順」)。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use proptest::prelude::*;
 
@@ -255,7 +255,7 @@ fn small_session_strategy() -> impl Strategy<Value = Session> {
         let scenario_for_session = scenario.clone();
         (current_scene, proptest::collection::vec(dealt_card, 0..=3)).prop_map(
             move |(scene, dealt_cards)| {
-                let mut hands = HashMap::new();
+                let mut hands = BTreeMap::new();
                 hands.insert(
                     CharacterId("ch1".to_string()),
                     dealt_cards
@@ -267,7 +267,7 @@ fn small_session_strategy() -> impl Strategy<Value = Session> {
                         })
                         .collect(),
                 );
-                let mut roles = HashMap::new();
+                let mut roles = BTreeMap::new();
                 roles.insert(UserId("gm".to_string()), Role::Gm);
                 Session {
                     scenario: ScenarioSnapshot(scenario_for_session.clone()),

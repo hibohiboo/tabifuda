@@ -1,7 +1,7 @@
 //! decide/apply。docs/design/domain-model.md「進行の解決規則」に対応。
 //! CLAUDE.md最重要ルール2・3(coreは純粋・進行は必ずイベント経由)を実装する中核。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::actor::Role;
 use crate::card::{CardDef, CardKind, Condition, Effect, Target};
@@ -160,7 +160,7 @@ fn decide_start_session(
     let initial_phase = first_phase_def.phase.clone();
     let initial_scene = first_scene.id.clone();
 
-    let mut roles = HashMap::new();
+    let mut roles = BTreeMap::new();
     roles.insert(actor.clone(), Role::Gm);
 
     let mut events = vec![Event::SessionStarted {

@@ -147,7 +147,7 @@ mod tests {
     /// (CLIの決定)」)。
     #[test]
     fn 冒険記の描画はパッチで追加されたカードの名前も解決する() {
-        use std::collections::HashMap;
+        use std::collections::BTreeMap;
         use tabifuda_core::{
             CardDef, CardInstanceId, CardKind, Phase, Scenario, ScenarioId, ScenarioMeta,
             ScenarioPatch, ScenarioSnapshot, SceneId,
@@ -176,7 +176,7 @@ mod tests {
             Event::SessionStarted {
                 scenario: ScenarioSnapshot(scenario),
                 party: vec![],
-                roles: HashMap::new(),
+                roles: BTreeMap::new(),
                 initial_phase: Phase::Opening,
                 initial_scene: SceneId("op".to_string()),
             },

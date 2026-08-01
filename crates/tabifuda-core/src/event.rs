@@ -3,7 +3,7 @@
 //! PhaseAdvanced/SessionEnded、C3でProposalSubmitted/ProposalJudged、
 //! C4でScenarioPatchedを実装。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -33,10 +33,10 @@ pub enum Event {
         #[cfg_attr(
             test,
             proptest(
-                strategy = "proptest::collection::hash_map(proptest::prelude::any::<UserId>(), proptest::prelude::any::<Role>(), 0..=2)"
+                strategy = "proptest::collection::btree_map(proptest::prelude::any::<UserId>(), proptest::prelude::any::<Role>(), 0..=2)"
             )
         )]
-        roles: HashMap<UserId, Role>,
+        roles: BTreeMap<UserId, Role>,
         initial_phase: Phase,
         initial_scene: SceneId,
     },

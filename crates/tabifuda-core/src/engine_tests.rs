@@ -1,7 +1,7 @@
 //! decide/applyのテーブル駆動テスト。docs/design/test-strategy.md §1(a)に対応。
 //! 各Commandについて受理/拒否を対で書く。シナリオはテスト用の最小構成。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::card::{CardDef, CardKind, Condition, Effect, Target};
 use crate::character::Character;
@@ -149,7 +149,7 @@ fn fixture_scenario() -> Scenario {
 }
 
 fn fixture_party() -> Vec<Character> {
-    let mut ch1_stats = HashMap::new();
+    let mut ch1_stats = BTreeMap::new();
     ch1_stats.insert(stat("hp"), 5);
     vec![
         Character {
@@ -161,7 +161,7 @@ fn fixture_party() -> Vec<Character> {
         Character {
             id: chr("ch2"),
             name: "ch2".to_string(),
-            stats: HashMap::new(),
+            stats: BTreeMap::new(),
             deck: vec![],
         },
     ]
@@ -169,7 +169,7 @@ fn fixture_party() -> Vec<Character> {
 
 /// `hands["ch1"]` に指定カード定義のインスタンスを1枚持たせた実行中セッション。
 fn fixture_session(hand_card: &str) -> Session {
-    let mut roles = HashMap::new();
+    let mut roles = BTreeMap::new();
     roles.insert(
         usr("u1"),
         Role::Player {
@@ -178,7 +178,7 @@ fn fixture_session(hand_card: &str) -> Session {
     );
     roles.insert(usr("gm1"), Role::Gm);
 
-    let mut hands = HashMap::new();
+    let mut hands = BTreeMap::new();
     hands.insert(
         chr("ch1"),
         vec![CardInstance {
@@ -1400,7 +1400,7 @@ fn start_removal_test_session() -> Session {
     let party = vec![Character {
         id: chr("ch1"),
         name: "ch1".to_string(),
-        stats: HashMap::new(),
+        stats: BTreeMap::new(),
         deck: vec![],
     }];
     let events = decide(None, &usr("gm1"), Command::StartSession { scenario, party }).unwrap();

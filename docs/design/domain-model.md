@@ -139,7 +139,7 @@ struct Transition {
 | 区分 | 型 | id の正 | 理由 |
 |---|---|---|---|
 | 作者データ(card_defs / phases / scenes / party) | `Vec<T>` | **構造体内の埋め込み id** | 並び順に意味がある(文書)。シリアライズが決定的(fixture・フォーク差分が安定) |
-| 実行時索引(hands / roles) | `HashMap<Id, V>` | **キー**(値に id を持たない=二重化しない) | 順序不問の索引。O(1)参照 |
+| 実行時索引(hands / roles / stats) | `BTreeMap<Id, V>` | **キー**(値に id を持たない=二重化しない) | 順序不問の索引。id型(String)には`Ord`をderive済みで、キー順が決定的なためJSONシリアライズも安定する(セーブファイルの無意味な差分を避ける。経緯: [wasm-boundary-decisions.md](../tasks/projects/phase3/plans/wasm-boundary-decisions.md)論点1) |
 
 - id の一意性(card_defs 内の CardId、全 phases を通した SceneId、party 内の
   CharacterId に重複なし)と参照整合性は**不変条件**とする。パッチの validate と
@@ -202,10 +202,10 @@ struct Session {
                                   // セッション中の変化はこのコピーにのみ及ぶ。
                                   // マスターへの書き戻しは終了処理でのみ行う(将来要望メモ§1,3)
     status: SessionStatus,        // 状態機械(下記)
-    roles: HashMap<UserId, Role>, // 参加者の役割。権限検証の根拠
+    roles: BTreeMap<UserId, Role>, // 参加者の役割。権限検証の根拠
     phase: Phase,
     scene: SceneId,
-    hands: HashMap<CharacterId, Vec<CardInstance>>,
+    hands: BTreeMap<CharacterId, Vec<CardInstance>>,
     table: Vec<CardInstance>,     // 場に出たカード。パーティ/シナリオ全体の
                                   // 状態(旧flags)は Marker カードとしてここに置く
     pending_proposal: Option<Proposal>,
@@ -244,7 +244,7 @@ struct CardInstance {
 struct Character {
     id: CharacterId,
     name: String,
-    stats: HashMap<StatId, i32>,  // MVPはHP程度から
+    stats: BTreeMap<StatId, i32>,  // MVPはHP程度から
     deck: Vec<CardId>,            // キャラメイク時取得のAction群
 }
 ```
@@ -343,7 +343,7 @@ enum Command {
 
 enum Event {
     SessionStarted { scenario: ScenarioSnapshot, party: Vec<Character>,
-                     roles: HashMap<UserId, Role>,
+                     roles: BTreeMap<UserId, Role>,
                      initial_phase: Phase, initial_scene: SceneId },
     SceneEntered { scene: SceneId, narration: String,
                    local_instances: Vec<CardInstanceId> }, // 下記「カードの消費・除去」参照
@@ -613,6 +613,37 @@ Running` がそのまま担う。コアの変更は不要で、以下はtabifuda
 - フォーク構築は純粋関数(`build_fork(scenario, events) -> Scenario`)として
   CLI層に置き、IO(確認プロンプト・書き込み)と分離する。コアの
   decide/applyには触れない
+
+### セッションの保存と再開(CLIの決定。規範ではない)
+
+`Event::SessionStarted` がシナリオ・パーティの凍結コピーを持つため、
+イベント列だけでセッションを完全に復元できる(自己完結)。保存は
+このイベント列をそのままシリアライズし、再開は`apply`で畳み込むだけでよい。
+リプレイの決定性は`replay_tests`で固定済み。
+
+```rust
+struct SaveFile {
+    format_version: u32,  // 現在1。Event enumは#[non_exhaustive]で
+                           // 追加前提のため、旧形式の読込可否を区別する
+    events: Vec<Event>,
+}
+```
+
+- `format_version`が現在の実装と一致しない保存ファイルは**読み込みを拒否**する
+  (警告付き読込はしない。互換性維持のコストより、拒否して作り直させる方が
+  MVP規模では単純で安全)
+- Running中/Paused中いずれの画面でも`q`で「保存して中断しますか?」を尋ねる。
+  `y`なら保存して終了、`n`なら保存せず終了する。Paused中に`q`で中断・保存した
+  場合、再開すると裁定待ち(Paused)へそのまま戻る(状態機械はイベント列から
+  復元されるため、中断した状態を過不足なく再現する)
+- 保存先は元シナリオファイルの隣に`{語幹}-save.json`(既存ファイルと衝突する
+  場合は連番。フォーク出力と同じ発番方針)。`--resume`で再開した場合は、
+  読み込んだファイルへ上書き保存する(セーブスロットの概念を導入しない)
+- `play --resume <session-file>`は`<scenario-file>`の代わりにセーブファイルを
+  読み込み、イベント列を`apply`で畳み込んで`Session`を復元してからプレイを続ける
+- セーブファイルは自由入力本文(冒険記のドメインログ)を含む。運用ログに
+  本文を書かない規律(cross-cutting.md)はセーブファイルには適用されない
+  (セーブファイルは冒険記の永続化そのものであり、意図した保存対象のため)
 
 ## シナリオlint
 

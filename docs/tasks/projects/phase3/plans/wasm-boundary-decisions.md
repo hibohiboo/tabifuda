@@ -7,7 +7,7 @@
 
 | # | 論点 | 状態 |
 |---|---|---|
-| 1 | Session内HashMap → BTreeMap化 | 未着手 |
+| 1 | Session内HashMap → BTreeMap化 | 済(P3.5 C1、2026-08-01) |
 
 ## 論点1: Session内HashMap → BTreeMap化
 
@@ -24,7 +24,9 @@ JSON文字列が変わりうる。
 **影響範囲**: P3.5(永続化)でセーブファイルの差分が無意味に発生する、
 将来state文字列をmemoキー・差分比較に使うと誤爆する可能性。
 
-**決定**: 未定。P3.5着手前に判断する。
+**決定**: B(BTreeMap化する)。P3.5がまさにセーブ機能を作るサイクルであり、
+今のうちに直すのが自然なため。
 
-**反映先**: 決定後、docs/design/domain-model.md「セッション状態」の
-該当フィールド定義、およびcrates/tabifuda-core/src/session.rsを更新。
+**反映先**: docs/design/domain-model.md「コレクションとidの規則」表・
+「セッション状態」節、crates/tabifuda-core/src/{ids,session,character,event,engine}.rs
+を更新済み(P3.5 C1)。

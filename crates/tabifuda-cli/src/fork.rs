@@ -62,7 +62,6 @@ fn add_deal(fork: &mut Scenario, scene_id: &SceneId, deal: Deal) {
 #[allow(non_snake_case)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
     use tabifuda_core::{
         BoundedString, CardDef, CardKind, Phase, PhaseDef, ScenarioMeta, ScenarioPatch, SceneDef,
         SceneKind, Target,

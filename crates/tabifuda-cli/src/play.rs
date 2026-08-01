@@ -3,7 +3,7 @@
 //! ソロプレイのため、単一ユーザーがPlayer/GM両ロールを兼ねる
 //! (domain-model.md「ソロMVPでの簡略化」)。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
 
@@ -24,7 +24,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
     let character = Character {
         id: character_id.clone(),
         name: SOLO_CHARACTER_NAME.to_string(),
-        stats: HashMap::new(),
+        stats: BTreeMap::new(),
         deck: vec![],
     };
 
