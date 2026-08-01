@@ -1,4 +1,4 @@
-import type { Scenario } from "../core/bindings";
+import type { Scenario } from "@tabifuda/ui";
 import raw from "../../../../shared/scenarios/simple-hunt.json";
 
 // shared/scenarios/(docs/design/domain-model.md「シナリオファイルの配置」)。

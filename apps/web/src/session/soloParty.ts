@@ -1,4 +1,4 @@
-import type { Character, CharacterId, UserId } from "../core/bindings";
+import type { Character, CharacterId, UserId } from "@tabifuda/ui";
 
 // crates/tabifuda-cli/src/play.rs のソロキャラ構築を踏襲
 // (domain-model.md「ソロMVPでの簡略化」。単一ユーザーがPlayer/GM両ロールを兼ねる)。

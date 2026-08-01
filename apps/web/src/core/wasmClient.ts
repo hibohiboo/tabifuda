@@ -1,11 +1,12 @@
 // crates/tabifuda-wasm(wasm-pack --target web出力)への薄いJSONラッパー。
-// 深い相対importはこのファイルとbindings.tsに閉じ込める。
+// wasmパッケージへの深い相対importはこのファイルに閉じ込める
+// (型定義への深い相対importは@tabifuda/ui/core/bindings.tsに閉じ込める)。
 import initWasm, {
   decide as wasmDecide,
   apply_all as wasmApplyAll,
   init as initPanicHook,
 } from "../../../../crates/tabifuda-wasm/pkg/tabifuda_wasm";
-import type { Command, Event, Session, WasmError } from "./bindings";
+import type { Command, Event, Session, WasmError } from "@tabifuda/ui";
 
 let ready: Promise<void> | null = null;
 
