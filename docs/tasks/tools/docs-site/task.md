@@ -7,8 +7,8 @@ cycles:
   D1: done
   D2: done
   D3: done
-  D4: in-progress
-  D5: planned
+  D4: done
+  D5: in-progress
 ---
 
 # ツールタスク: docs-site(docs 総合ビューア)
