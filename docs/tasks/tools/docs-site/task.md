@@ -6,8 +6,8 @@ cycles:
   C3: done
   D1: done
   D2: done
-  D3: planned
-  D4: planned
+  D3: done
+  D4: in-progress
   D5: planned
 ---
 
