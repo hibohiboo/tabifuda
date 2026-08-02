@@ -1,11 +1,14 @@
 ---
-status: done
+status: in-progress
 cycles:
   C1: done
   C2: done
   C3: done
   D1: done
   D2: done
+  D3: planned
+  D4: planned
+  D5: planned
 ---
 
 # ツールタスク: docs-site(docs 総合ビューア)
@@ -143,12 +146,62 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
   ADR 0003 の表へ追記済み)。これにより frontmatter 検証・docs内リンク切れ
   検証・RDRAデータ検証がまとめて PR ゲート化された
 
+### D3: frozen対応+完了フィルタのタブ
+
+経緯: 2026-08-02の進め方見直し
+([../../plans/post-p3.5-replanning-decisions.md](../../plans/post-p3.5-replanning-decisions.md)
+Q5)。D3〜D5はこの決定ログの切り出しタスク2にあたる。
+
+- [ ] `docs-site-frozen-status` ブランチの取り込み: 進捗statusに `frozen`
+  (progress.ts の型・STATUSES、ProgressView のバッジ「凍結」、styles.css の
+  配色ライト/ダーク)。**マージ順: 見直し本体のブランチ
+  (`frozen` frontmatter を含む)より先、または同時に master へ入れる**
+  (先に文書側だけ入ると Pages ビルドが落ちる)
+- [ ] 進捗ビューにフィルタタブ: 既定は未完了(in-progress / planned / frozen)
+  のみを表示し、「完了」「全部」タブで切り替える
+- [ ] RDRAビューの要求(requirements)にも同様のフィルタ: 既定は `future`
+  のみ、「実現済み」「全部」で切り替え(完了が上に積もる問題への対処)
+
+### D4: 画面ビュー段階1(画面一覧+関係)
+
+経緯: 同見直し Q6。**D4完了時に人間が画面一覧をレビューしてから D5 に進む**
+(段階ゲート)。
+
+- [ ] `docs/rdra/screens.yaml` 新設: 依頼選択 / シナリオ中 / シナリオ終了後 /
+  作者ページ / GMページ の5画面から開始。各画面は id / name / description /
+  `status: implemented | future`(**未作成が一目で分かるように**)/
+  関連 `usecases:` `actors:` を持つ
+- [ ] rdra/README.md のファイル構成表・形式説明に screens.yaml を追記
+- [ ] `check-rdra-data.mjs` のスキーマ検証・参照id検証に screens を追加
+- [ ] RDRAビューのシステム境界レイヤーに「画面」を表示(関係ハイライトの
+  1ホップグラフに参加。future画面はバッジ等で視覚的に区別)
+- [ ] 人間レビュー: 画面の過不足・画面↔Command対応の穴(どのCommandを
+  どの画面から打つか)を確認し、結果を本タスクの plans/ に記録
+
+### D5: 画面ビュー段階2(ワイヤーフレーム)
+
+- [ ] **人間の事前決定**: ワイヤーフレームのデータ形式(screens.yaml に
+  領域・要素の構造を持たせるか、別ファイルか。描画は枠+ラベルの簡易
+  ボックスレイアウトを想定)。D4のレビュー結果を踏まえて決める
+- [ ] 各画面のワイヤーフレーム表示(スマホ幅での見え方も確認できる形が
+  望ましい。Q2の「スマホで選択するには小さい」が発端のため)
+- [ ] カード実物のビジュアル(白銀比・アイコン)は本タスクでは作り込まない
+  (packages/ui のカードコンポーネント試作=カードUI強化タスクの担当。
+  二重投資を避ける)
+
 ## 完了条件
 
 - github.io で3ビュー(RDRA全レイヤー / 全タスクの進捗 / テスト分類と成否)が
   閲覧できる
 - 各要素から出典(設計文書・task.md)へ飛べる
 - CIで RDRAデータ・frontmatter のスキーマ/リンク検証が回る
+
+D3〜D5追加分(2026-08-02):
+
+- 一覧の既定表示が「これから」中心になり、完了はタブで見る
+- 画面一覧(未作成の画面を含む)がRDRAビューで確認でき、未作成が
+  一目で分かる
+- ワイヤーフレームが画面ごとに閲覧できる
 
 ## やらないこと
 
