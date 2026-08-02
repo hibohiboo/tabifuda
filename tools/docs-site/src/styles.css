@@ -121,6 +121,11 @@ body {
   color: #5c5449;
 }
 
+.badge--frozen {
+  background: #7d8894;
+  color: #fff;
+}
+
 .task__cycles {
   list-style: none;
   display: flex;
@@ -369,6 +374,10 @@ body {
   .badge--planned {
     background: #474034;
     color: #b6ac9c;
+  }
+  .badge--frozen {
+    background: #3f4854;
+    color: #c3ccd6;
   }
   .cycle {
     border-color: #55492f;
