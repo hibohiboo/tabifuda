@@ -80,8 +80,6 @@ screens:
         sizeHint: medium
       - label: フォーク保存ボタン
         sizeHint: small
-      - label: 戻る/もう一度遊ぶボタン
-        sizeHint: small
 
   - id: author-page
     name: 作者ページ
