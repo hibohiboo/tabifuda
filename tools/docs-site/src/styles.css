@@ -62,6 +62,29 @@ body {
   color: #9a6b2f;
 }
 
+.view-filter {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+}
+
+.view-filter__tab {
+  padding: 0.2rem 0.75rem;
+  border: 1px solid #cbbfa9;
+  border-radius: 1rem;
+  background: #fff;
+  color: #6b6257;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.view-filter__tab--active {
+  background: #9a6b2f;
+  border-color: #9a6b2f;
+  color: #fffdf8;
+  font-weight: 600;
+}
+
 .task-list {
   display: flex;
   flex-direction: column;
@@ -363,6 +386,16 @@ body {
   }
   .view-note a {
     color: #d3a75f;
+  }
+  .view-filter__tab {
+    background: #332d24;
+    border-color: #55492f;
+    color: #9a9080;
+  }
+  .view-filter__tab--active {
+    background: #c89b5a;
+    border-color: #c89b5a;
+    color: #211d18;
   }
   .task {
     background: #332d24;

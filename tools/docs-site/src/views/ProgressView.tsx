@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { tasks } from "../progressData";
 import { sourceUrl } from "../model";
 import type { ProgressStatus, TaskProgress } from "../progress";
@@ -8,6 +9,20 @@ const STATUS_LABEL: Record<ProgressStatus, string> = {
   planned: "未着手",
   frozen: "凍結",
 };
+
+type Filter = "active" | "done" | "all";
+
+const FILTER_LABEL: Record<Filter, string> = {
+  active: "これから",
+  done: "完了",
+  all: "全部",
+};
+
+function matchesFilter(status: ProgressStatus, filter: Filter): boolean {
+  if (filter === "all") return true;
+  if (filter === "done") return status === "done";
+  return status !== "done";
+}
 
 function TaskCard({ task }: { task: TaskProgress }) {
   return (
@@ -33,10 +48,12 @@ function TaskCard({ task }: { task: TaskProgress }) {
 }
 
 export default function ProgressView() {
+  const [filter, setFilter] = useState<Filter>("active");
   const allCycles = tasks.flatMap((t) => t.cycles);
   const doneCycles = allCycles.filter((c) => c.status === "done").length;
-  const projects = tasks.filter((t) => t.group === "projects");
-  const tools = tasks.filter((t) => t.group === "tools");
+  const visibleTasks = tasks.filter((t) => matchesFilter(t.status, filter));
+  const projects = visibleTasks.filter((t) => t.group === "projects");
+  const tools = visibleTasks.filter((t) => t.group === "tools");
 
   return (
     <>
@@ -44,6 +61,18 @@ export default function ProgressView() {
         進捗の正は各 task.md の frontmatter(サイクル完了と同PRで更新)。
         全サイクル {allCycles.length} 件中 <strong>{doneCycles} 件完了</strong>。
       </p>
+      <div className="view-filter">
+        {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
+          <button
+            key={f}
+            type="button"
+            className={`view-filter__tab${f === filter ? " view-filter__tab--active" : ""}`}
+            onClick={() => setFilter(f)}
+          >
+            {FILTER_LABEL[f]}
+          </button>
+        ))}
+      </div>
       <section className="layer">
         <h2 className="layer__title">projects(開発フェーズ)</h2>
         <div className="task-list">

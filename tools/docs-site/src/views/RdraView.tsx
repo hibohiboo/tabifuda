@@ -82,8 +82,22 @@ const REQUIREMENT_BADGE: Record<Requirement["status"], string> = {
   future: "将来要望",
 };
 
+type RequirementFilter = "future" | "realized" | "all";
+
+const REQUIREMENT_FILTER_LABEL: Record<RequirementFilter, string> = {
+  future: "将来要望",
+  realized: "実現済み",
+  all: "全部",
+};
+
+function matchesRequirementFilter(status: Requirement["status"], filter: RequirementFilter): boolean {
+  if (filter === "all") return true;
+  return status === filter;
+}
+
 export default function RdraView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [requirementFilter, setRequirementFilter] = useState<RequirementFilter>("future");
   const related = relatedIds(model, selectedId);
   const toggle = (id: string) => setSelectedId((cur) => (cur === id ? null : id));
   const cardState = (id: string) => ({
@@ -106,16 +120,32 @@ export default function RdraView() {
           {model.actors.map((a) => (
             <ElementCard key={a.id} element={a} onSelect={toggle} {...cardState(a.id)} />
           ))}
-          {model.requirements.map((r) => (
-            <ElementCard
-              key={r.id}
-              element={r}
-              refs={requirementRefs(r)}
-              badge={REQUIREMENT_BADGE[r.status]}
-              onSelect={toggle}
-              {...cardState(r.id)}
-            />
+        </div>
+        <div className="view-filter">
+          {(Object.keys(REQUIREMENT_FILTER_LABEL) as RequirementFilter[]).map((f) => (
+            <button
+              key={f}
+              type="button"
+              className={`view-filter__tab${f === requirementFilter ? " view-filter__tab--active" : ""}`}
+              onClick={() => setRequirementFilter(f)}
+            >
+              {REQUIREMENT_FILTER_LABEL[f]}
+            </button>
           ))}
+        </div>
+        <div className="layer__cards">
+          {model.requirements
+            .filter((r) => matchesRequirementFilter(r.status, requirementFilter))
+            .map((r) => (
+              <ElementCard
+                key={r.id}
+                element={r}
+                refs={requirementRefs(r)}
+                badge={REQUIREMENT_BADGE[r.status]}
+                onSelect={toggle}
+                {...cardState(r.id)}
+              />
+            ))}
         </div>
       </section>
 
