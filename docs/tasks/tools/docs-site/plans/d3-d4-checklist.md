@@ -12,9 +12,9 @@
 - [x] RDRAビューの要求(requirements): 既定は `future` のみ表示、
   「実現済み」「全部」で切り替え
 
-## D4: 画面ビュー段階1(完了。人間レビュー待ち)
+## D4: 画面ビュー段階1(完了。人間レビュー1周目の指摘を反映済み)
 
-- [x] `docs/rdra/screens.yaml` 新設(5画面: 依頼選択/シナリオ中/
+- [x] `docs/rdra/screens.yaml` 新設(当初5画面: 依頼選択/シナリオ中/
   シナリオ終了後/作者ページ/GMページ。`status: implemented | future`)
 - [x] `docs/rdra/README.md` のファイル構成表・形式説明に screens.yaml を追記
 - [x] `check-rdra-data.mjs` に screens のスキーマ検証・参照id検証を追加
@@ -22,11 +22,16 @@
 - [x] `RdraView.tsx` のシステム境界セクションに画面カードを表示
   (future画面はバッジで区別、usecases/actors参照でハイライト対象に含める)
 - [x] task.md「RDRAレイヤーと既存docsの対応」表のシステム境界行を実態に更新
-- [ ] **人間レビュー(未実施)**: 画面の過不足・画面↔Command対応の穴を確認。
-  現状の5画面と対応:
+- [x] **人間レビュー1周目(2026-08-02)**: 「冒険記タイムラインはプレイ中の
+  別画面として」との指摘を受け、in-scenario-play(手札選択・GM裁定のみ)と
+  chronicle-timeline(冒険記タイムライン専用、future)に分離。usecasesは
+  紐付けず、information.yamlのchronicleを表示する画面として説明文に明記
+- [ ] **人間レビュー継続**: 6画面になった現状で過不足を再確認。
+  現状の6画面と対応:
   - 依頼選択(future): actors=[player, gm], usecases=[start-session]
-  - シナリオ中(implemented): actors=[player, gm],
+  - シナリオ中/プレイ画面(implemented): actors=[player, gm],
     usecases=[play-card, propose, judge-proposal, apply-patch, gm-advance]
+  - 冒険記タイムライン(future): actors=[player, gm], usecases=[](表示専用)
   - シナリオ終了後(future): actors=[player, gm], usecases=[end-session]
   - 作者ページ(future): actors=[author], usecases=[](作者向けCommand無し)
   - GMページ(future): actors=[gm],

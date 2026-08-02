@@ -24,9 +24,22 @@ screens:
     actors: [player, gm]
     usecases: [play-card, propose, judge-proposal, apply-patch, gm-advance]
     description: >-
-      実装済み(apps/web)。手札からカードを出す・提案する・GM裁定パネル・
-      冒険記タイムラインを1画面にまとめて表示する。
+      実装済み(apps/web)。手札からカードを出す・提案する・GM裁定パネルを
+      表示する。現状は冒険記タイムラインも同一画面に表示しているが、
+      別画面(chronicle-timeline)へ分離したい(2026-08-02レビュー指摘)。
     source: design/ui-visual-design.md#手札選択プレイ中の操作画面
+
+  - id: chronicle-timeline
+    name: 冒険記タイムライン(プレイ中の別画面)
+    status: future
+    actors: [player, gm]
+    usecases: []
+    description: >-
+      セッション中の出来事(Event列)を時系列で振り返る画面。現状は
+      in-scenario-play画面の下に同居しているが、プレイ操作画面とは分けた
+      専用画面にしたい(2026-08-02レビュー指摘。スマホでの見やすさが動機)。
+      表示するのはCommandではなくchronicle(情報モデル)。
+    source: design/ui-visual-design.md#冒険記セッションのイベントログ
 
   - id: post-scenario
     name: シナリオ終了後

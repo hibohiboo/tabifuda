@@ -167,8 +167,10 @@ Q5)。D3〜D5はこの決定ログの切り出しタスク2にあたる。
 経緯: 同見直し Q6。**D4完了時に人間が画面一覧をレビューしてから D5 に進む**
 (段階ゲート)。
 
-- [ ] `docs/rdra/screens.yaml` 新設: 依頼選択 / シナリオ中 / シナリオ終了後 /
-  作者ページ / GMページ の5画面から開始。各画面は id / name / description /
+- [ ] `docs/rdra/screens.yaml` 新設: 依頼選択 / シナリオ中(プレイ画面) /
+  冒険記タイムライン(プレイ中の別画面) / シナリオ終了後 / 作者ページ /
+  GMページ の6画面から開始(冒険記タイムラインはD4レビューで分離。
+  2026-08-02)。各画面は id / name / description /
   `status: implemented | future`(**未作成が一目で分かるように**)/
   関連 `usecases:` `actors:` を持つ
 - [ ] rdra/README.md のファイル構成表・形式説明に screens.yaml を追記
