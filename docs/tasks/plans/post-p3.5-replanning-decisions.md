@@ -19,7 +19,7 @@
 |---|---|
 | Q1: P4/P5の凍結範囲と再開条件 | 反映済み(文書。docs-site対応のみ別タスク) |
 | Q2: 「わくわくしない」の主因仮説 | 決定済み(反映は議論完了後のタスク起草時) |
-| Q3: 「これからやること」の管理形態 | 未着手 |
+| Q3: 「これからやること」の管理形態 | 決定済み(反映は議論完了後) |
 | Q4: 価値検証のやり方 | 未着手 |
 | Q5: docs-site改修への投資範囲 | 未着手 |
 
@@ -197,7 +197,14 @@ C は見送り。**
      優先度はbacklog側で持つ)
   3. rdra/requirements.yaml の status 語彙を拡張(realized / now / next /
      later / frozen)し、RDRAビューをそのまま管理画面にする
-- **決定**: 未定
+- **決定**(2026-08-02): **選択肢1(roadmap.md に「今・次・いつか」節を
+  追加)**。roadmap が「フェーズ索引」から「計画の入口」へ役割を広げる。
+  優先度の正は roadmap のこの節に置き、RDRA側は従来どおり非規範の索引
+  (ビューへの反映は Q5 で扱う)。初期の内容(案):
+  - Now: 本見直しの反映一式(RDRA棚卸し・docs-site frozen対応
+    =`docs-site-frozen-status` ブランチの取り込み)
+  - Next: Q2で決めたカードUI・演出強化タスク
+  - Later: future-requirements.md の各項目、P4/P5(凍結)
 - **反映先**: 選択肢による(roadmap.md / 新文書+docs/README.md /
   rdra/README.md+requirements.yaml)。いずれでも「正を二重化しない」を守る
   (優先度の正は1箇所)
