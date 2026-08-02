@@ -105,13 +105,55 @@ screens:
     actors: [gm]
     usecases: [judge-proposal, apply-patch, gm-advance, end-session]
     description: >-
-      非同期マルチプレイ(P4、凍結中)向けのGM専用画面は未着手。ソロMVPでは
-      GM操作もシナリオ中プレイ画面(in-scenario-play)に統合されている。
+      非同期マルチプレイ(P4、凍結中)向けのGM専用画面は未着手。1人のGMが
+      複数セッションを並行管理する想定(2026-08-02、docs-site D4画面
+      レビューで指摘)。ソロMVPではGM操作もシナリオ中プレイ画面
+      (in-scenario-play)に統合されている。
     source: design/domain-guide.md#6-権限-誰が何をできるか
     layout:
-      - label: 参加者一覧・状態
+      - label: 進行中セッション一覧(複数を並行管理)
+        sizeHint: small
+      - label: 参加者一覧・状態(選択中セッション)
         sizeHint: medium
-      - label: 提案の裁定キュー
+      - label: 提案の裁定キュー(選択中セッション)
         sizeHint: medium
-      - label: 強制進行・強制終了の操作
+      - label: 強制進行・強制終了の操作(選択中セッション)
+        sizeHint: small
+
+  - id: gm-scenario-stock
+    name: シナリオ管理・カスタマイズ
+    status: future
+    actors: [gm]
+    usecases: []
+    description: >-
+      GMが複数シナリオをストックし、繰り返し使えるようカスタマイズする画面
+      (2026-08-02、docs-site D4画面レビューで発見)。現行のApplyPatchは
+      セッション中(Paused)のみが対象で、セッション開始前のカスタマイズを
+      表すCommandが無い(未モデル化。P4着手時に検討)。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+    layout:
+      - label: シナリオ在庫一覧
+        sizeHint: medium
+      - label: カスタマイズ(パッチ編集)
+        sizeHint: large
+      - label: 募集へ進むボタン
+        sizeHint: small
+
+  - id: session-recruit
+    name: セッション募集
+    status: future
+    actors: [gm]
+    usecases: []
+    description: >-
+      カスタマイズ済みシナリオでプレイヤーを募る画面(2026-08-02、docs-site
+      D4画面レビューで発見)。StartSessionはパーティが確定済みであることを
+      前提に呼ばれるため、「募集中(参加者未確定)」の中間状態を表現できない
+      (未モデル化。P4着手時に募集用の新Commandを検討)。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+    layout:
+      - label: 募集シナリオの詳細
+        sizeHint: medium
+      - label: 集まった参加者一覧
+        sizeHint: medium
+      - label: プレイ開始ボタン
         sizeHint: small
