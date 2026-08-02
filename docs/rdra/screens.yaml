@@ -2,10 +2,12 @@
 # 出典の正: design/domain-guide.md「3. 1プレイの流れ」「6. 権限」、
 # design/ui-visual-design.md、design/domain-model.md「セッション終了処理」。
 # status: implemented(実装済み) | future(未作成。一目で分かるように区別する)
+# layout: ワイヤーフレーム(段階2)。枠+ラベルの簡易ボックスをスマホ幅で
+# 縦に積む想定。各要素は label(表示ラベル)/ sizeHint(small|medium|large。
+# 縦積み時の高さ比の目安)を持つ。ピクセル精度のデザインではなく、画面の
+# 構成要素と大まかな比重を確認するためのもの。
 # 経緯: 2026-08-02の進め方見直し
-# (tasks/plans/post-p3.5-replanning-decisions.md Q6)。段階1として、
-# 「今ある画面」と「まだ無い画面」の全体像を1枚にする。ワイヤーフレーム
-# (段階2)はここに続けて追加する。
+# (tasks/plans/post-p3.5-replanning-decisions.md Q6)。
 screens:
   - id: scenario-select
     name: 依頼選択
@@ -17,6 +19,13 @@ screens:
       単一シナリオ(simpleHunt)を決め打ちで開始する。将来は張り紙カードから
       選ぶ形にしたい(2026-08-02決定)。
     source: design/domain-guide.md#3-1プレイの流れテンプレシナリオ単純討伐
+    layout:
+      - label: ヘッダー(タイトル)
+        sizeHint: small
+      - label: 依頼カード一覧(張り紙。グリッド表示)
+        sizeHint: large
+      - label: 選択して始めるボタン
+        sizeHint: small
 
   - id: in-scenario-play
     name: シナリオ中(プレイ画面)
@@ -28,6 +37,15 @@ screens:
       表示する。現状は冒険記タイムラインも同一画面に表示しているが、
       別画面(chronicle-timeline)へ分離したい(2026-08-02レビュー指摘)。
     source: design/ui-visual-design.md#手札選択プレイ中の操作画面
+    layout:
+      - label: シーン本文(narration)
+        sizeHint: large
+      - label: GM裁定パネル(Paused中のみ表示)
+        sizeHint: medium
+      - label: 手札(横スクロールのカード列)
+        sizeHint: medium
+      - label: 提案入力
+        sizeHint: small
 
   - id: chronicle-timeline
     name: 冒険記タイムライン(プレイ中の別画面)
@@ -40,6 +58,11 @@ screens:
       専用画面にしたい(2026-08-02レビュー指摘。スマホでの見やすさが動機)。
       表示するのはCommandではなくchronicle(情報モデル)。
     source: design/ui-visual-design.md#冒険記セッションのイベントログ
+    layout:
+      - label: ヘッダー(戻る)
+        sizeHint: small
+      - label: タイムライン(フェーズの山→開くとイベントのリスト)
+        sizeHint: large
 
   - id: post-scenario
     name: シナリオ終了後
@@ -50,6 +73,15 @@ screens:
       現状は勝敗の一行表示のみ(専用画面が無い)。CLI版にあるフォーク保存
       (future-requirements.md §7)や結果まとめをWeb版でも見せたい。
     source: design/domain-model.md#セッション終了処理finalize
+    layout:
+      - label: 結果(勝利/敗北)
+        sizeHint: small
+      - label: 冒険記サマリ
+        sizeHint: medium
+      - label: フォーク保存ボタン
+        sizeHint: small
+      - label: 戻る/もう一度遊ぶボタン
+        sizeHint: small
 
   - id: author-page
     name: 作者ページ
@@ -60,6 +92,11 @@ screens:
       シナリオ作者向けの画面は未着手。現状シナリオはJSON/Rustコードで
       手書きする。作者はセッション進行のCommandを持たない(domain-guide.md)。
     source: design/domain-guide.md#6-権限-誰が何をできるか
+    layout:
+      - label: シナリオ一覧・新規作成
+        sizeHint: medium
+      - label: 編集(フェーズ・シーン・カード)
+        sizeHint: large
 
   - id: gm-page
     name: GMページ
@@ -70,3 +107,10 @@ screens:
       非同期マルチプレイ(P4、凍結中)向けのGM専用画面は未着手。ソロMVPでは
       GM操作もシナリオ中プレイ画面(in-scenario-play)に統合されている。
     source: design/domain-guide.md#6-権限-誰が何をできるか
+    layout:
+      - label: 参加者一覧・状態
+        sizeHint: medium
+      - label: 提案の裁定キュー
+        sizeHint: medium
+      - label: 強制進行・強制終了の操作
+        sizeHint: small

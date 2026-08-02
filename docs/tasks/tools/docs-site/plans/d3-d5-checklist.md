@@ -45,14 +45,14 @@ D5(画面ビュー段階2、ワイヤーフレーム)。
 - [x] **人間の事前決定(2026-08-02)**: ワイヤーフレームのデータは
   screens.yaml に `layout: [{ label, sizeHint }]` として追記する
   (別ファイル wireframes.yaml との比較で、この案を選択)
-- [ ] 6画面すべてに `layout` を追記(枠+ラベルの簡易ボックス。スマホ幅を
+- [x] 6画面すべてに `layout` を追記(枠+ラベルの簡易ボックス。スマホ幅を
   想定した縦積み)
-- [ ] `check-rdra-data.mjs` の ScreenSchema に `layout` のスキーマ検証を追加
-- [ ] `model.ts` の `Screen` に `layout?: LayoutBlock[]` を追加
-- [ ] ワイヤーフレーム表示コンポーネント(スマホ幅の枠。sizeHintで高さ比を
-  変える簡易ボックス)を screens カードに追加
-- [ ] カード実物のビジュアル(白銀比・アイコン)は作り込まない
-  (カードUI強化タスクの担当。二重投資を避ける)
+- [x] `check-rdra-data.mjs` の ScreenSchema に `layout` のスキーマ検証を追加
+- [x] `model.ts` の `Screen` に `layout?: LayoutBlock[]` を追加
+- [x] ワイヤーフレーム表示コンポーネント(`Wireframe.tsx`。スマホ幅の枠。
+  sizeHintで高さ比を変える簡易ボックス)を screens カードに追加
+- [x] カード実物のビジュアル(白銀比・アイコン)は作り込まない
+  (カードUI強化タスクの担当。二重投資を避ける。今回も文字ラベルのみ)
 
 ## 終わり方
 
@@ -61,6 +61,11 @@ D5(画面ビュー段階2、ワイヤーフレーム)。
 - [x] ブラウザでの目視確認(Playwright、apps/web の @playwright/test を一時
   利用。進捗ビューのフィルタタブ・RDRAビューのscreensセクションとも表示・
   コンソールエラー無しを確認。検証用スクリプトは作業後に削除。D3・D4時点)
-- [ ] D5実装後、上記の通し検証・目視確認を再実施
-- [ ] design-sync 相当の自己チェック(docs-site は非規範ツールのため簡易)
-- [ ] agent-journal.md への追記要否を確認
+- [x] D5実装後、上記の通し検証・目視確認を再実施
+  (typecheck/build/check:rdra-data/check:doc-links 全通過。Playwrightで
+  screensカードのワイヤーフレーム拡大表示を確認、コンソールエラー無し)
+- [x] design-sync 相当の自己チェック(docs-site は非規範ツールのため簡易。
+  task.md「RDRAレイヤーと既存docsの対応」表・rdra/README.mdは既にD4で
+  更新済みで、D5による構造変更(layout追加)はscreens.yaml内で完結)
+- [x] agent-journal.md への追記要否を確認(今サイクルは大きな誤解・
+  手戻りなし。追記なし)

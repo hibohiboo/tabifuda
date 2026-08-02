@@ -46,10 +46,16 @@ const RequirementSchema = RdraElementSchema.extend({
   actors: z.array(z.string()).optional(),
 });
 
+const LayoutBlockSchema = z.object({
+  label: z.string().min(1),
+  sizeHint: z.enum(["small", "medium", "large"]),
+});
+
 const ScreenSchema = RdraElementSchema.extend({
   status: z.enum(["implemented", "future"]),
   actors: z.array(z.string()).optional(),
   usecases: z.array(z.string()).optional(),
+  layout: z.array(LayoutBlockSchema).optional(),
 });
 
 const FlowStepSchema = z.object({

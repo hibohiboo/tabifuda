@@ -337,6 +337,45 @@ body {
   word-break: break-all;
 }
 
+/* ワイヤーフレーム: スマホ幅を模した枠にsizeHint比の縦積みブロック */
+.wireframe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 140px;
+  margin: 0.4rem auto 0;
+  padding: 0.35rem;
+  border: 2px solid #cbbfa9;
+  border-radius: 0.75rem;
+  background: #faf7f0;
+}
+
+.wireframe__block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.6rem;
+  line-height: 1.2;
+  color: #5c5449;
+  background: #fff;
+  border: 1px dashed #cbbfa9;
+  border-radius: 0.25rem;
+  padding: 0.2rem;
+}
+
+.wireframe__block--small {
+  flex: 1;
+}
+
+.wireframe__block--medium {
+  flex: 2;
+}
+
+.wireframe__block--large {
+  flex: 3;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background: #211d18;
@@ -365,6 +404,15 @@ body {
   }
   .card__badge {
     background: #474034;
+    color: #b6ac9c;
+  }
+  .wireframe {
+    background: #2a251e;
+    border-color: #55492f;
+  }
+  .wireframe__block {
+    background: #332d24;
+    border-color: #55492f;
     color: #b6ac9c;
   }
   .layer__diagram {

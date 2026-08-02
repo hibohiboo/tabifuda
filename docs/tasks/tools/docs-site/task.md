@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 cycles:
   C1: done
   C2: done
@@ -8,7 +8,7 @@ cycles:
   D2: done
   D3: done
   D4: done
-  D5: in-progress
+  D5: done
 ---
 
 # ツールタスク: docs-site(docs 総合ビューア)

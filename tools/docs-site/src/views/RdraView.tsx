@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { model } from "../data";
 import Mermaid from "../Mermaid";
+import Wireframe from "../Wireframe";
 import { flowDiagram, stateDiagram } from "../diagrams";
 import {
   relatedIds,
@@ -22,9 +23,10 @@ interface CardProps {
   selected: boolean;
   dimmed: boolean;
   onSelect: (id: string) => void;
+  children?: ReactNode;
 }
 
-function ElementCard({ element, refs, badge, selected, dimmed, onSelect }: CardProps) {
+function ElementCard({ element, refs, badge, selected, dimmed, onSelect, children }: CardProps) {
   const className = ["card", selected ? "card--selected" : "", dimmed ? "card--dimmed" : ""].join(" ");
   return (
     <button type="button" className={className} onClick={() => onSelect(element.id)}>
@@ -51,6 +53,7 @@ function ElementCard({ element, refs, badge, selected, dimmed, onSelect }: CardP
           出典: {element.source}
         </a>
       )}
+      {children}
     </button>
   );
 }
@@ -215,7 +218,9 @@ export default function RdraView() {
               badge={SCREEN_BADGE[sc.status]}
               onSelect={toggle}
               {...cardState(sc.id)}
-            />
+            >
+              {sc.layout && sc.layout.length > 0 && <Wireframe layout={sc.layout} />}
+            </ElementCard>
           ))}
         </div>
       </section>

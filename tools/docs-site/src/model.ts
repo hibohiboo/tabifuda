@@ -35,11 +35,19 @@ export interface Requirement extends RdraElement {
   actors?: string[];
 }
 
+export interface LayoutBlock {
+  label: string;
+  /** 縦積み時の高さ比の目安。ピクセル精度のデザインではない */
+  sizeHint: "small" | "medium" | "large";
+}
+
 export interface Screen extends RdraElement {
   /** 未作成が一目で分かるように区別する(2026-08-02の進め方見直しQ6) */
   status: "implemented" | "future";
   actors?: string[];
   usecases?: string[];
+  /** ワイヤーフレーム(段階2)。枠+ラベルの簡易ボックスをスマホ幅で縦に積む */
+  layout?: LayoutBlock[];
 }
 
 export interface FlowStep {
