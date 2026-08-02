@@ -12,12 +12,15 @@ screens:
   - id: scenario-select
     name: 依頼選択
     status: future
-    actors: [player, gm]
+    actors: [gm]
     usecases: [start-session]
     description: >-
-      遊ぶシナリオ(依頼)を選ぶ画面。現状は apps/web にシナリオ選択UIが無く、
+      遊ぶシナリオ(依頼)を選ぶ画面。StartSessionを呼んだ本人がそのまま
+      セッションのGmとして登録されるため(domain-model.md「セッション開始」)、
+      この画面の操作者はGm。現状は apps/web にシナリオ選択UIが無く、
       単一シナリオ(simpleHunt)を決め打ちで開始する。将来は張り紙カードから
-      選ぶ形にしたい(2026-08-02決定)。
+      選ぶ形にしたい(2026-08-02決定)。ソロMVPでは1人がPlayerとGmを兼ねる
+      ため実質同一人物が操作する(domain-guide.md「6. 権限」)。
     source: design/domain-guide.md#3-1プレイの流れテンプレシナリオ単純討伐
     layout:
       - label: ヘッダー(タイトル)
