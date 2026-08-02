@@ -64,16 +64,19 @@
    指摘され、実際に`pnpm -r typecheck`を実行するまで気づかなかった、
    より根の深い問題が発覚。P3.5全サイクルを通じて
    `crates/tabifuda-wasm/bindings/`(gitコミット対象のts-rs生成TS
-   バインディング)を一度も再生成していなかった。「P3.5は依存が
-   crates/のみでP3・Webとは独立」という記述を「Web側への影響確認は
-   不要」と誤って拡大解釈していたのが原因。実際に`pnpm -r typecheck`を
-   走らせると、`packages/ui`の`eventRenderers.tsx`(HandlerMap網羅性
-   チェック)がコンパイルエラーになり、さらに`tools/docs-site`(未分類
-   テストスイート`party::tests`/`save::tests`、Character型サンプル
-   データ不足)・`apps/web`(soloParty.tsのCharacter組み立て不足)でも
-   同型の追従漏れが芋づる式に見つかった。**Event/Command/Character等の
-   共有型はRustとTS双方から参照されるため、「crates/のみ」という宣言は
-   Web側への無影響を意味しない**という認識の誤りが根本原因。全て修正し
+   バインディング)を一度も再生成していなかった。task.mdの「P3.5は依存が
+   crates/のみでP3・Webとは独立」という記述自体は正しく、それを信頼して
+   Web側を確認しなかったこと自体はユーザーも当時気づいていなかった通常の
+   判断であり、エージェント固有の誤りではない。本質は「宣言された依存
+   範囲の**外**で不具合が見つかった場合にどう扱うか」の運用ルールが
+   これまで無かったこと。実際に`pnpm -r typecheck`を走らせると、
+   `packages/ui`の`eventRenderers.tsx`(HandlerMap網羅性チェック)が
+   コンパイルエラーになり、さらに`tools/docs-site`(未分類テストスイート
+   `party::tests`/`save::tests`、Character型サンプルデータ不足)・
+   `apps/web`(soloParty.tsのCharacter組み立て不足)でも同型の追従漏れが
+   芋づる式に見つかった。**Event/Character等の共有型はRustとTS双方から
+   参照されるため、「crates/のみ」という依存宣言は「Web側に実害が及ばない」
+   ことまでは保証しない**という点が根本の学び。今回分は全て修正し
    `pnpm -r typecheck`/`lint`/`build`が通ることを確認済み。
 
 ## 気づきと対応(反映先)
@@ -81,8 +84,9 @@
 | 気づき | 対応 | 反映先 |
 |---|---|---|
 | 新Event追加時、CLI/Web層の`_ =>`ワイルドカードに黙って落ちる危険がdesign-syncの照合観点に明記されていなかった | design-syncスキルの照合観点に「`_ =>`ワイルドカードを持つmatch文の確認」を追加 | 反映済み: `.claude/skills/design-sync/SKILL.md` |
-| crates/配下のpub型(#[non_exhaustive] enum・ts-rs対象struct)を変更したサイクルで、tabifuda-wasmのTSバインディング再生成・`pnpm -r typecheck`が終わり方チェックに入っていなかった。「crates/のみに依存」という宣言を「Web非対応」と誤読していた | phase-cycleスキル「終わり方」に、非exhaustive enum等を変更したら`crates/tabifuda-wasm/bindings/`を再生成し`pnpm -r typecheck`まで通す手順を追加 | 反映済み: `.claude/skills/phase-cycle/SKILL.md`「終わり方」手順2 |
-| チェックリスト内の「次サイクルへの申し送り」メモが機械的に拾われず1サイクル分すり抜けた | 上記2件のスキル改善(ワイルドカード確認・ts型チェック)で当面代替する(申し送り自体の転記を仕組み化するのは費用対効果が低いと判断し見送り) | 対応なし(意図的に見送り。再発したら再検討) |
+| crates/配下のpub型(#[non_exhaustive] enum・ts-rs対象struct)を変更したサイクルで、tabifuda-wasmのTSバインディング再生成・`pnpm -r typecheck`が終わり方チェックに入っていなかった | phase-cycleスキル「終わり方」に、非exhaustive enum等を変更したら`crates/tabifuda-wasm/bindings/`を再生成し`pnpm -r typecheck`まで通す手順を追加 | 反映済み: `.claude/skills/phase-cycle/SKILL.md`「終わり方」手順2 |
+| 「このフェーズは〇〇にのみ依存」という宣言自体は正しく、それを信頼して依存先を確認しないのは通常の判断(ユーザー指摘: 人間側も気づいていなかった)。問題は、宣言の**外側**で不具合が見つかった場合に「その場で現フェーズに畳み込む」か「別チケットに切り出す」かの運用ルールが無かったこと | 宣言範囲の内側で完結する不具合は従来どおり同PRで直し、範囲の**外**に及ぶものはdocs/tasks/plans/へ別途書き出して人間判断を仰ぐ、という区別を明文化 | 反映済み: `docs/agent-operations.md`「宣言された依存範囲の外で見つかった不具合の扱い」節を新設 |
+| チェックリスト内の「次サイクルへの申し送り」メモが機械的に拾われず1サイクル分すり抜けた | 上記のスキル・運用ルール改善で当面代替する(申し送り自体の転記を仕組み化するのは費用対効果が低いと判断し見送り) | 対応なし(意図的に見送り。再発したら再検討) |
 | `rewards: Vec<Reward>`(シナリオ作者が明示定義する報酬)・`GrantPoints`はキャラメイク機構が無く未実装のまま | future-requirements.mdに残置済み。次にキャラメイク機構を設計するフェーズの着手時チェック項目に含めるとよい | future-requirements.md §3(既に反映済み。次フェーズ着手時に参照) |
 | 同一パーティの並行参加時、報酬の書き戻しが競合しうる問題は未決のまま | 引き続き将来要望として保持 | future-requirements.md §1派生論点(既存のまま) |
 
