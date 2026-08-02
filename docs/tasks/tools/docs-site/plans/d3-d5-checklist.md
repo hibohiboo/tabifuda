@@ -30,7 +30,7 @@ D5(画面ビュー段階2、ワイヤーフレーム)。
 - [x] **人間レビュー継続(2026-08-02)**: 6画面の過不足を再確認。
   「いったんこれで」と承認され、D4はここで完了とする(以降の追加・分割は
   D5以降または再訪で扱う)。
-  現状の6画面と対応:
+  当時の6画面と対応:
   - 依頼選択(future): actors=[player, gm], usecases=[start-session]
   - シナリオ中/プレイ画面(implemented): actors=[player, gm],
     usecases=[play-card, propose, judge-proposal, apply-patch, gm-advance]
@@ -39,6 +39,19 @@ D5(画面ビュー段階2、ワイヤーフレーム)。
   - 作者ページ(future): actors=[author], usecases=[](作者向けCommand無し)
   - GMページ(future): actors=[gm],
     usecases=[judge-proposal, apply-patch, gm-advance, end-session]
+- [x] **人間レビュー3周目(2026-08-02〜08-03、D5作業中に発覚・反映)**:
+  以下3件をユーザー指摘で修正:
+  1. シナリオ終了後の「戻る/もう一度遊ぶボタン」を削除(根拠のない
+     憶測。agent-journal.md参照)
+  2. 依頼選択のactorsを`[player, gm]`→`[gm]`に修正(StartSessionは
+     呼んだ本人がGmとして登録される仕様。usecases.yamlのstart-session
+     もactors:[gm]のみ)
+  3. GMの新ワークフロー(シナリオを複数ストック・カスタマイズ→
+     セッション募集→参加者確定後にプレイ開始、1GMが複数セッション並行)
+     を反映。新規screen: gm-scenario-stock・session-recruit(いずれも
+     usecases:[]。対応Commandが現行モデルに無い未モデル化のギャップと
+     してfuture-requirements.md §1に記録)。gm-pageに「進行中セッション
+     一覧」ブロックを追加。**8画面に確定**
 
 ## D5: 画面ビュー段階2(ワイヤーフレーム)
 
