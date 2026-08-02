@@ -19,8 +19,18 @@ frontmatter([tasks/README.md](tasks/README.md)「進捗 frontmatter」。
 | [P2 コンソール版ソロプレイMVP](tasks/projects/phase2/task.md) | 「単純討伐」を tabifuda-cli で通しプレイ可能にする | 通しプレイ可 / lint・全テスト通過 / fixture が CI 検証済み | 完了([ふりかえり](retrospectives/phase2.md)) |
 | [P3 WASM+Web版(ローカル)](tasks/projects/phase3/task.md) | バックエンドなしのローカル Web アプリで遊べ、冒険記タイムライン UI を見られる | ブラウザ通しプレイ可 / タイムライン UI / 生 HTML 挿入の静的検査が CI に | 完了([ふりかえり](retrospectives/phase3.md)) |
 | [P3.5 CLI永続化(中断・再開/パーティ/持ち帰り)](tasks/projects/phase3.5/task.md) | セッションの中断・再開とパーティ持続、portable カードの持ち帰りを CLI で成立させる | 中断→再開で通しプレイ可(Paused 中断含む) / 持ち帰りがテストで固定 / lint 拡張 | 完了([ふりかえり](retrospectives/phase3.5.md)) |
-| [P4 バックエンド(Hono+Drizzle+Neon)](tasks/projects/phase4/task.md) | API 経由で動かし、2ユーザーの非同期セッションを成立させる | API 経由で動作 / 非同期セッション成立 / 楽観ロック・削除フローが実 DB テストで固定 | 未着手(入り口で DB スキーマ+コンテキスト分割の上流判断) |
-| [P5 AWSデプロイ](tasks/projects/phase5/task.md) | 本番 URL で公開し、再現可能なパイプラインを持つ | 本番 URL で通しプレイ可 / パイプライン再現可 / セキュリティレビュー対応済み | 未着手 |
+| [P4 バックエンド(Hono+Drizzle+Neon)](tasks/projects/phase4/task.md) | API 経由で動かし、2ユーザーの非同期セッションを成立させる | API 経由で動作 / 非同期セッション成立 / 楽観ロック・削除フローが実 DB テストで固定 | **凍結**(2026-08-02。再開条件は下記) |
+| [P5 AWSデプロイ](tasks/projects/phase5/task.md) | 本番 URL で公開し、再現可能なパイプラインを持つ | 本番 URL で通しプレイ可 / パイプライン再現可 / セキュリティレビュー対応済み | **凍結**(2026-08-02。再開条件は下記) |
+
+### P4・P5 の凍結(2026-08-02)
+
+P4・P5 は凍結中(経緯:
+[tasks/plans/post-p3.5-replanning-decisions.md](tasks/plans/post-p3.5-replanning-decisions.md) Q1)。
+再開は次の2条件を**両方**満たしたとき:
+
+1. 非同期で遊びたい相手が具体的に現れる
+2. DB スキーマ(PostgreSQL のデータ構造)を確定できるほど要件が安定する
+   (凍結時点ではデータ構造を決めること自体が時期尚早という判断)
 
 P3.5 は後から挿入したフェーズ(2026-07-20)。既存の ADR・決定ログが
 「P4=バックエンド」の意味で参照しているため、**挿入時に既存番号は

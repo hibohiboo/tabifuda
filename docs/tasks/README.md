@@ -25,7 +25,7 @@ tasks/
 
 ```yaml
 ---
-status: in-progress   # done | in-progress | planned
+status: in-progress   # done | in-progress | planned | frozen
 cycles:               # 本文のサイクル見出し(### C1: ...)と1対1。名前は書かない
   C1: done
   C2: planned
@@ -36,6 +36,9 @@ cycles:               # 本文のサイクル見出し(### C1: ...)と1対1。�
   進捗の正であり、roadmap.md の状態列(フェーズ粒度の索引)と食い違ったら
   frontmatter が正
 - サイクル見出しの無いタスク(phase0)は `status` のみでよい
+- `frozen` は凍結(着手予定から意図的に外した状態。planned との違いは
+  「次にやる含みが無い」こと)。再開条件は roadmap.md の該当節に書く
+  (初出: P4/P5 の凍結。[../roadmap.md](../roadmap.md)「P4・P5 の凍結」)
 - frontmatter のキーと本文見出しの不一致は docs-site のビルドが検出する
   (tools/docs-site。進捗は https://hibohiboo.github.io/tabifuda/#/progress で見る)
 

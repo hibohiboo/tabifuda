@@ -1,5 +1,5 @@
 ---
-status: planned
+status: frozen
 cycles:
   C1: planned
   C2: planned

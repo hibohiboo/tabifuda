@@ -17,7 +17,7 @@
 
 | 論点 | 状態 |
 |---|---|
-| Q1: P4/P5の凍結範囲と再開条件 | 決定済み |
+| Q1: P4/P5の凍結範囲と再開条件 | 反映済み(文書。docs-site対応のみ別タスク) |
 | Q2: 「わくわくしない」の主因仮説 | 未着手 |
 | Q3: 「これからやること」の管理形態 | 未着手 |
 | Q4: 価値検証のやり方 | 未着手 |
@@ -156,10 +156,15 @@ C は見送り。**
   2. DBスキーマ(PostgreSQLのデータ構造)を確定できるほど要件が安定する
   - 理由: 現状ではPostgresのデータ構造を決めること自体が時期尚早という感触
     (要件がまだ動く見込み。体験検証の結果次第でスキーマの前提が変わりうる)
-- **反映先**: roadmap.md 状態列+凍結節、phase4/phase5 の task.md frontmatter。
-  付随して `frozen` 語彙の追加が必要: docs/tasks/README.md(語彙定義)と
-  tools/docs-site(progress.ts の検証・ProgressView の表示。追加しないと
-  ビルドが落ちるため、Q5 とは切り離した必要最小限の改修として行う)
+- **反映先**: roadmap.md 状態列+凍結節、phase4/phase5 の task.md frontmatter、
+  docs/tasks/README.md(`frozen` 語彙定義)— いずれも反映済み(2026-08-02)。
+- **切り出し(別タスク)**: tools/docs-site の `frozen` 対応(progress.ts の
+  型と STATUSES、ProgressView.tsx の STATUS_LABEL、styles.css のバッジ配色
+  ライト/ダーク)は、議論を優先するため本ログから切り出した。変更内容は
+  ブランチ `docs-site-frozen-status` に退避済み(2026-08-02)。
+  **注意: このブランチを取り込むまで、frontmatter の `frozen` を含む本反映を
+  master に入れると docs-site のビルド(Pages デプロイ)が落ちる。**
+  マージ順は docs-site 側が先、または同時。
 
 ### Q2: 「わくわくしない」の主因はどれか
 
