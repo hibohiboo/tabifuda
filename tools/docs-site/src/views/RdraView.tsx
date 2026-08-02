@@ -9,6 +9,7 @@ import {
   type Information,
   type Requirement,
   type RdraElement,
+  type Screen,
   type UseCase,
 } from "../model";
 
@@ -77,9 +78,21 @@ function flowStepRefs(step: FlowStep) {
   ];
 }
 
+function screenRefs(sc: Screen) {
+  return [
+    { label: "アクター", ids: sc.actors ?? [] },
+    { label: "ユースケース", ids: sc.usecases ?? [] },
+  ];
+}
+
 const REQUIREMENT_BADGE: Record<Requirement["status"], string> = {
   realized: "実装済み",
   future: "将来要望",
+};
+
+const SCREEN_BADGE: Record<Screen["status"], string> = {
+  implemented: "実装済み",
+  future: "未作成",
 };
 
 type RequirementFilter = "future" | "realized" | "all";
@@ -180,6 +193,28 @@ export default function RdraView() {
               refs={usecaseRefs(uc)}
               onSelect={toggle}
               {...cardState(uc.id)}
+            />
+          ))}
+        </div>
+        <p className="layer__hint">
+          画面(Web版apps/web。「未作成」は screens.yaml の status=future。
+          決定ログ経緯: <a
+            href={sourceUrl("tasks/plans/post-p3.5-replanning-decisions.md")}
+            target="_blank"
+            rel="noreferrer"
+          >
+            進め方見直しQ6
+          </a>)
+        </p>
+        <div className="layer__cards">
+          {model.screens.map((sc) => (
+            <ElementCard
+              key={sc.id}
+              element={sc}
+              refs={screenRefs(sc)}
+              badge={SCREEN_BADGE[sc.status]}
+              onSelect={toggle}
+              {...cardState(sc.id)}
             />
           ))}
         </div>

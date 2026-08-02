@@ -51,7 +51,7 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
 |---|---|---|
 | システム価値 | アクター(プレイヤー/GM/シナリオ作者)、要求 | domain-model.md「アクターと権限」、future-requirements.md、roadmap.md |
 | システム外部環境 | 業務フロー(1プレイの流れ)、ビジネスユースケース | domain-guide.md「3. 1プレイの流れ」 |
-| システム境界 | ユースケース(=Command)、画面(CLI、将来Web) | domain-model.md「コマンドとイベント」「進行の解決規則」 |
+| システム境界 | ユースケース(=Command)、画面(依頼選択/シナリオ中/シナリオ終了後/作者ページ/GMページ。`status`で未作成を区別) | domain-model.md「コマンドとイベント」「進行の解決規則」、docs/rdra/screens.yaml(D4) |
 | システム | 情報モデル(カード/シナリオ/セッション/冒険記等)、状態モデル(セッション状態機械)、バリエーション(Effect/Condition種別) | domain-model.md「カード」「シナリオ構造」「セッション状態」「セッション状態機械」 |
 
 ## データ形式

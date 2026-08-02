@@ -1,0 +1,59 @@
+# システム境界レイヤー: 画面
+# 出典の正: design/domain-guide.md「3. 1プレイの流れ」「6. 権限」、
+# design/ui-visual-design.md、design/domain-model.md「セッション終了処理」。
+# status: implemented(実装済み) | future(未作成。一目で分かるように区別する)
+# 経緯: 2026-08-02の進め方見直し
+# (tasks/plans/post-p3.5-replanning-decisions.md Q6)。段階1として、
+# 「今ある画面」と「まだ無い画面」の全体像を1枚にする。ワイヤーフレーム
+# (段階2)はここに続けて追加する。
+screens:
+  - id: scenario-select
+    name: 依頼選択
+    status: future
+    actors: [player, gm]
+    usecases: [start-session]
+    description: >-
+      遊ぶシナリオ(依頼)を選ぶ画面。現状は apps/web にシナリオ選択UIが無く、
+      単一シナリオ(simpleHunt)を決め打ちで開始する。将来は張り紙カードから
+      選ぶ形にしたい(2026-08-02決定)。
+    source: design/domain-guide.md#3-1プレイの流れテンプレシナリオ単純討伐
+
+  - id: in-scenario-play
+    name: シナリオ中(プレイ画面)
+    status: implemented
+    actors: [player, gm]
+    usecases: [play-card, propose, judge-proposal, apply-patch, gm-advance]
+    description: >-
+      実装済み(apps/web)。手札からカードを出す・提案する・GM裁定パネル・
+      冒険記タイムラインを1画面にまとめて表示する。
+    source: design/ui-visual-design.md#手札選択プレイ中の操作画面
+
+  - id: post-scenario
+    name: シナリオ終了後
+    status: future
+    actors: [player, gm]
+    usecases: [end-session]
+    description: >-
+      現状は勝敗の一行表示のみ(専用画面が無い)。CLI版にあるフォーク保存
+      (future-requirements.md §7)や結果まとめをWeb版でも見せたい。
+    source: design/domain-model.md#セッション終了処理finalize
+
+  - id: author-page
+    name: 作者ページ
+    status: future
+    actors: [author]
+    usecases: []
+    description: >-
+      シナリオ作者向けの画面は未着手。現状シナリオはJSON/Rustコードで
+      手書きする。作者はセッション進行のCommandを持たない(domain-guide.md)。
+    source: design/domain-guide.md#6-権限-誰が何をできるか
+
+  - id: gm-page
+    name: GMページ
+    status: future
+    actors: [gm]
+    usecases: [judge-proposal, apply-patch, gm-advance, end-session]
+    description: >-
+      非同期マルチプレイ(P4、凍結中)向けのGM専用画面は未着手。ソロMVPでは
+      GM操作もシナリオ中プレイ画面(in-scenario-play)に統合されている。
+    source: design/domain-guide.md#6-権限-誰が何をできるか

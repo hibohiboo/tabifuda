@@ -5,6 +5,7 @@ import informationYaml from "../../../docs/rdra/information.yaml?raw";
 import statesYaml from "../../../docs/rdra/states.yaml?raw";
 import requirementsYaml from "../../../docs/rdra/requirements.yaml?raw";
 import businessFlowYaml from "../../../docs/rdra/business-flow.yaml?raw";
+import screensYaml from "../../../docs/rdra/screens.yaml?raw";
 import { parseModel } from "./model";
 
 export const model = parseModel({
@@ -14,4 +15,5 @@ export const model = parseModel({
   states: statesYaml,
   requirements: requirementsYaml,
   businessFlow: businessFlowYaml,
+  screens: screensYaml,
 });
