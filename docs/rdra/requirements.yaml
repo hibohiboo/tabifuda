@@ -33,28 +33,30 @@ requirements:
 
   - id: pause-and-resume
     name: セッションを中断し、後で再開したい
-    status: future
+    status: realized
     actors: [player]
     description: >-
-      採用予定(phase3.5 C1)。中断中は別パーティ・別セッションを使えるが、
-      他セッションで得たカード等は再開時に反映されない。
-    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+      実装済み(phase3.5 C1)。Paused中を含め中断保存→再開で通しプレイ可能。
+      複数セッションファイルによる並行プレイも成立する。
+    source: design/domain-model.md#セッションの保存と再開cliの決定規範ではない
 
   - id: take-rewards-home
     name: クリア報酬を持ち帰りたい
-    status: future
+    status: realized
     actors: [player]
     description: >-
-      採用予定(phase3.5 C3-C4)。持ち出しは既定不可・カード側でopt-in。
-      Markerカードは常に持ち出し不可。
-    source: requirements/future-requirements.md#3-報酬とセッション終了処理
+      実装済み(phase3.5 C3-C4)。portableなカードを持ち帰りパーティファイルへ
+      書き戻す。作者が明示定義する報酬(rewards)は未実装で将来要望に残る。
+    source: design/domain-model.md#セッション終了処理finalize
 
   - id: protect-scenario-secrets
     name: 持ち出されたくないアイテムを守りたい
-    status: future
+    status: realized
     actors: [author]
-    description: シナリオ作者がportableフラグで持ち出し可否を制御できるようにしたい。
-    source: requirements/future-requirements.md#3-報酬とセッション終了処理
+    description: >-
+      実装済み(phase3.5 C3)。持ち出しは既定不可・カード側の#portableタグで
+      opt-in。Markerカードは常に持ち出し不可。
+    source: design/domain-model.md#持ち出し可否portable
 
   - id: reuse-cards-across-scenarios
     name: カードをタグで疎結合に再利用したい

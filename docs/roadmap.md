@@ -41,6 +41,35 @@ P3.5 は後から挿入したフェーズ(2026-07-20)。既存の ADR・決定�
 ([tasks/plans/merry-leaping-tide.md](tasks/plans/merry-leaping-tide.md))と
 ProposalId 発番の再検討([adr/0005](adr/0005-proposal-id-issuance.md))。
 
+## 今・次・いつか(Now / Next / Later)
+
+フェーズ横断の「これからやること」の**優先度の正**(2026-08-02新設。経緯:
+[tasks/plans/post-p3.5-replanning-decisions.md](tasks/plans/post-p3.5-replanning-decisions.md)
+Q3)。各項目の内容の正は従来どおりタスク文書・規範文書にあり、本節は
+順番だけを持つ。項目の状態が変わったら同PRで本節も更新する。
+
+### 今(Now)
+
+- **docs-site 改修**: frozen表示(ブランチ `docs-site-frozen-status`
+  取り込み)+完了フィルタのタブ+画面ビュー段階1(screens.yaml+一覧)→
+  人間確認 → 段階2(ワイヤーフレーム)。タスクは
+  [tasks/tools/docs-site/task.md](tasks/tools/docs-site/task.md) に
+  サイクル起草予定(決定ログ Q5/Q6)
+
+### 次(Next)
+
+- **カードUI・演出強化**: 文章メインの差別化・カード種類別の既定アイコン・
+  白銀比縦長カード(小: タイトル+アイコン74x94対応/大: スマホで読みやすい)・
+  依頼の張り紙カード選択(決定ログ Q2)。ui-visual-design.md への規範化と
+  タスク新設から始める。完了時に「身近な人に見せるか」を再判断(決定ログ Q4)
+
+### いつか(Later)
+
+- [future-requirements.md](requirements/future-requirements.md) の各項目
+  (作者定義報酬・タグシステム・条件付きテキスト・キャンペーン・
+  フォーク還流・Web版フォーク保存 等)
+- P4 バックエンド / P5 AWSデプロイ(**凍結**。再開条件は上記「P4・P5 の凍結」)
+
 ## フェーズ対応表の所在(前提が変わったらここから辿って点検する)
 
 フェーズ×○○の対応表は以下の3箇所に分散している。あるサイクルの成果で
