@@ -30,7 +30,7 @@ export const sampleEvents: Event[] = [
   {
     SessionStarted: {
       scenario: sampleScenario,
-      party: [{ id: "hunter", name: "旅人", stats: {}, deck: [] }],
+      party: [{ id: "hunter", name: "旅人", stats: {}, deck: [], owned_cards: [] }],
       roles: { solo: { Player: { characters: ["hunter"] } } },
       initial_phase: "Opening",
       initial_scene: "op_request",

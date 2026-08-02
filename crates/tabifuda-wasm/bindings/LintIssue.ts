@@ -5,4 +5,4 @@ import type { SceneId } from "./SceneId";
 /**
  * 検査で見つかった問題。docs/design/scenario-lint.md「検査項目と重大度」の表に対応。
  */
-export type LintIssue = { "DuplicateCardId": CardId } | { "DuplicateSceneId": SceneId } | { "UnknownCardId": CardId } | { "UnknownSceneId": SceneId } | "CharacterTargetInScenarioData" | "NoInitialScene" | { "UnreachableScene": SceneId } | { "DeadEndScene": SceneId };
+export type LintIssue = { "DuplicateCardId": CardId } | { "DuplicateSceneId": SceneId } | { "UnknownCardId": CardId } | { "UnknownSceneId": SceneId } | "CharacterTargetInScenarioData" | "NoInitialScene" | { "UnreachableScene": SceneId } | { "DeadEndScene": SceneId } | { "PortableCardIsScenarioDependent": CardId };

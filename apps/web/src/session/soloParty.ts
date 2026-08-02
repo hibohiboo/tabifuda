@@ -11,5 +11,6 @@ export function createSoloCharacter(): Character {
     name: "旅人",
     stats: {},
     deck: [],
+    owned_cards: [],
   };
 }

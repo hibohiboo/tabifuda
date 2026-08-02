@@ -45,7 +45,7 @@
 
 ## 課題(ジャーナル記録済み)
 
-`docs/agent-journal.md`にP3.5関連エントリ2件。
+`docs/agent-journal.md`にP3.5関連エントリ3件。
 
 1. **2026-08-01(C1)**: HashMap→BTreeMap化の決定を決定ログ・domain-model.md
    へは反映したが、背景説明を書いた規範文書wasm-boundary.md「既知の課題」
@@ -55,28 +55,43 @@
    matchにワイルドカードへ流さず明示アームを足す)を適用し忘れた。
    C3チェックリストに「C4への申し送り」と書いたが、C4の着手時チェックで
    拾われず、両ファイルとも`_ =>`("未知の出来事"/`Unknown`)に落ちたまま
-   demo.mdまで更新してしまっていた。**フェーズ完了ふりかえりのドラフト
-   作成(retrospectiveエージェント)で発覚**し、本サイクル内で
+   demo.mdまで更新してしまっていた。フェーズ完了ふりかえりのドラフト
+   作成(retrospectiveエージェント)で発覚し、本サイクル内で
    chronicle.rs(明示描画)・oplog.rs(種別名記録)を修正しテストで固定した
-   (コミット`bf2871a`)。設計文書・コアの乖離ではなくCLI層(翻訳層)の
-   網羅性が2サイクルにわたり見落とされた点が、C1の教訓とは異なる新しい
-   パターンだった。
+   (コミット`bf2871a`)。
+3. **2026-08-02(フェーズ完了報告後)**: ユーザーから「apps/web側のEvent
+   描画がRewardsGranted/CardsDiscardedに対応しているか確認したい」と
+   指摘され、実際に`pnpm -r typecheck`を実行するまで気づかなかった、
+   より根の深い問題が発覚。P3.5全サイクルを通じて
+   `crates/tabifuda-wasm/bindings/`(gitコミット対象のts-rs生成TS
+   バインディング)を一度も再生成していなかった。「P3.5は依存が
+   crates/のみでP3・Webとは独立」という記述を「Web側への影響確認は
+   不要」と誤って拡大解釈していたのが原因。実際に`pnpm -r typecheck`を
+   走らせると、`packages/ui`の`eventRenderers.tsx`(HandlerMap網羅性
+   チェック)がコンパイルエラーになり、さらに`tools/docs-site`(未分類
+   テストスイート`party::tests`/`save::tests`、Character型サンプル
+   データ不足)・`apps/web`(soloParty.tsのCharacter組み立て不足)でも
+   同型の追従漏れが芋づる式に見つかった。**Event/Command/Character等の
+   共有型はRustとTS双方から参照されるため、「crates/のみ」という宣言は
+   Web側への無影響を意味しない**という認識の誤りが根本原因。全て修正し
+   `pnpm -r typecheck`/`lint`/`build`が通ることを確認済み。
 
 ## 気づきと対応(反映先)
 
 | 気づき | 対応 | 反映先 |
 |---|---|---|
 | 新Event追加時、CLI/Web層の`_ =>`ワイルドカードに黙って落ちる危険がdesign-syncの照合観点に明記されていなかった | design-syncスキルの照合観点に「`_ =>`ワイルドカードを持つmatch文の確認」を追加 | 反映済み: `.claude/skills/design-sync/SKILL.md` |
-| チェックリスト内の「次サイクルへの申し送り」メモが機械的に拾われず1サイクル分すり抜けた | 今回は同一フェーズ内(C4)で気づけたため実害は軽微だったが、フェーズを跨ぐ申し送りでは同じ穴が起きうる。運用改善は上記design-syncの観点追加で当面代替する(申し送り自体の転記を仕組み化するのは費用対効果が低いと判断し見送り) | 対応なし(意図的に見送り。再発したら再検討) |
+| crates/配下のpub型(#[non_exhaustive] enum・ts-rs対象struct)を変更したサイクルで、tabifuda-wasmのTSバインディング再生成・`pnpm -r typecheck`が終わり方チェックに入っていなかった。「crates/のみに依存」という宣言を「Web非対応」と誤読していた | phase-cycleスキル「終わり方」に、非exhaustive enum等を変更したら`crates/tabifuda-wasm/bindings/`を再生成し`pnpm -r typecheck`まで通す手順を追加 | 反映済み: `.claude/skills/phase-cycle/SKILL.md`「終わり方」手順2 |
+| チェックリスト内の「次サイクルへの申し送り」メモが機械的に拾われず1サイクル分すり抜けた | 上記2件のスキル改善(ワイルドカード確認・ts型チェック)で当面代替する(申し送り自体の転記を仕組み化するのは費用対効果が低いと判断し見送り) | 対応なし(意図的に見送り。再発したら再検討) |
 | `rewards: Vec<Reward>`(シナリオ作者が明示定義する報酬)・`GrantPoints`はキャラメイク機構が無く未実装のまま | future-requirements.mdに残置済み。次にキャラメイク機構を設計するフェーズの着手時チェック項目に含めるとよい | future-requirements.md §3(既に反映済み。次フェーズ着手時に参照) |
-| P3.5はP3と独立ブランチで進めたため、`apps/web`側(Timeline等のEvent描画)が`RewardsGranted`/`CardsDiscarded`に対応しているか未確認。現在の`phase3.5`ブランチの`apps/web/src`はP3 C2水準のスケルトンのみで、Event描画コンポーネント自体が無いため今は実害なし | P3.5をmasterへ統合する(またはP3の後続ブランチとマージする)際、P3側のTimeline実装がEvent追加に追従できているか確認する | 統合作業時のチェック項目として人間へ報告(本ふりかえり) |
 | 同一パーティの並行参加時、報酬の書き戻しが競合しうる問題は未決のまま | 引き続き将来要望として保持 | future-requirements.md §1派生論点(既存のまま) |
 
 ## 次フェーズへの申し送り
 
-- P3.5をmasterへ統合する際は、上表の「apps/web側の確認」を統合作業の
-  チェック項目に含めること
 - P4(バックエンド)着手時、finalizeの書き戻し先が「パーティファイル」から
   「DBのマスターデータ」へ変わる想定(future-requirements.md §2/§3参照)。
   CLI層の`party.rs::write`相当のロジックをAPI層でどう置き換えるかは
   P4着手時の設計判断に持ち越す
+- crates/配下のpub型を変更するフェーズ・サイクルでは、たとえそのフェーズが
+  「Web非対応」を謳っていても、終わり方チェックで`pnpm -r typecheck`まで
+  通すことを徹底する(上記の教訓。phase-cycleスキルに反映済み)

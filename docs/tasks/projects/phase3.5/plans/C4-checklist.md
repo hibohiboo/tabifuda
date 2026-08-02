@@ -42,8 +42,16 @@
 - [x] フェーズ完了のふりかえり作成(docs/agent-operations.md「フェーズ
       完了時のふりかえり」手順。docs/retrospectives/phase3.5.md)
 - [x] task.md全体ステータスをdoneへ更新
-- [x] apps/web(P3側)への影響確認: このブランチのapps/web/srcはP3 C2
-      水準のスケルトンのみで、Event描画コンポーネント(Timeline等)は
-      未マージのため今は影響なし。P3.5をmasterへ統合する際、P3側の
-      Timeline実装がRewardsGranted/CardsDiscardedに対応しているか
-      要確認(マージ作業時のチェック項目として報告)
+- [x] apps/web(P3側)への影響確認: 当初「apps/web/srcはP3 C2水準の
+      スケルトンのみで影響なし」と誤認していたが、Timelineは実際には
+      `packages/ui`(masterにマージ済み)に存在し、`Event`型を
+      `crates/tabifuda-wasm/bindings/Event.ts`から直接re-exportしていた。
+      C3でEvent追加後にこのbindingsを一度も再生成していなかったため、
+      再生成すると`pnpm -r typecheck`が`packages/ui`の`eventRenderers.tsx`
+      (HandlerMap網羅性チェック)でコンパイルエラーになることが判明
+      (ユーザー指摘により発覚)。bindings再生成+`eventRenderers.tsx`へ
+      RewardsGranted/CardsDiscardedの描画追加、および芋づる式に見つかった
+      `tools/docs-site`(gen-test-report.mjsの未分類スイート・
+      componentCatalogData.tsのCharacterサンプル不足)・`apps/web`
+      (soloParty.tsのCharacter組み立て不足)も修正し、
+      `pnpm -r typecheck`/`lint`/`build`全通過を確認した

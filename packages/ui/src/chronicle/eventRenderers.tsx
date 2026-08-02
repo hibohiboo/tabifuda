@@ -55,4 +55,15 @@ export const eventRenderers: HandlerMap<Event, ReactNode, ChronicleContext> = {
   ProposalJudged: (payload) => <p>GMは提案を{payload.accepted ? "採用" : "却下"}した。</p>,
   PhaseAdvanced: (payload) => <h3>── フェーズが {payload.phase} へ ──</h3>,
   SessionEnded: (payload) => <p>=== 冒険の終わり: {outcomeLabel(payload.outcome)} ===</p>,
+  RewardsGranted: (payload) => (
+    <p>
+      {payload.to} は『{payload.cards.map((card) => card.name).join("』『")}』を持ち帰った。
+    </p>
+  ),
+  CardsDiscarded: (payload, ctx) => (
+    <p className="chronicle-minor">
+      {payload.from} は『
+      {payload.cards.map((card) => cardName(ctx, card)).join("』『")}』を持ち出せなかった。
+    </p>
+  ),
 };
