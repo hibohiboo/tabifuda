@@ -6,6 +6,7 @@ const STATUS_LABEL: Record<ProgressStatus, string> = {
   done: "完了",
   "in-progress": "進行中",
   planned: "未着手",
+  frozen: "凍結",
 };
 
 function TaskCard({ task }: { task: TaskProgress }) {
