@@ -3,12 +3,12 @@
 //! PhaseAdvanced/SessionEnded、C3でProposalSubmitted/ProposalJudged、
 //! C4でScenarioPatchedを実装。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
 use crate::actor::Role;
-use crate::card::Effect;
+use crate::card::{CardDef, Effect};
 use crate::character::Character;
 use crate::ids::{CardId, CardInstanceId, CharacterId, ProposalId, SceneId, UserId};
 use crate::patch::ScenarioPatch;
@@ -33,10 +33,10 @@ pub enum Event {
         #[cfg_attr(
             test,
             proptest(
-                strategy = "proptest::collection::hash_map(proptest::prelude::any::<UserId>(), proptest::prelude::any::<Role>(), 0..=2)"
+                strategy = "proptest::collection::btree_map(proptest::prelude::any::<UserId>(), proptest::prelude::any::<Role>(), 0..=2)"
             )
         )]
-        roles: HashMap<UserId, Role>,
+        roles: BTreeMap<UserId, Role>,
         initial_phase: Phase,
         initial_scene: SceneId,
     },
@@ -102,6 +102,34 @@ pub enum Event {
     },
     SessionEnded {
         outcome: Outcome,
+    },
+    /// セッション終了処理(finalize)で、`to`が持ち出し可(`#portable`タグ)な
+    /// カードを持ち帰った(domain-model.md「セッション終了処理(finalize)」。
+    /// 2026-07-20決定の§3)。`cards`はCardDefの凍結コピー(CardIdはそのシナリオ
+    /// 内でしか解決できないため)。空になることは無い(空ならイベント自体を
+    /// 発行しない)。
+    RewardsGranted {
+        to: CharacterId,
+        #[cfg_attr(
+            test,
+            proptest(
+                strategy = "proptest::collection::vec(proptest::prelude::any::<CardDef>(), 1..=2)"
+            )
+        )]
+        cards: Vec<CardDef>,
+    },
+    /// finalizeで、`from`の手札のうち持ち出し不可だったカードが破棄された
+    /// (domain-model.md「セッション終了処理(finalize)」)。監査記録のみで
+    /// 状態(hands)は変更しない(セッションはこの時点で既にEnded)。
+    CardsDiscarded {
+        from: CharacterId,
+        #[cfg_attr(
+            test,
+            proptest(
+                strategy = "proptest::collection::vec(proptest::prelude::any::<CardId>(), 1..=2)"
+            )
+        )]
+        cards: Vec<CardId>,
     },
 }
 

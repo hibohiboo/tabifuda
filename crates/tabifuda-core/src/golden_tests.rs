@@ -283,4 +283,26 @@ fn Eventのワイヤ形式を固定する() {
         },
         r#"{"SessionEnded":{"outcome":"Victory"}}"#,
     );
+    assert_golden(
+        Event::RewardsGranted {
+            to: character("ch1"),
+            cards: vec![CardDef {
+                id: card("treasure"),
+                name: short("宝物"),
+                kind: CardKind::Item,
+                text: long(""),
+                tags: vec![crate::card::Tag(CardDef::PORTABLE_TAG.to_string())],
+                effects: vec![],
+                requires: vec![],
+            }],
+        },
+        r##"{"RewardsGranted":{"to":"ch1","cards":[{"id":"treasure","name":"宝物","kind":"Item","text":"","tags":["#portable"],"effects":[],"requires":[]}]}}"##,
+    );
+    assert_golden(
+        Event::CardsDiscarded {
+            from: character("ch1"),
+            cards: vec![card("stone")],
+        },
+        r#"{"CardsDiscarded":{"from":"ch1","cards":["stone"]}}"#,
+    );
 }

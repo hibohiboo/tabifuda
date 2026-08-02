@@ -34,6 +34,7 @@ pub struct LintFinding {
 | 参照解決 | `Transition.to` / `Effect::GotoScene` が指す `SceneId` がどのphaseにも無い | Error |
 | 参照解決 | シナリオデータ内(`Deal.to` / `Effect::DealCard.to` / `Effect::ModifyStat.target`)に `Target::Character(_)` が使われている(domain-model.md「Targetの意味論」で上演中専用と規定済み。シナリオ作者データでは不正) | Error |
 | 構造 | 先頭シーンが解決できない(`phases`が空、または先頭phaseに`scenes`が無い。`StartSession`が`RuleError::ScenarioHasNoScenes`で拒否する条件と同一) | Error |
+| 持ち出し可否 | `#portable`タグ付きカードの`effects`/`requires`がシナリオ依存(`GotoScene`/`AdvancePhase`/`DealCard`効果、`HasCard`条件のいずれかを含む)。domain-model.md「持ち出し可否(portable)」参照 | Error |
 | 到達可能性 | オープニング先頭シーンから到達できないシーンがある | Warning |
 | 詰み検知 | そのシーンから`Effect::EndSession`を持つカードに到達する経路が無い | Warning |
 

@@ -3,7 +3,7 @@
 //! ソロプレイのため、単一ユーザーがPlayer/GM両ロールを兼ねる
 //! (domain-model.md「ソロMVPでの簡略化」)。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
 
@@ -13,33 +13,49 @@ use tabifuda_core::{
     SessionStatus, Target, UserId,
 };
 
-use crate::{chronicle, fork, oplog};
+use crate::{chronicle, fork, oplog, party, save};
 
 const SOLO_CHARACTER_ID: &str = "hunter";
 const SOLO_CHARACTER_NAME: &str = "旅人";
 
-pub fn run(scenario: Scenario, scenario_path: &Path) {
-    let actor = UserId("solo".to_string());
-    let character_id = CharacterId(SOLO_CHARACTER_ID.to_string());
-    let character = Character {
-        id: character_id.clone(),
+fn default_party() -> Vec<Character> {
+    vec![Character {
+        id: CharacterId(SOLO_CHARACTER_ID.to_string()),
         name: SOLO_CHARACTER_NAME.to_string(),
-        stats: HashMap::new(),
+        stats: BTreeMap::new(),
         deck: vec![],
-    };
+        owned_cards: vec![],
+    }]
+}
 
-    let stdin = io::stdin();
-    let mut lines = stdin.lock().lines();
+/// `party`が`None`なら従来の既定ソロパーティ(「旅人」1人)を使う。
+/// CLIは複数キャラを同時に操作するUIを持たないため、パーティ先頭
+/// (`party[0]`)を操作対象キャラとする(domain-model.md「パーティファイル
+/// (CLIの決定)」)。呼び出し側(main.rs)が空でないことを検証済み。
+/// `party_path`は`--party`で読み込んだファイルのパス(セッション終了時、
+/// 持ち出したカードをこのファイルへ書き戻す。domain-model.md「セッション
+/// 終了処理(finalize)」)。無指定パーティ(既定ソロ)には書き戻し先が
+/// 無いため、その場合は`None`のまま渡す。
+pub fn run(
+    scenario: Scenario,
+    scenario_path: &Path,
+    party: Option<Vec<Character>>,
+    party_path: Option<&Path>,
+) {
+    let actor = UserId("solo".to_string());
+    let party = party.unwrap_or_else(default_party);
+    let character_id = party
+        .first()
+        .expect("呼び出し側がpartyの非空を検証済み")
+        .id
+        .clone();
 
     let mut event_log: Vec<Event> = Vec::new();
     let mut state: Option<Session> = None;
     let (next, result) = issue(
         state,
         &actor,
-        Command::StartSession {
-            scenario,
-            party: vec![character],
-        },
+        Command::StartSession { scenario, party },
         &mut event_log,
     );
     state = next;
@@ -47,6 +63,74 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
         println!("セッションを開始できませんでした: {err}");
         return;
     }
+
+    let default_save_path = save::save_output_path(scenario_path);
+    play_loop(
+        state,
+        event_log,
+        &actor,
+        &character_id,
+        scenario_path,
+        default_save_path,
+        party_path,
+    );
+}
+
+/// 保存ファイルからセッションを復元し、続きから遊ぶ(domain-model.md
+/// 「セッションの保存と再開(CLIの決定)」)。`SessionStarted`がシナリオ・
+/// パーティの凍結コピーを持つため、イベント列だけで復元できる。
+pub fn resume(save_path: &Path) {
+    let events = match save::load(save_path) {
+        Ok(events) => events,
+        Err(err) => {
+            println!("保存ファイルを読み込めませんでした: {err}");
+            return;
+        }
+    };
+
+    let mut state: Option<Session> = None;
+    for event in &events {
+        state = apply(state, event);
+    }
+    if state.is_none() {
+        println!("保存ファイルからセッションを復元できませんでした。");
+        return;
+    }
+
+    println!("セッションを再開しました: {}", save_path.display());
+
+    let actor = UserId("solo".to_string());
+    let character_id = CharacterId(SOLO_CHARACTER_ID.to_string());
+    let default_save_path = save_path.to_path_buf();
+    // 再開経路はどのパーティファイルから始まったかを追跡していないため
+    // 書き戻し先が無い(domain-model.md「セッションの保存と再開」。§1の
+    // 派生論点「同一パーティの並行参加制約」と同様、将来要望として残す)。
+    play_loop(
+        state,
+        events,
+        &actor,
+        &character_id,
+        save_path,
+        default_save_path,
+        None,
+    );
+}
+
+/// プレイループ本体(翻訳層。ルール分岐は持たない)。`base_path`はフォーク
+/// 出力のファイル名解決に使う。`default_save_path`は`q`中断時の保存先。
+/// `party_path`はセッション終了時のパーティ書き戻し先(`--party`未指定・
+/// 再開時は`None`)。
+fn play_loop(
+    mut state: Option<Session>,
+    mut event_log: Vec<Event>,
+    actor: &UserId,
+    character_id: &CharacterId,
+    base_path: &Path,
+    default_save_path: PathBuf,
+    party_path: Option<&Path>,
+) {
+    let stdin = io::stdin();
+    let mut lines = stdin.lock().lines();
 
     loop {
         let Some(session) = state.as_ref() else {
@@ -58,7 +142,8 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
             SessionStatus::Ended(outcome) => {
                 println!("\n=== 冒険の終わり: {outcome:?} ===");
                 println!("\n{}", chronicle::render(&event_log));
-                maybe_save_fork(session, &event_log, scenario_path, &mut lines);
+                maybe_save_fork(session, &event_log, base_path, &mut lines);
+                maybe_write_back_party(&session.party, &event_log, party_path, &mut lines);
                 return;
             }
             SessionStatus::Paused { .. } => {
@@ -70,13 +155,18 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                     "\n提案が届いています(GMとして応答してください): 「{}」",
                     proposal.text.as_str()
                 );
-                print!("y=採用して再開 / n=却下して再開 / c=カードを配って応える [y/n/c]: ");
+                print!(
+                    "y=採用して再開 / n=却下して再開 / c=カードを配って応える / q=中断 [y/n/c/q]: "
+                );
                 io::stdout().flush().ok();
                 let Some(Ok(input)) = lines.next() else {
                     return;
                 };
                 let input = input.trim().to_string();
-                if input.eq_ignore_ascii_case("c") {
+                if input.eq_ignore_ascii_case("q") {
+                    maybe_save_and_quit(&event_log, &default_save_path, &mut lines);
+                    return;
+                } else if input.eq_ignore_ascii_case("c") {
                     // domain-model.md「提案への応答UI(CLIの決定)」: カード名と
                     // 回答文からCardDefを組み立て、AddCardDef+DealCardを1パッチで
                     // 発行する。適用後もPausedのまま(y/nで締めるまで繰り返せる)。
@@ -114,7 +204,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                     };
                     let (next, result) = issue(
                         state.take(),
-                        &actor,
+                        actor,
                         Command::ApplyPatch { patch },
                         &mut event_log,
                     );
@@ -127,7 +217,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                     let accepted = input.eq_ignore_ascii_case("y");
                     let (next, result) = issue(
                         state.take(),
-                        &actor,
+                        actor,
                         Command::JudgeProposal {
                             proposal: proposal.id.clone(),
                             accepted,
@@ -153,7 +243,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                 // (domain-model.md「カードの消費・除去」参照)。
                 let hand: Vec<(CardInstance, Option<CardDef>)> = session
                     .hands
-                    .get(&character_id)
+                    .get(character_id)
                     .cloned()
                     .unwrap_or_default()
                     .into_iter()
@@ -184,7 +274,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                 let input = input.trim().to_string();
 
                 if input.eq_ignore_ascii_case("q") {
-                    println!("プレイを中断しました。");
+                    maybe_save_and_quit(&event_log, &default_save_path, &mut lines);
                     return;
                 } else if input.eq_ignore_ascii_case("p") {
                     let Some(text) =
@@ -195,7 +285,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                     let Some(text) = text else { continue };
                     let (next, result) = issue(
                         state.take(),
-                        &actor,
+                        actor,
                         Command::Propose {
                             by: character_id.clone(),
                             text,
@@ -228,7 +318,7 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                     };
                     let (next, result) = issue(
                         state.take(),
-                        &actor,
+                        actor,
                         Command::PlayCard {
                             by: character_id.clone(),
                             card: instance.id.clone(),
@@ -254,6 +344,30 @@ pub fn run(scenario: Scenario, scenario_path: &Path) {
                 }
             }
         }
+    }
+}
+
+/// `q`中断時の保存確認(domain-model.md「セッションの保存と再開
+/// (CLIの決定)」)。イベント列だけで自己完結するため、保存対象は
+/// `event_log`のみでよい(Session本体は不要)。
+fn maybe_save_and_quit(
+    events: &[Event],
+    path: &Path,
+    lines: &mut impl Iterator<Item = io::Result<String>>,
+) {
+    print!("保存して中断しますか? [y/n]: ");
+    io::stdout().flush().ok();
+    let Some(Ok(input)) = lines.next() else {
+        println!("プレイを中断しました。");
+        return;
+    };
+    if !input.trim().eq_ignore_ascii_case("y") {
+        println!("プレイを中断しました。");
+        return;
+    }
+    match save::write(events, path) {
+        Ok(()) => println!("保存しました: {}", path.display()),
+        Err(err) => println!("保存できませんでした: {err}"),
     }
 }
 
@@ -301,6 +415,41 @@ fn maybe_save_fork(
     match std::fs::write(&path, json + "\n") {
         Ok(()) => println!("フォークを保存しました: {}", path.display()),
         Err(err) => println!("フォークを保存できませんでした: {err}"),
+    }
+}
+
+/// 持ち出しカードのパーティファイルへの書き戻し(domain-model.md「セッション
+/// 終了処理(finalize)」)。`--party`未指定(既定ソロパーティ)・再開時は
+/// `party_path`が`None`のため書き戻し先が無く、何もしない。`RewardsGranted`
+/// が1回も無ければ(何も持ち帰っていなければ)尋ねない。EOF・y以外の入力・
+/// 書き込み失敗はいずれも書き戻さず終了する(冒険記の表示は済んでいるため、
+/// ここでの失敗はセッション自体を壊さない)。
+fn maybe_write_back_party(
+    party: &[Character],
+    events: &[Event],
+    party_path: Option<&Path>,
+    lines: &mut impl Iterator<Item = io::Result<String>>,
+) {
+    let Some(path) = party_path else {
+        return;
+    };
+    if !events
+        .iter()
+        .any(|e| matches!(e, Event::RewardsGranted { .. }))
+    {
+        return;
+    }
+    print!("持ち帰ったカードをパーティファイルへ書き戻しますか? [y/n]: ");
+    io::stdout().flush().ok();
+    let Some(Ok(input)) = lines.next() else {
+        return;
+    };
+    if !input.trim().eq_ignore_ascii_case("y") {
+        return;
+    }
+    match party::write(party, path) {
+        Ok(()) => println!("パーティを書き戻しました: {}", path.display()),
+        Err(err) => println!("パーティを書き戻せませんでした: {err}"),
     }
 }
 

@@ -33,6 +33,10 @@ pub enum LintIssue {
     NoInitialScene,
     UnreachableScene(SceneId),
     DeadEndScene(SceneId),
+    /// `#portable`タグ付きカードのeffects/requiresがシナリオ依存
+    /// (`GotoScene`/`AdvancePhase`/`DealCard`効果、`HasCard`条件のいずれかを
+    /// 含む)。domain-model.md「持ち出し可否(portable)」参照。
+    PortableCardIsScenarioDependent(CardId),
 }
 
 impl LintIssue {
@@ -43,7 +47,8 @@ impl LintIssue {
             | LintIssue::UnknownCardId(_)
             | LintIssue::UnknownSceneId(_)
             | LintIssue::CharacterTargetInScenarioData
-            | LintIssue::NoInitialScene => Severity::Error,
+            | LintIssue::NoInitialScene
+            | LintIssue::PortableCardIsScenarioDependent(_) => Severity::Error,
             LintIssue::UnreachableScene(_) | LintIssue::DeadEndScene(_) => Severity::Warning,
         }
     }
@@ -83,6 +88,7 @@ pub fn lint(scenario: &Scenario) -> Vec<LintFinding> {
 
     check_duplicate_ids(scenario, &mut findings);
     check_references(scenario, &mut findings);
+    check_portable_cards(scenario, &mut findings);
 
     let all_scene_ids: HashSet<&SceneId> = scenario
         .phases
@@ -172,6 +178,33 @@ fn check_references(scenario: &Scenario, findings: &mut Vec<LintFinding>) {
                 &check_condition,
                 findings,
             );
+        }
+    }
+}
+
+/// `#portable`タグ付きカードのeffects/requiresがシナリオ非依存であることを
+/// 検査する(domain-model.md「持ち出し可否(portable)」。2026-07-20決定の§3)。
+/// `GotoScene`/`AdvancePhase`/`DealCard`効果、`HasCard`条件は、いずれも
+/// そのシナリオでしか解決できない(シーンやCardIdがシナリオ内定義のため)。
+fn check_portable_cards(scenario: &Scenario, findings: &mut Vec<LintFinding>) {
+    for def in &scenario.card_defs {
+        if !def.is_portable() {
+            continue;
+        }
+        let effect_dependent = def.effects.iter().any(|effect| {
+            matches!(
+                effect,
+                Effect::GotoScene(_) | Effect::AdvancePhase | Effect::DealCard { .. }
+            )
+        });
+        let requires_dependent = def
+            .requires
+            .iter()
+            .any(|condition| matches!(condition, Condition::HasCard(_)));
+        if effect_dependent || requires_dependent {
+            findings.push(finding(LintIssue::PortableCardIsScenarioDependent(
+                def.id.clone(),
+            )));
         }
     }
 }

@@ -1,9 +1,10 @@
 //! キャラクター(セッションのparty内。マスターデータの凍結コピー)。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
+use crate::card::CardDef;
 use crate::ids::{CardId, CharacterId, StatId};
 
 #[cfg_attr(test, derive(proptest_derive::Arbitrary))]
@@ -15,10 +16,10 @@ pub struct Character {
     #[cfg_attr(
         test,
         proptest(
-            strategy = "proptest::collection::hash_map(proptest::prelude::any::<StatId>(), proptest::prelude::any::<i32>(), 0..=3)"
+            strategy = "proptest::collection::btree_map(proptest::prelude::any::<StatId>(), proptest::prelude::any::<i32>(), 0..=3)"
         )
     )]
-    pub stats: HashMap<StatId, i32>,
+    pub stats: BTreeMap<StatId, i32>,
     #[cfg_attr(
         test,
         proptest(
@@ -26,4 +27,17 @@ pub struct Character {
         )
     )]
     pub deck: Vec<CardId>,
+    /// 持ち帰ったカードのCardDef凍結コピー(domain-model.md「セッション終了処理
+    /// (finalize)」)。CardIdはそのシナリオ内でしか解決できないため、参照ではなく
+    /// 値そのものを持つ(2026-07-20決定)。`#[serde(default)]`は、この
+    /// フィールド追加前に保存されたパーティファイル・fixtureを空Vecとして
+    /// 読めるようにするため(後方互換)。
+    #[cfg_attr(
+        test,
+        proptest(
+            strategy = "proptest::collection::vec(proptest::prelude::any::<CardDef>(), 0..=2)"
+        )
+    )]
+    #[serde(default)]
+    pub owned_cards: Vec<CardDef>,
 }

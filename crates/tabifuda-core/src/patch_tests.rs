@@ -6,7 +6,7 @@
 //! test-strategy.md 不変条件5の注記参照)。「配布済みカードの定義が
 //! 解決可能」は`DealCard`で直接再現できるため受理/拒否対で検証する。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::card::{CardDef, CardKind, Condition, Target};
 use crate::ids::{CardId, CharacterId, ProposalId, ScenarioId, SceneId};
@@ -93,10 +93,10 @@ fn fixture_session() -> Session {
         status: SessionStatus::Paused {
             proposal: ProposalId("p1".to_string()),
         },
-        roles: HashMap::new(),
+        roles: BTreeMap::new(),
         phase: Phase::Opening,
         scene: scn("s1"),
-        hands: HashMap::new(),
+        hands: BTreeMap::new(),
         table: vec![],
         pending_proposal: None,
         proposal_seq: 0,

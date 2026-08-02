@@ -72,20 +72,31 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
    ローカル動作確認に使った環境変数・コマンド文字列をそのままCI設定へ
    転記する(再入力すると暗黙の前提が抜け落ちやすい。P3 C1で
    `TS_RS_EXPORT_DIR`未設定のままコミットした教訓)
-2. design-sync スキルで設計文書との乖離チェック(乖離があれば同PRで文書も直す)
-3. **非規範文書(domain-guide.md / demo.md)への影響を確認する。**
+2. **crates/tabifuda-core・tabifuda-wasmで`#[non_exhaustive]`enum
+   (Event/Command/PatchOp/RuleError等)やts-rs対象の構造体フィールドに
+   変更を加えたら、そのサイクルが「crates/のみ・Web非対応」を謳っていても
+   `crates/tabifuda-wasm/bindings/`を再生成しコミットする**
+   (`cargo test -p tabifuda-core --features ts export_bindings` →
+   `cargo test -p tabifuda-wasm --features ts export_bindings`。
+   wasm-boundary.md「生成コマンド」参照)。可能なら`pnpm -r typecheck`
+   まで通す(`packages/ui`のHandlerMap網羅性チェックがTSコンパイルエラー
+   として即座に検出する設計のため。client-conventions.md「Event/Command
+   の網羅性」)。P3.5でEvent追加時にこれを怠り、フェーズ完了後の別件確認
+   まで2サイクル気づかれなかった教訓
+3. design-sync スキルで設計文書との乖離チェック(乖離があれば同PRで文書も直す)
+4. **非規範文書(domain-guide.md / demo.md)への影響を確認する。**
    遊び方・操作手順に見える変更(カードの挙動、UI操作の追加等)があれば
    同PRで反映する。厳密な同期は求めない(欠落を見つけたら報告し、
    対応要否は人間の判断でよい)
-4. 作業中に誤解した点があれば docs/agent-journal.md に1行追記。
+5. 作業中に誤解した点があれば docs/agent-journal.md に1行追記。
    **その場で修正済みでも記録する**
-5. コミットは意味単位で分割。改行コードはLF
-6. **masterへの統合(マージ・PR作成)は人間の判断を仰ぐ。** 作業ブランチの
+6. コミットは意味単位で分割。改行コードはLF
+7. **masterへの統合(マージ・PR作成)は人間の判断を仰ぐ。** 作業ブランチの
    ままユーザーに報告し、エージェントが独断でmasterへマージ・pushしない。
    統合後は、マージ済みの作業ブランチを削除する(`git branch --merged
    master` で確認してから `git branch -d`。放置すると同名パターンの
    ブランチが増殖する)
-7. **フェーズの最終サイクルなら、人間の指示を待たずにふりかえりを作成する。**
+8. **フェーズの最終サイクルなら、人間の指示を待たずにふりかえりを作成する。**
    手順の正は docs/agent-operations.md「フェーズ完了時のふりかえり」
    (ドラフトは `retrospective` エージェントに任せてよい。保存先は
    docs/retrospectives/phaseN.md、気づきの反映先決定まで行って人間に報告)

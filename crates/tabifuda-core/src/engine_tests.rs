@@ -1,9 +1,9 @@
 //! decide/applyのテーブル駆動テスト。docs/design/test-strategy.md §1(a)に対応。
 //! 各Commandについて受理/拒否を対で書く。シナリオはテスト用の最小構成。
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use crate::card::{CardDef, CardKind, Condition, Effect, Target};
+use crate::card::{CardDef, CardKind, Condition, Effect, Tag, Target};
 use crate::character::Character;
 use crate::command::Command;
 use crate::engine::{apply, decide};
@@ -52,6 +52,13 @@ fn card_def(id: &str, kind: CardKind, effects: Vec<Effect>, requires: Vec<Condit
         tags: vec![],
         effects,
         requires,
+    }
+}
+
+fn portable_card_def(id: &str, kind: CardKind) -> CardDef {
+    CardDef {
+        tags: vec![Tag(CardDef::PORTABLE_TAG.to_string())],
+        ..card_def(id, kind, vec![], vec![])
     }
 }
 
@@ -130,6 +137,8 @@ fn fixture_scenario() -> Scenario {
                 vec![],
                 vec![Condition::StatAtLeast(stat("hp"), 5)],
             ),
+            portable_card_def("treasure", CardKind::Item),
+            portable_card_def("cursed_marker", CardKind::Marker),
         ],
         phases: vec![
             PhaseDef {
@@ -149,7 +158,7 @@ fn fixture_scenario() -> Scenario {
 }
 
 fn fixture_party() -> Vec<Character> {
-    let mut ch1_stats = HashMap::new();
+    let mut ch1_stats = BTreeMap::new();
     ch1_stats.insert(stat("hp"), 5);
     vec![
         Character {
@@ -157,19 +166,21 @@ fn fixture_party() -> Vec<Character> {
             name: "ch1".to_string(),
             stats: ch1_stats,
             deck: vec![],
+            owned_cards: vec![],
         },
         Character {
             id: chr("ch2"),
             name: "ch2".to_string(),
-            stats: HashMap::new(),
+            stats: BTreeMap::new(),
             deck: vec![],
+            owned_cards: vec![],
         },
     ]
 }
 
 /// `hands["ch1"]` に指定カード定義のインスタンスを1枚持たせた実行中セッション。
 fn fixture_session(hand_card: &str) -> Session {
-    let mut roles = HashMap::new();
+    let mut roles = BTreeMap::new();
     roles.insert(
         usr("u1"),
         Role::Player {
@@ -178,7 +189,7 @@ fn fixture_session(hand_card: &str) -> Session {
     );
     roles.insert(usr("gm1"), Role::Gm);
 
-    let mut hands = HashMap::new();
+    let mut hands = BTreeMap::new();
     hands.insert(
         chr("ch1"),
         vec![CardInstance {
@@ -671,6 +682,124 @@ fn PlayCardはEndSession効果でセッションを終了する() {
         state.unwrap().status,
         SessionStatus::Ended(Outcome::Victory)
     );
+}
+
+/// finalize正常系(domain-model.md「セッション終了処理(finalize)」):
+/// `#portable`タグ付きカードは`RewardsGranted`として持ち帰り、
+/// `Character.owned_cards`へ反映される。
+#[test]
+fn PlayCardはEndSession効果でportableなカードをRewardsGrantedとして持ち帰らせる() {
+    let mut session = fixture_session("victory");
+    session
+        .hands
+        .get_mut(&chr("ch1"))
+        .unwrap()
+        .push(CardInstance {
+            id: inst("ci2"),
+            card: cid("treasure"),
+        });
+
+    let events = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::PlayCard {
+            by: chr("ch1"),
+            card: inst("ci1"),
+            free_text: None,
+        },
+    )
+    .unwrap();
+    let treasure_def = fixture_scenario()
+        .card_def(&cid("treasure"))
+        .unwrap()
+        .clone();
+    assert_eq!(
+        events.last(),
+        Some(&Event::RewardsGranted {
+            to: chr("ch1"),
+            cards: vec![treasure_def.clone()],
+        })
+    );
+
+    let mut state = Some(session);
+    for event in &events {
+        state = apply(state, event);
+    }
+    let final_party = state.unwrap().party;
+    let ch1 = final_party.iter().find(|c| c.id == chr("ch1")).unwrap();
+    assert_eq!(ch1.owned_cards, vec![treasure_def]);
+}
+
+/// finalize拒否系: `#portable`タグの無いカードは持ち出せず`CardsDiscarded`
+/// として記録される(RewardsGrantedは発行されない)。
+#[test]
+fn PlayCardはEndSession効果で非portableなカードは持ち出させず破棄する() {
+    let mut session = fixture_session("victory");
+    session
+        .hands
+        .get_mut(&chr("ch1"))
+        .unwrap()
+        .push(CardInstance {
+            id: inst("ci2"),
+            card: cid("advance"),
+        });
+
+    let events = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::PlayCard {
+            by: chr("ch1"),
+            card: inst("ci1"),
+            free_text: None,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        events.last(),
+        Some(&Event::CardsDiscarded {
+            from: chr("ch1"),
+            cards: vec![cid("advance")],
+        })
+    );
+    assert!(!events
+        .iter()
+        .any(|e| matches!(e, Event::RewardsGranted { .. })));
+}
+
+/// finalize拒否系: `Marker`は`#portable`タグを付けても常に持ち出せない
+/// (domain-model.md「持ち出し可否(portable)」。2026-07-20決定の§3)。
+#[test]
+fn PlayCardはEndSession効果でMarkerはportableタグがあっても持ち出させない() {
+    let mut session = fixture_session("victory");
+    session
+        .hands
+        .get_mut(&chr("ch1"))
+        .unwrap()
+        .push(CardInstance {
+            id: inst("ci2"),
+            card: cid("cursed_marker"),
+        });
+
+    let events = decide(
+        Some(&session),
+        &usr("u1"),
+        Command::PlayCard {
+            by: chr("ch1"),
+            card: inst("ci1"),
+            free_text: None,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        events.last(),
+        Some(&Event::CardsDiscarded {
+            from: chr("ch1"),
+            cards: vec![cid("cursed_marker")],
+        })
+    );
+    assert!(!events
+        .iter()
+        .any(|e| matches!(e, Event::RewardsGranted { .. })));
 }
 
 #[test]
@@ -1284,11 +1413,19 @@ fn EndSessionはGMに受理される() {
         },
     )
     .unwrap();
+    // "advance"は#portableタグを持たないため、finalizeでch1の手札から
+    // 破棄される(domain-model.md「セッション終了処理(finalize)」)。
     assert_eq!(
         events,
-        vec![Event::SessionEnded {
-            outcome: Outcome::Defeat
-        }]
+        vec![
+            Event::SessionEnded {
+                outcome: Outcome::Defeat
+            },
+            Event::CardsDiscarded {
+                from: chr("ch1"),
+                cards: vec![cid("advance")],
+            }
+        ]
     );
 
     let mut state = Some(session);
@@ -1400,8 +1537,9 @@ fn start_removal_test_session() -> Session {
     let party = vec![Character {
         id: chr("ch1"),
         name: "ch1".to_string(),
-        stats: HashMap::new(),
+        stats: BTreeMap::new(),
         deck: vec![],
+        owned_cards: vec![],
     }];
     let events = decide(None, &usr("gm1"), Command::StartSession { scenario, party }).unwrap();
     let mut state = None;

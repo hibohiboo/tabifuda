@@ -37,7 +37,8 @@ struct CardDef {
     name: BoundedString<200>,
     kind: CardKind,
     text: BoundedString<2000>, // フレーバー/説明
-    tags: Vec<Tag>,            // 現状は常に空。将来のタグシステム用に予約
+    tags: Vec<Tag>,            // 将来のタグシステム用に予約(v0.1は空が既定)。
+                               // 例外: `#portable`は持ち出し可否に使う(下記)
     effects: Vec<Effect>,      // 出したときの効果
     requires: Vec<Condition>,  // 出せる条件(任意)
 }
@@ -79,6 +80,28 @@ enum Target {
 Effect / Condition / Target は今後の追加が前提(タグ条件、シナリオ経験条件、
 Party/Actor等の対象追加など)。シリアライズは種別名を含むタグ付き形式
 (serdeの外部タグ等)とし、`#[non_exhaustive]` を付けて後方互換の追加を許容する。
+
+### 持ち出し可否(portable)
+
+セッション終了時にカードを次のセッションへ持ち出せるかどうか
+(「セッション終了処理(finalize)」参照)。2026-07-20決定の§3
+(将来要望メモ§3)を採用:
+
+- **既定は持ち出し不可・明示したカードのみ可**(opt-in)。指定漏れの事故
+  方向を比較すると、既定可では「秘匿すべき鍵アイテムの流出」(作者の
+  意図を壊す・回収不能)、既定不可では「報酬のつもりが渡らない」
+  (次版で直せる)であり、後者のほうが軽い
+- 明示は`CardDef.tags`に予約済みの`#portable`(`CardDef::PORTABLE_TAG`)を
+  含めることで行う。専用の`portable: bool`フィールドは追加しない
+  (タグシステム§4がv0.1から`tags`を予約している設計と整合させるため)
+- **`CardKind::Marker`は`#portable`タグを持っていても常に持ち出し不可**
+  (世界の状態はセッションのもの。`CardDef::is_portable`が
+  `kind != Marker`をタグ判定に先立って確認する)
+- portableなカードの`effects`/`requires`は**シナリオ非依存に制約**する。
+  `GotoScene`(他シナリオでは解決不能なSceneId)、`AdvancePhase`、
+  シナリオ固有`CardId`を指す`DealCard`/`HasCard`を含むカードはportableに
+  できない。違反はシナリオlintの`PortableCardIsScenarioDependent`
+  (Error)で検出する
 
 ## シナリオ構造
 
@@ -139,7 +162,7 @@ struct Transition {
 | 区分 | 型 | id の正 | 理由 |
 |---|---|---|---|
 | 作者データ(card_defs / phases / scenes / party) | `Vec<T>` | **構造体内の埋め込み id** | 並び順に意味がある(文書)。シリアライズが決定的(fixture・フォーク差分が安定) |
-| 実行時索引(hands / roles) | `HashMap<Id, V>` | **キー**(値に id を持たない=二重化しない) | 順序不問の索引。O(1)参照 |
+| 実行時索引(hands / roles / stats) | `BTreeMap<Id, V>` | **キー**(値に id を持たない=二重化しない) | 順序不問の索引。id型(String)には`Ord`をderive済みで、キー順が決定的なためJSONシリアライズも安定する(セーブファイルの無意味な差分を避ける。経緯: [wasm-boundary-decisions.md](../tasks/projects/phase3/plans/wasm-boundary-decisions.md)論点1) |
 
 - id の一意性(card_defs 内の CardId、全 phases を通した SceneId、party 内の
   CharacterId に重複なし)と参照整合性は**不変条件**とする。パッチの validate と
@@ -202,10 +225,10 @@ struct Session {
                                   // セッション中の変化はこのコピーにのみ及ぶ。
                                   // マスターへの書き戻しは終了処理でのみ行う(将来要望メモ§1,3)
     status: SessionStatus,        // 状態機械(下記)
-    roles: HashMap<UserId, Role>, // 参加者の役割。権限検証の根拠
+    roles: BTreeMap<UserId, Role>, // 参加者の役割。権限検証の根拠
     phase: Phase,
     scene: SceneId,
-    hands: HashMap<CharacterId, Vec<CardInstance>>,
+    hands: BTreeMap<CharacterId, Vec<CardInstance>>,
     table: Vec<CardInstance>,     // 場に出たカード。パーティ/シナリオ全体の
                                   // 状態(旧flags)は Marker カードとしてここに置く
     pending_proposal: Option<Proposal>,
@@ -244,8 +267,12 @@ struct CardInstance {
 struct Character {
     id: CharacterId,
     name: String,
-    stats: HashMap<StatId, i32>,  // MVPはHP程度から
+    stats: BTreeMap<StatId, i32>,  // MVPはHP程度から
     deck: Vec<CardId>,            // キャラメイク時取得のAction群
+    owned_cards: Vec<CardDef>,    // 持ち帰ったカードの凍結コピー(下記
+                                  // 「セッション終了処理(finalize)」参照)。
+                                  // CardIdはそのシナリオ内でしか解決できない
+                                  // ため、参照ではなく値そのものを持つ
 }
 ```
 
@@ -343,7 +370,7 @@ enum Command {
 
 enum Event {
     SessionStarted { scenario: ScenarioSnapshot, party: Vec<Character>,
-                     roles: HashMap<UserId, Role>,
+                     roles: BTreeMap<UserId, Role>,
                      initial_phase: Phase, initial_scene: SceneId },
     SceneEntered { scene: SceneId, narration: String,
                    local_instances: Vec<CardInstanceId> }, // 下記「カードの消費・除去」参照
@@ -358,6 +385,10 @@ enum Event {
     ProposalJudged { id: ProposalId, accepted: bool }, // → Running
     PhaseAdvanced { phase: Phase },
     SessionEnded { outcome: Outcome },
+    RewardsGranted { to: CharacterId, cards: Vec<CardDef> },  // finalize。
+                     // 下記「セッション終了処理(finalize)」参照。空にはならない
+                     // (空ならイベント自体を発行しない)
+    CardsDiscarded { from: CharacterId, cards: Vec<CardId> }, // finalize。監査記録のみ
 }
 
 enum RemovalReason {
@@ -418,6 +449,33 @@ decide が各コマンドをどう解決し、apply が状態をどう進める�
 (`HasCard` は実行者キャラの手札+`table`、`StatAtLeast` は実行者キャラの
 `stats` を見る)。`card`(CardInstanceId)が実行者キャラの手札に無ければ
 `RuleError::CardNotFound`。
+
+### セッション終了処理(finalize)
+
+`SessionEnded`(`Effect::EndSession`経由・`Command::EndSession`(GM強制終了)
+経由のどちらでも)の直後に、`SessionEnded`を発行した`decide`が続けて
+finalizeイベントを発行する(2026-07-20決定の§3。将来要望メモ§3のうち、
+手札からの持ち出し選別部分の採用)。outcomeによる分岐はしない
+(Victory/Defeatいずれでも、手元にあるportableなカードは持ち帰れる)。
+
+- party各キャラの手札を、`CardDef::is_portable`が`true`のカードと
+  それ以外に分ける
+  - portableなカードは`CardDef`の凍結コピーとして`RewardsGranted{to, cards}`
+    を1件発行する(該当が無ければ発行しない)
+  - それ以外は`CardId`の一覧として`CardsDiscarded{from, cards}`を1件
+    発行する(該当が無ければ発行しない)
+- `table`は現状どの経路からもカードが置かれないため対象外
+- `apply`は`RewardsGranted`を`Character.owned_cards`への追記として適用する。
+  `CardsDiscarded`は監査記録のみで状態を変更しない(セッションはこの時点で
+  既に`Ended`であり、`hands`を読む経路が以降に無いため)
+- `Effect::EndSession`経由の場合、判定対象の手札は`session`(decide呼び出し
+  時点のスナップショット)そのものではなく、**同じ効果解決内でそれより前に
+  発行された`CardDealt`/`CardRemoved`を`session.hands`へ畳み込んだもの**を
+  使う(いま出したカード自身の消費等を反映するため)
+
+マスターデータ(パーティファイル)への書き戻しはCLI層の役目
+(C4「持ち帰りのCLI配線」)。coreはセッション内の`Character.owned_cards`を
+更新するところまでを担う。
 
 ### カードの消費・除去
 
@@ -614,6 +672,62 @@ Running` がそのまま担う。コアの変更は不要で、以下はtabifuda
   CLI層に置き、IO(確認プロンプト・書き込み)と分離する。コアの
   decide/applyには触れない
 
+### セッションの保存と再開(CLIの決定。規範ではない)
+
+`Event::SessionStarted` がシナリオ・パーティの凍結コピーを持つため、
+イベント列だけでセッションを完全に復元できる(自己完結)。保存は
+このイベント列をそのままシリアライズし、再開は`apply`で畳み込むだけでよい。
+リプレイの決定性は`replay_tests`で固定済み。
+
+```rust
+struct SaveFile {
+    format_version: u32,  // 現在1。Event enumは#[non_exhaustive]で
+                           // 追加前提のため、旧形式の読込可否を区別する
+    events: Vec<Event>,
+}
+```
+
+- `format_version`が現在の実装と一致しない保存ファイルは**読み込みを拒否**する
+  (警告付き読込はしない。互換性維持のコストより、拒否して作り直させる方が
+  MVP規模では単純で安全)
+- Running中/Paused中いずれの画面でも`q`で「保存して中断しますか?」を尋ねる。
+  `y`なら保存して終了、`n`なら保存せず終了する。Paused中に`q`で中断・保存した
+  場合、再開すると裁定待ち(Paused)へそのまま戻る(状態機械はイベント列から
+  復元されるため、中断した状態を過不足なく再現する)
+- 保存先は元シナリオファイルの隣に`{語幹}-save.json`(既存ファイルと衝突する
+  場合は連番。フォーク出力と同じ発番方針)。`--resume`で再開した場合は、
+  読み込んだファイルへ上書き保存する(セーブスロットの概念を導入しない)
+- `play --resume <session-file>`は`<scenario-file>`の代わりにセーブファイルを
+  読み込み、イベント列を`apply`で畳み込んで`Session`を復元してからプレイを続ける
+- セーブファイルは自由入力本文(冒険記のドメインログ)を含む。運用ログに
+  本文を書かない規律(cross-cutting.md)はセーブファイルには適用されない
+  (セーブファイルは冒険記の永続化そのものであり、意図した保存対象のため)
+
+### パーティファイル(CLIの決定。規範ではない)
+
+パーティは`Vec<Character>`をそのままJSON化したファイル(SaveFileのような
+`format_version`ラッパーは持たない)。`play <scenario-file> --party
+<party-file>`で読み込む。無指定時は従来どおりCLIが構築する既定ソロパーティ
+(「旅人」1人)を使う。
+
+- 読み込み時に**空配列を拒否**し、**`CharacterId`の重複を拒否**する
+  (「コレクションとidの規則」がparty内`CharacterId`の一意性を不変条件と
+  定めているが、これまでCLIが常に単一キャラのpartyを構築していたため
+  未検証のまま到達不能だった。外部ファイルを読み込むこの機能で初めて
+  到達可能になるため、CLI層でファイル検証として実施する。coreの
+  `decide`はこの検証を前提とせず、この不変条件はscenario/lintの検証対象
+  ではない)
+- CLIは複数キャラを同時に操作するUIを持たないため、**パーティ先頭
+  (`party[0]`)を操作対象キャラとする**(無指定時の既定ソロパーティでも
+  同じ規則が成立する)
+- セッション終了時、finalizeで`RewardsGranted`が1回以上発行されていれば
+  (=持ち出し可能なカードを1枚以上持ち帰っていれば)、「パーティファイルへ
+  書き戻しますか?」と尋ね、`y`なら`session.party`(`owned_cards`更新済み)を
+  読み込み元の`--party`ファイルへ上書き保存する。`--party`未指定(既定ソロ
+  パーティ)・`--resume`経由のセッションは書き戻し先のファイルが無いため
+  尋ねない(再開経路がどのパーティファイルから始まったか追跡していない
+  制約は「セッションの保存と再開」節と同様)
+
 ## シナリオlint
 
 シナリオデータの静的検証(検査項目・重大度・到達可能性/詰み検知の探索範囲)の
@@ -654,6 +768,9 @@ Running` がそのまま担う。コアの変更は不要で、以下はtabifuda
 | validate の「現在シーン削除」拒否テスト保留 | agent-journal.md 2026-07-19(P1 C4) |
 | カードの消費・除去 | retrospectives/phase2.md / tasks/plans/merry-leaping-tide.md |
 | シナリオファイル配置と lint 仕様 | tasks/projects/phase2/task.md C1 / git履歴 |
+| 実行時索引の HashMap→BTreeMap 化・セッションの保存と再開 | tasks/projects/phase3/plans/wasm-boundary-decisions.md 論点1 / tasks/projects/phase3.5/task.md C1 |
+| パーティファイル・操作対象キャラの決定 | tasks/projects/phase3.5/task.md C2 |
+| 持ち出し可否(portable)・セッション終了処理(finalize) | future-requirements.md旧§3(2026-07-20決定) / tasks/projects/phase3.5/task.md C3 |
 
 ### 旧節名との対応(過去文書からの参照用)
 

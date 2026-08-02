@@ -30,6 +30,16 @@ description: 設計文書(docs/design/)と実装(crates/)の乖離チェック�
    全部反映した証拠」にはならない。P3 C1でconsole_error_panic_hook導入・
    WasmErrorのDeserialize不要という確定済み方針の実装反映漏れが、テスト
    通過後のこのチェックで初めて発覚した教訓)
+5. **Event(または他の`#[non_exhaustive]`enum)を追加したサイクルでは、
+   `_ => `のワイルドカードを持つmatch文がリポジトリ内に無いか
+   `grep -rn "_ =>" crates/`等で確認する**。coreの`match`はコンパイラが
+   非網羅を検出するが、CLI/Web層(chronicle.rs・oplog.rsのような翻訳層)の
+   ワイルドカードは新バリアントを黙って握りつぶしても型検査を通るため、
+   テストが無ければ気づけない(P3.5 C3で`RewardsGranted`/`CardsDiscarded`
+   がchronicle.rs/oplog.rsのワイルドカードに落ちたまま2サイクル
+   気づかれなかった教訓。既存のワイルドカードアーム自体は許容されている
+   設計だが、新バリアント追加のたびに「このワイルドカードに新バリアントが
+   落ちて良いか」を都度判断する)
 
 ## 3. 乖離の判定基準
 

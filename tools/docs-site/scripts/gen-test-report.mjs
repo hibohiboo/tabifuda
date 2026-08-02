@@ -74,6 +74,18 @@ const SUITES = {
     description: "運用ログが自由入力本文を記録しないことを検証する。",
     strategyAnchor: "3-engine-cli--engine-wasm薄く",
   },
+  "save::tests": {
+    crate: "tabifuda-cli",
+    label: "セッション保存ファイルの単体テスト",
+    description: "セーブファイルの読み書きとformat_version不一致の拒否を検証する。",
+    strategyAnchor: "3-engine-cli--engine-wasm薄く",
+  },
+  "party::tests": {
+    crate: "tabifuda-cli",
+    label: "パーティファイルの単体テスト",
+    description: "パーティファイルの読み込みと、空配列・CharacterId重複の拒否を検証する。",
+    strategyAnchor: "3-engine-cli--engine-wasm薄く",
+  },
   lint_cli: {
     crate: "tabifuda-cli",
     label: "lintコマンドの結合テスト",

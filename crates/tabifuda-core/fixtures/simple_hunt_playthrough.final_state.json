@@ -190,7 +190,8 @@
       "id": "hunter",
       "name": "旅人",
       "stats": {},
-      "deck": []
+      "deck": [],
+      "owned_cards": []
     }
   ],
   "status": {
