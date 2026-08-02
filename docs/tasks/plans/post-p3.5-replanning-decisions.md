@@ -312,11 +312,15 @@ Q1〜Q5 すべて決定済み。残る反映を以下の3タスクに切り出�
    +一覧・対応表示)→ 人間確認 → **段階2**(ワイヤーフレーム表現)(Q6)。
    **マージ順: frozen対応は本見直しの文書反映(frozen frontmatter を含む)
    より先、または同時に master へ入れる**
-   → **実装完了(2026-08-02。ブランチ `docs-site-d3-d4`)**。D3(frozen対応・
-   完了フィルタタブ)・D4(screens.yaml 新設、人間レビュー2周、6画面に
-   確定)・D5(screens.yaml へ layout 追記、Wireframe.tsx で表示)まで
-   完了。tools/docs-site/task.md の全サイクルが done。master への統合は
-   未実施(人間判断待ち。frozen対応のマージ順注記は上記のとおり)
+   → **D3〜D5実装完了(2026-08-02。ブランチ `docs-site-d3-d4`)**。D4は
+   人間レビュー3周を経て8画面に確定(GMのシナリオ在庫・募集フローを
+   追加発見)。ただし画面を直接ブレストする進め方自体が3周の手戻りを
+   生んだため、2026-08-03にD6を追加起票: アクター要求
+   (requirements.yaml)→業務フロー(business-flow.yaml)→画面
+   (screens.yaml)というRDRAのレイヤー順序をgm・authorにも適用してから
+   screens.yamlを見直す(詳細はtools/docs-site/task.md D6)。D6は未着手。
+   master への統合は未実施(人間判断待ち。frozen対応のマージ順注記は
+   上記のとおり)
 3. **カードUI・演出強化タスク(要チケット・要設計)**: Q2の方向性
    (文章メイン差別化・種類別既定アイコン・白銀比縦長カードの
    小/大2サイズ・依頼の張り紙カード選択)を ui-visual-design.md へ

@@ -1,5 +1,5 @@
 ---
-status: done
+status: in-progress
 cycles:
   C1: done
   C2: done
@@ -9,6 +9,7 @@ cycles:
   D3: done
   D4: done
   D5: done
+  D6: planned
 ---
 
 # ツールタスク: docs-site(docs 総合ビューア)
@@ -190,6 +191,40 @@ Q5)。D3〜D5はこの決定ログの切り出しタスク2にあたる。
 - [ ] カード実物のビジュアル(白銀比・アイコン)は本タスクでは作り込まない
   (packages/ui のカードコンポーネント試作=カードUI強化タスクの担当。
   二重投資を避ける)
+
+### D6: アクター要求・業務フローの拡充(GM/作者)を先にやってから画面を見直す
+
+経緯: D4〜D5で画面を直接ブレストして書いたところ、レビューで3周の
+手戻りが発生した(もう一度遊ぶボタンの憶測混入、依頼選択のactors誤り、
+GMのシナリオ運用フロー丸ごと欠落。d3-d5-checklist.md参照)。
+2026-08-03、ユーザー指摘: 「画面一覧構築前に、どんな画面が必要か洗い出す
+フレームワークが要る」。方針として合意したのは、**新しい手法を持ち込む
+のではなく、このプロジェクトが既に持つRDRAのレイヤー順序
+(アクター要求 requirements.yaml → 業務フロー business-flow.yaml →
+ユースケース usecases.yaml → 画面 screens.yaml)を、手薄なアクター
+(gm・author)にも同じ厳密さで適用する**こと。現状 requirements.yaml は
+player中心の9件のみで、business-flow.yaml も player の「1プレイの流れ」
+1本のみ。gm・author はいきなり screens.yaml を書いてしまい、この2層を
+飛ばしていたのが手戻りの根本原因。
+
+ユーザーが例示した未洗い出しの要求(いずれもrequirements.yamlへの追加候補):
+- player: 別パーティを作って遊びたい
+- gm: シナリオをカスタマイズしておき、複数セッションに使い回したい
+  (D4/D5で発見済み。future-requirements.md §1に暫定記録済み)
+- author: 他の作者のシナリオを見たい
+- author: 他シナリオのベースをコピーして自分のものを作り始めたい
+- author: キャンペーンシナリオを作りたい(future-requirements.md §2と関連)
+- author: 同じロケーションを使ってシェアワールドを表現したい(新規論点)
+
+進め方(案。着手時に確定させる):
+1. アクターごとに要求を洗い出し requirements.yaml に追加(status: future
+   が大半になる見込み。特にauthorは3件中0件しか無い現状)
+2. 要求ごとに業務フロー(business-flow.yaml、フローが無い場合は新規)を
+   作る。既存の「1プレイの流れ」と同じ形式(ステップ列、branch対応)
+3. フローのステップから screens.yaml を見直す・追加する。D4〜D5で作った
+   8画面(特にgm-scenario-stock/session-recruitと、author-page)を
+   このフローと突き合わせて過不足を確認
+4. 画面の再ブレストは行わない(要求→フローから機械的に導出する)
 
 ## 完了条件
 
