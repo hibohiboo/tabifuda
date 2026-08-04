@@ -44,3 +44,16 @@
 
 - 規範文書(特に domain-model.md)の該当節を変えたら、同PRでここも直す
 - 見出し名(=アンカー)を変えたら `source` も直す(CIが検出する)
+- **要素のフィールド(`actors:` `usecases:` 等)は、参照する他レイヤーの
+  該当エントリ(usecases.yaml の該当id等)や実装コードを実際に開いて
+  突き合わせてから値を確定する。**「だいたいこうだろう」で書かない
+  (2026-08-02〜03、screens.yaml D4で actors の取り違えが2件発生した
+  教訓。経緯: [../tasks/plans/post-p3.5-session-retrospective.md](../tasks/plans/post-p3.5-session-retrospective.md))
+- **新しいレイヤー・要素種別(例: screens.yaml)を追加するときは、
+  その手前のレイヤー(要求 requirements.yaml → 業務フロー
+  business-flow.yaml)が対象アクター分すでに整備されているか先に確認する。**
+  整備されていなければ、先にそちらを作ってから下流のレイヤーを作る
+  (同上の教訓。screens.yamlをgm/authorの要求・業務フローが無いまま
+  直接作った結果、レビューが「中身の妥当性」止まりになり画面自体の
+  欠落を検知できなかった。経緯は同上、詳細は
+  [../tasks/tools/docs-site/task.md](../tasks/tools/docs-site/task.md) D6)
