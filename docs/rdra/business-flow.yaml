@@ -34,3 +34,170 @@ flows:
         actors: [player, gm]
         usecases: [propose, judge-proposal, apply-patch]
         branch: true
+
+  # 以下D6(2026-08-11)で追加。gm・authorの要求がplayerに比べ手薄だった
+  # ことへの対応(経緯: tasks/plans/post-p3.5-session-retrospective.md)。
+  # 大半のステップはusecases:[](対応するCommandが現行モデルに無い。
+  # 未モデル化のギャップは requirements/future-requirements.md 側で追跡する)。
+  - id: party-setup
+    name: パーティ編成の流れ
+    source: design/domain-model.md#パーティファイルcliの決定規範ではない
+    steps:
+      - id: create-character
+        name: キャラクターを作る
+        description: >-
+          名前・タグ等を決めてキャラクターを作る。現状キャラメイクの
+          仕組み自体が無く、パーティファイル(JSON)を手書きするしかない。
+        actors: [player]
+        usecases: []
+      - id: form-party
+        name: パーティを編成する
+        description: 作ったキャラクターをまとめてパーティにする。
+        actors: [player]
+        usecases: []
+      - id: save-party-file
+        name: パーティを保存する
+        description: >-
+          パーティファイルとして保存する。実装済みなのは既存パーティへの
+          報酬書き戻し(take-rewards-home)のみで、新規パーティの保存手段は無い。
+        actors: [player]
+        usecases: []
+
+  - id: gm-scenario-list-to-session
+    name: GMの遊びたいシナリオリストからセッション開始までの流れ
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+    steps:
+      - id: build-scenario-list
+        name: 遊びたいシナリオをリストに加える
+        description: 気になるシナリオをストックしておく(gm-scenario-stock画面の根拠)。
+        actors: [gm]
+        usecases: []
+      - id: customize-scenario
+        name: シナリオをカスタマイズする
+        description: >-
+          繰り返し使えるよう改編しておく。現行のApplyPatchはセッション中
+          (Paused)のみが対象で、開始前のカスタマイズを表すCommandが無い。
+        actors: [gm]
+        usecases: []
+      - id: recruit-players
+        name: プレイヤーを募る
+        description: >-
+          カスタマイズ済みシナリオでプレイヤーを募集する(session-recruit
+          画面の根拠)。「募集中(参加者未確定)」の中間状態は未モデル化。
+        actors: [gm]
+        usecases: []
+      - id: confirm-party
+        name: 参加者が確定する
+        description: 募集に応じたプレイヤーでパーティが確定する。
+        actors: [gm, player]
+        usecases: []
+      - id: start-session-from-list
+        name: セッションを開始する
+        description: >-
+          確定したシナリオとパーティでセッションを開始する
+          (simple-hunt-playthroughのopeningへ合流)。
+        actors: [gm]
+        usecases: [start-session]
+      - id: manage-parallel-sessions
+        name: (任意)進行中の複数セッションを並行して管理する
+        description: >-
+          1人のGMが複数の進行中セッションを並行して持つ場合の一覧・管理
+          (gm-page画面の根拠)。複数セッションファイル自体の並行プレイは
+          結合テスト済みだが、GM側のUI/権限面は未検討。
+        actors: [gm]
+        usecases: []
+        branch: true
+
+  - id: author-scenario-authoring
+    name: 作者のシナリオ執筆の流れ
+    source: requirements/future-requirements.md#9-シナリオ作者向けの作成編集手段
+    steps:
+      - id: start-new-scenario
+        name: 新規シナリオを作り始める
+        description: 現状はJSON/Rustコードの新規作成(手書き)から始まる。
+        actors: [author]
+        usecases: []
+      - id: define-phases-and-scenes
+        name: フェーズ・シーンを組み立てる
+        description: phases > scenes の木構造を書く(domain-model.md「シナリオ構造」)。
+        actors: [author]
+        usecases: []
+      - id: define-cards
+        name: カードを定義する
+        description: CardDef(種別・効果・出せる条件)を書く。
+        actors: [author]
+        usecases: []
+      - id: validate-scenario
+        name: シナリオを検証する
+        description: 静的検証(lint)にかける(scenario-lint.md)。
+        actors: [author]
+        usecases: []
+      - id: save-scenario
+        name: シナリオを保存する
+        description: シナリオファイルとして保存する。
+        actors: [author]
+        usecases: []
+
+  - id: author-scenario-sharing
+    name: 作者間のシナリオ共有・派生の流れ
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+    steps:
+      - id: browse-scenarios
+        name: 他の作者のシナリオを見る
+        description: >-
+          現状シナリオはローカルファイルのみで、他作者のシナリオを
+          閲覧する仕組みが無い(P4のサーバ側共有が前提)。
+        actors: [author]
+        usecases: []
+      - id: copy-as-base
+        name: (任意)気に入ったシナリオをベースにコピーする
+        description: >-
+          コピーしたものを起点に author-scenario-authoring の
+          start-new-scenario へ合流する。既存のフォーク機構
+          (forked_from)はGM改編の保存が目的で、この用途は未検討。
+        actors: [author]
+        usecases: []
+        branch: true
+      - id: reference-shared-location
+        name: (任意)ワールド設定を参照する
+        description: >-
+          作者が書いて広がっていく世界観コンテンツ(ロケーション等)を参照し、
+          複数シナリオでシェアワールドを表現する。ルールブック(システム
+          提供の固定コンテンツ)とは別物で、シナリオ一覧とも別の入り口を
+          想定する。情報モデル自体が現行モデルに無い。
+        actors: [author]
+        usecases: []
+        branch: true
+      - id: publish-for-others
+        name: 自分のシナリオを公開する
+        description: 他の作者が閲覧・派生できるよう公開する。
+        actors: [author]
+        usecases: []
+
+  - id: learn-rules-unlock-features
+    name: ルールを読んで使える機能が広がる流れ
+    source: requirements/future-requirements.md#8-段階的な成長体験ユーザーとしてできることが増えていく
+    steps:
+      - id: read-rulebook
+        name: ルールブックを読む
+        description: >-
+          システム提供の固定コンテンツ(ワールド設定とは別物)を読む。
+          プレイヤーは読まなくても遊べる想定だが、GM・作者は必要になる。
+        actors: [player, gm, author]
+        usecases: []
+      - id: unlock-authoring-features
+        name: (作者)シナリオ作成で使える機能が広がる
+        description: >-
+          読んだ内容に応じて、シナリオ作成で使える機能が段階的に開放される
+          (unlock-authoring-by-rules)。
+        actors: [author]
+        usecases: []
+        branch: true
+      - id: unlock-character-options
+        name: (プレイヤー)キャラクターに設定できることが広がる
+        description: >-
+          読んだ内容に応じて、キャラメイクで選べる要素が段階的に増える
+          (unlock-character-options-by-rules)。
+        actors: [player]
+        usecases: []
+        branch: true

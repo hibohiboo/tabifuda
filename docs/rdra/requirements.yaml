@@ -75,3 +75,104 @@ requirements:
       フォーク(改編済みシナリオ)の差分を作者がレビューし、元シナリオへ
       取り込む流れがほしい(Pull Request相当)。
     source: requirements/future-requirements.md#6-フォーク公開とシナリオ作者への還流
+
+  # 以下D6(2026-08-11)で追加。gm・authorの要求がplayerに比べ手薄だった
+  # ことへの対応(経緯: tasks/plans/post-p3.5-session-retrospective.md)。
+  - id: create-multiple-parties
+    name: 別のパーティを作って遊びたい
+    status: future
+    actors: [player]
+    description: >-
+      パーティファイルは手書きJSONとして複数用意できるが、アプリ内で
+      キャラメイクし直して新しいパーティを作る手段が無い。
+    source: design/domain-model.md#パーティファイルcliの決定規範ではない
+
+  - id: stock-and-customize-scenarios
+    name: シナリオを複数ストックし、カスタマイズして繰り返し使いたい
+    status: future
+    actors: [gm]
+    description: >-
+      現行のApplyPatchはセッション中(Paused)のみが対象で、セッション開始前に
+      シナリオをストック・カスタマイズしておく手段が無い。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+
+  - id: recruit-players-for-session
+    name: プレイヤーを募ってセッションを開始したい
+    status: future
+    actors: [gm]
+    description: >-
+      StartSessionはパーティ確定済みが前提のため、「募集中(参加者未確定)」
+      という中間状態を表現できない。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+
+  - id: manage-multiple-sessions
+    name: 複数の進行中セッションを並行して管理したい
+    status: future
+    actors: [gm]
+    description: >-
+      複数セッションファイルの並行プレイ自体は成立するが、1人のGMが複数の
+      進行中セッションを一覧・管理するUI/権限面は未検討。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+
+  - id: create-and-edit-scenario
+    name: シナリオを作りたい/編集したい
+    status: future
+    actors: [author]
+    description: >-
+      現状シナリオはJSON/Rustコードとして手書きするしかなく、作者向けの
+      専用編集手段(GUI・書式ガイド)が無い。
+    source: requirements/future-requirements.md#9-シナリオ作者向けの作成編集手段
+
+  - id: browse-other-scenarios
+    name: 他の作者のシナリオを見たい
+    status: future
+    actors: [author]
+    description: >-
+      シナリオはローカルファイルとして単独で存在し、他作者のシナリオを
+      閲覧する仕組みが無い(P4のサーバ側共有が前提)。
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+
+  - id: copy-scenario-as-base
+    name: 他シナリオのベースをコピーして自分のものを作り始めたい
+    status: future
+    actors: [author]
+    description: >-
+      既存のフォーク機構(forked_from)はGMの改編保存が目的で、作者が他
+      シナリオをベースに新規作成を始める用途は未検討。
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+
+  - id: create-campaign-scenario
+    name: キャンペーンシナリオを作りたい
+    status: future
+    actors: [author]
+    description: >-
+      前のセッションの攻略実績を参加条件にするキャンペーン構成は未実装
+      (シナリオmetaへの`prerequisites`拡張等が必要)。
+    source: requirements/future-requirements.md#2-キャンペーンシナリオセッション
+
+  - id: share-world-via-locations
+    name: 同じロケーションを使ってシェアワールドを表現したい
+    status: future
+    actors: [author]
+    description: >-
+      複数シナリオで同じロケーション(舞台設定)を共有する仕組みが無く、
+      ロケーション自体の情報モデルもまだ無い。
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+
+  - id: unlock-authoring-by-rules
+    name: ルールを学ぶとシナリオ作成で使える機能が広がってほしい
+    status: future
+    actors: [author]
+    description: >-
+      ルールブック(システム提供の固定コンテンツ)を読み進めることに応じて、
+      シナリオ作成で使える機能が段階的に開放される体験がほしい。
+    source: requirements/future-requirements.md#8-段階的な成長体験ユーザーとしてできることが増えていく
+
+  - id: unlock-character-options-by-rules
+    name: ルールを学ぶとキャラクターに設定できることが広がってほしい
+    status: future
+    actors: [player]
+    description: >-
+      ルールブックを読み進めることに応じて、キャラメイクで選べる要素が
+      段階的に増える体験がほしい。
+    source: requirements/future-requirements.md#8-段階的な成長体験ユーザーとしてできることが増えていく

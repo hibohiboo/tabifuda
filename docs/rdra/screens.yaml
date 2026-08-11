@@ -157,3 +157,77 @@ screens:
         sizeHint: medium
       - label: プレイ開始ボタン
         sizeHint: small
+
+  # 以下D6(2026-08-11)で追加。要求(requirements.yaml)→業務フロー
+  # (business-flow.yaml)から機械的に導出(経緯:
+  # tasks/plans/post-p3.5-session-retrospective.md、tasks/tools/docs-site/task.md D6)。
+  - id: party-creation
+    name: パーティ編成
+    status: future
+    actors: [player]
+    usecases: []
+    description: >-
+      新しいパーティを作る画面(business-flow.yamlのparty-setupフローに
+      対応)。現状はパーティファイルの手書きJSONでのみ可能で、専用画面が無い。
+    source: design/domain-model.md#パーティファイルcliの決定規範ではない
+    layout:
+      - label: キャラクター作成(名前・タグ等)
+        sizeHint: large
+      - label: パーティ編成(作ったキャラをまとめる)
+        sizeHint: medium
+      - label: 保存ボタン
+        sizeHint: small
+
+  - id: scenario-gallery
+    name: シナリオ共有ページ
+    status: future
+    actors: [author]
+    usecases: []
+    description: >-
+      他の作者のシナリオを閲覧し、ベースにコピーしたり自分のシナリオを
+      公開したりする画面(business-flow.yamlのauthor-scenario-sharingフローの
+      browse-scenarios/copy-as-base/publish-for-othersに対応)。P4(凍結中)の
+      サーバ側共有が前提。
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+    layout:
+      - label: 他作者のシナリオ一覧(閲覧)
+        sizeHint: large
+      - label: ベースにコピーするボタン
+        sizeHint: small
+      - label: 自分のシナリオを公開するボタン
+        sizeHint: small
+
+  - id: world-setting-page
+    name: ワールド設定ページ
+    status: future
+    actors: [author]
+    usecases: []
+    description: >-
+      作者が書いて広がっていく世界観コンテンツ(ロケーション等)を参照する
+      画面(business-flow.yamlのauthor-scenario-sharingフローの
+      reference-shared-locationに対応)。シナリオ共有ページ(scenario-gallery)
+      とは別の入り口を想定する。情報モデル自体が現行モデルに無い。
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+    layout:
+      - label: ワールド設定(ロケーション等)一覧
+        sizeHint: large
+      - label: 自分のシナリオへ参照を追加するボタン
+        sizeHint: small
+
+  - id: rulebook-page
+    name: ルールブックページ
+    status: future
+    actors: [player, gm, author]
+    usecases: []
+    description: >-
+      システム提供の固定コンテンツ(ルール)を読む画面(business-flow.yamlの
+      learn-rules-unlock-featuresフローに対応)。プレイヤーは読まなくても
+      遊べる想定で、GM・作者は必要になる。読み進めるとシナリオ作成・
+      キャラメイクで使える機能が広がる(unlock-authoring-by-rules、
+      unlock-character-options-by-rules)。
+    source: requirements/future-requirements.md#8-段階的な成長体験ユーザーとしてできることが増えていく
+    layout:
+      - label: ルール一覧・目次
+        sizeHint: medium
+      - label: 本文(読むと機能開放の進捗が進む)
+        sizeHint: large
