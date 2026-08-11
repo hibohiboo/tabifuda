@@ -1,6 +1,6 @@
 import { load } from "js-yaml";
 
-export type ProgressStatus = "done" | "in-progress" | "planned";
+export type ProgressStatus = "done" | "in-progress" | "planned" | "frozen";
 
 export interface CycleProgress {
   id: string;
@@ -18,7 +18,7 @@ export interface TaskProgress {
   source: string;
 }
 
-const STATUSES: ReadonlySet<string> = new Set(["done", "in-progress", "planned"]);
+const STATUSES: ReadonlySet<string> = new Set(["done", "in-progress", "planned", "frozen"]);
 
 interface Frontmatter {
   status: ProgressStatus;

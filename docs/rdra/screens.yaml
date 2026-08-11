@@ -1,0 +1,233 @@
+# システム境界レイヤー: 画面
+# 出典の正: design/domain-guide.md「3. 1プレイの流れ」「6. 権限」、
+# design/ui-visual-design.md、design/domain-model.md「セッション終了処理」。
+# status: implemented(実装済み) | future(未作成。一目で分かるように区別する)
+# layout: ワイヤーフレーム(段階2)。枠+ラベルの簡易ボックスをスマホ幅で
+# 縦に積む想定。各要素は label(表示ラベル)/ sizeHint(small|medium|large。
+# 縦積み時の高さ比の目安)を持つ。ピクセル精度のデザインではなく、画面の
+# 構成要素と大まかな比重を確認するためのもの。
+# 経緯: 2026-08-02の進め方見直し
+# (tasks/plans/post-p3.5-replanning-decisions.md Q6)。
+screens:
+  - id: scenario-select
+    name: 依頼選択
+    status: future
+    actors: [gm]
+    usecases: [start-session]
+    description: >-
+      遊ぶシナリオ(依頼)を選ぶ画面。StartSessionを呼んだ本人がそのまま
+      セッションのGmとして登録されるため(domain-model.md「セッション開始」)、
+      この画面の操作者はGm。現状は apps/web にシナリオ選択UIが無く、
+      単一シナリオ(simpleHunt)を決め打ちで開始する。将来は張り紙カードから
+      選ぶ形にしたい(2026-08-02決定)。ソロMVPでは1人がPlayerとGmを兼ねる
+      ため実質同一人物が操作する(domain-guide.md「6. 権限」)。
+    source: design/domain-guide.md#3-1プレイの流れテンプレシナリオ単純討伐
+    layout:
+      - label: ヘッダー(タイトル)
+        sizeHint: small
+      - label: 依頼カード一覧(張り紙。グリッド表示)
+        sizeHint: large
+      - label: 選択して始めるボタン
+        sizeHint: small
+
+  - id: in-scenario-play
+    name: シナリオ中(プレイ画面)
+    status: implemented
+    actors: [player, gm]
+    usecases: [play-card, propose, judge-proposal, apply-patch, gm-advance]
+    description: >-
+      実装済み(apps/web)。手札からカードを出す・提案する・GM裁定パネルを
+      表示する。現状は冒険記タイムラインも同一画面に表示しているが、
+      別画面(chronicle-timeline)へ分離したい(2026-08-02レビュー指摘)。
+    source: design/ui-visual-design.md#手札選択プレイ中の操作画面
+    layout:
+      - label: シーン本文(narration)
+        sizeHint: large
+      - label: GM裁定パネル(Paused中のみ表示)
+        sizeHint: medium
+      - label: 手札(横スクロールのカード列)
+        sizeHint: medium
+      - label: 提案入力
+        sizeHint: small
+
+  - id: chronicle-timeline
+    name: 冒険記タイムライン(プレイ中の別画面)
+    status: future
+    actors: [player, gm]
+    usecases: []
+    description: >-
+      セッション中の出来事(Event列)を時系列で振り返る画面。現状は
+      in-scenario-play画面の下に同居しているが、プレイ操作画面とは分けた
+      専用画面にしたい(2026-08-02レビュー指摘。スマホでの見やすさが動機)。
+      表示するのはCommandではなくchronicle(情報モデル)。
+    source: design/ui-visual-design.md#冒険記セッションのイベントログ
+    layout:
+      - label: ヘッダー(戻る)
+        sizeHint: small
+      - label: タイムライン(フェーズの山→開くとイベントのリスト)
+        sizeHint: large
+
+  - id: post-scenario
+    name: シナリオ終了後
+    status: future
+    actors: [player, gm]
+    usecases: [end-session]
+    description: >-
+      現状は勝敗の一行表示のみ(専用画面が無い)。CLI版にあるフォーク保存
+      (future-requirements.md §7)や結果まとめをWeb版でも見せたい。
+    source: design/domain-model.md#セッション終了処理finalize
+    layout:
+      - label: 結果(勝利/敗北)
+        sizeHint: small
+      - label: 冒険記サマリ
+        sizeHint: medium
+      - label: フォーク保存ボタン
+        sizeHint: small
+
+  - id: author-page
+    name: 作者ページ
+    status: future
+    actors: [author]
+    usecases: []
+    description: >-
+      シナリオ作者向けの画面は未着手。現状シナリオはJSON/Rustコードで
+      手書きする。作者はセッション進行のCommandを持たない(domain-guide.md)。
+    source: design/domain-guide.md#6-権限-誰が何をできるか
+    layout:
+      - label: シナリオ一覧・新規作成
+        sizeHint: medium
+      - label: 編集(フェーズ・シーン・カード)
+        sizeHint: large
+
+  - id: gm-page
+    name: GMページ
+    status: future
+    actors: [gm]
+    usecases: [judge-proposal, apply-patch, gm-advance, end-session]
+    description: >-
+      非同期マルチプレイ(P4、凍結中)向けのGM専用画面は未着手。1人のGMが
+      複数セッションを並行管理する想定(2026-08-02、docs-site D4画面
+      レビューで指摘)。ソロMVPではGM操作もシナリオ中プレイ画面
+      (in-scenario-play)に統合されている。
+    source: design/domain-guide.md#6-権限-誰が何をできるか
+    layout:
+      - label: 進行中セッション一覧(複数を並行管理)
+        sizeHint: small
+      - label: 参加者一覧・状態(選択中セッション)
+        sizeHint: medium
+      - label: 提案の裁定キュー(選択中セッション)
+        sizeHint: medium
+      - label: 強制進行・強制終了の操作(選択中セッション)
+        sizeHint: small
+
+  - id: gm-scenario-stock
+    name: シナリオ管理・カスタマイズ
+    status: future
+    actors: [gm]
+    usecases: []
+    description: >-
+      GMが複数シナリオをストックし、繰り返し使えるようカスタマイズする画面
+      (2026-08-02、docs-site D4画面レビューで発見)。現行のApplyPatchは
+      セッション中(Paused)のみが対象で、セッション開始前のカスタマイズを
+      表すCommandが無い(未モデル化。P4着手時に検討)。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+    layout:
+      - label: シナリオ在庫一覧
+        sizeHint: medium
+      - label: カスタマイズ(パッチ編集)
+        sizeHint: large
+      - label: 募集へ進むボタン
+        sizeHint: small
+
+  - id: session-recruit
+    name: セッション募集
+    status: future
+    actors: [gm]
+    usecases: []
+    description: >-
+      カスタマイズ済みシナリオでプレイヤーを募る画面(2026-08-02、docs-site
+      D4画面レビューで発見)。StartSessionはパーティが確定済みであることを
+      前提に呼ばれるため、「募集中(参加者未確定)」の中間状態を表現できない
+      (未モデル化。P4着手時に募集用の新Commandを検討)。
+    source: requirements/future-requirements.md#1-セッションの中断と並行プレイ
+    layout:
+      - label: 募集シナリオの詳細
+        sizeHint: medium
+      - label: 集まった参加者一覧
+        sizeHint: medium
+      - label: プレイ開始ボタン
+        sizeHint: small
+
+  # 以下D6(2026-08-11)で追加。要求(requirements.yaml)→業務フロー
+  # (business-flow.yaml)から機械的に導出(経緯:
+  # tasks/plans/post-p3.5-session-retrospective.md、tasks/tools/docs-site/task.md D6)。
+  - id: party-creation
+    name: パーティ編成
+    status: future
+    actors: [player]
+    usecases: []
+    description: >-
+      新しいパーティを作る画面(business-flow.yamlのparty-setupフローに
+      対応)。現状はパーティファイルの手書きJSONでのみ可能で、専用画面が無い。
+    source: design/domain-model.md#パーティファイルcliの決定規範ではない
+    layout:
+      - label: キャラクター作成(名前・タグ等)
+        sizeHint: large
+      - label: パーティ編成(作ったキャラをまとめる)
+        sizeHint: medium
+      - label: 保存ボタン
+        sizeHint: small
+
+  - id: scenario-gallery
+    name: シナリオ共有ページ
+    status: future
+    actors: [author]
+    usecases: []
+    description: >-
+      他の作者のシナリオを閲覧し、ベースにコピーしたり自分のシナリオを
+      公開したりする画面(business-flow.yamlのauthor-scenario-sharingフローの
+      browse-scenarios/copy-as-base/publish-for-othersに対応)。P4(凍結中)の
+      サーバ側共有が前提。
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+    layout:
+      - label: 他作者のシナリオ一覧(閲覧)
+        sizeHint: large
+      - label: ベースにコピーするボタン
+        sizeHint: small
+      - label: 自分のシナリオを公開するボタン
+        sizeHint: small
+
+  - id: world-setting-page
+    name: ワールド設定ページ
+    status: future
+    actors: [author]
+    usecases: []
+    description: >-
+      作者が書いて広がっていく世界観コンテンツ(ロケーション等)を参照する
+      画面(business-flow.yamlのauthor-scenario-sharingフローの
+      reference-shared-locationに対応)。シナリオ共有ページ(scenario-gallery)
+      とは別の入り口を想定する。情報モデル自体が現行モデルに無い。
+    source: requirements/future-requirements.md#10-シナリオ作者間の共有派生
+    layout:
+      - label: ワールド設定(ロケーション等)一覧
+        sizeHint: large
+      - label: 自分のシナリオへ参照を追加するボタン
+        sizeHint: small
+
+  - id: rulebook-page
+    name: ルールブックページ
+    status: future
+    actors: [player, gm, author]
+    usecases: []
+    description: >-
+      システム提供の固定コンテンツ(ルール)を読む画面(business-flow.yamlの
+      learn-rules-unlock-featuresフローに対応)。プレイヤーは読まなくても
+      遊べる想定で、GM・作者は必要になる。読み進めるとシナリオ作成・
+      キャラメイクで使える機能が広がる(unlock-authoring-by-rules、
+      unlock-character-options-by-rules)。
+    source: requirements/future-requirements.md#8-段階的な成長体験ユーザーとしてできることが増えていく
+    layout:
+      - label: ルール一覧・目次
+        sizeHint: medium
+      - label: 本文(読むと機能開放の進捗が進む)
+        sizeHint: large

@@ -19,8 +19,18 @@ frontmatter([tasks/README.md](tasks/README.md)「進捗 frontmatter」。
 | [P2 コンソール版ソロプレイMVP](tasks/projects/phase2/task.md) | 「単純討伐」を tabifuda-cli で通しプレイ可能にする | 通しプレイ可 / lint・全テスト通過 / fixture が CI 検証済み | 完了([ふりかえり](retrospectives/phase2.md)) |
 | [P3 WASM+Web版(ローカル)](tasks/projects/phase3/task.md) | バックエンドなしのローカル Web アプリで遊べ、冒険記タイムライン UI を見られる | ブラウザ通しプレイ可 / タイムライン UI / 生 HTML 挿入の静的検査が CI に | 完了([ふりかえり](retrospectives/phase3.md)) |
 | [P3.5 CLI永続化(中断・再開/パーティ/持ち帰り)](tasks/projects/phase3.5/task.md) | セッションの中断・再開とパーティ持続、portable カードの持ち帰りを CLI で成立させる | 中断→再開で通しプレイ可(Paused 中断含む) / 持ち帰りがテストで固定 / lint 拡張 | 完了([ふりかえり](retrospectives/phase3.5.md)) |
-| [P4 バックエンド(Hono+Drizzle+Neon)](tasks/projects/phase4/task.md) | API 経由で動かし、2ユーザーの非同期セッションを成立させる | API 経由で動作 / 非同期セッション成立 / 楽観ロック・削除フローが実 DB テストで固定 | 未着手(入り口で DB スキーマ+コンテキスト分割の上流判断) |
-| [P5 AWSデプロイ](tasks/projects/phase5/task.md) | 本番 URL で公開し、再現可能なパイプラインを持つ | 本番 URL で通しプレイ可 / パイプライン再現可 / セキュリティレビュー対応済み | 未着手 |
+| [P4 バックエンド(Hono+Drizzle+Neon)](tasks/projects/phase4/task.md) | API 経由で動かし、2ユーザーの非同期セッションを成立させる | API 経由で動作 / 非同期セッション成立 / 楽観ロック・削除フローが実 DB テストで固定 | **凍結**(2026-08-02。再開条件は下記) |
+| [P5 AWSデプロイ](tasks/projects/phase5/task.md) | 本番 URL で公開し、再現可能なパイプラインを持つ | 本番 URL で通しプレイ可 / パイプライン再現可 / セキュリティレビュー対応済み | **凍結**(2026-08-02。再開条件は下記) |
+
+### P4・P5 の凍結(2026-08-02)
+
+P4・P5 は凍結中(経緯:
+[tasks/plans/post-p3.5-replanning-decisions.md](tasks/plans/post-p3.5-replanning-decisions.md) Q1)。
+再開は次の2条件を**両方**満たしたとき:
+
+1. 非同期で遊びたい相手が具体的に現れる
+2. DB スキーマ(PostgreSQL のデータ構造)を確定できるほど要件が安定する
+   (凍結時点ではデータ構造を決めること自体が時期尚早という判断)
 
 P3.5 は後から挿入したフェーズ(2026-07-20)。既存の ADR・決定ログが
 「P4=バックエンド」の意味で参照しているため、**挿入時に既存番号は
@@ -30,6 +40,35 @@ P3.5 は後から挿入したフェーズ(2026-07-20)。既存の ADR・決定�
 実例: P2 完了後のカード消費・除去
 ([tasks/plans/merry-leaping-tide.md](tasks/plans/merry-leaping-tide.md))と
 ProposalId 発番の再検討([adr/0005](adr/0005-proposal-id-issuance.md))。
+
+## 今・次・いつか(Now / Next / Later)
+
+フェーズ横断の「これからやること」の**優先度の正**(2026-08-02新設。経緯:
+[tasks/plans/post-p3.5-replanning-decisions.md](tasks/plans/post-p3.5-replanning-decisions.md)
+Q3)。各項目の内容の正は従来どおりタスク文書・規範文書にあり、本節は
+順番だけを持つ。項目の状態が変わったら同PRで本節も更新する。
+
+### 今(Now)
+
+- **docs-site 改修**: frozen表示(ブランチ `docs-site-frozen-status`
+  取り込み)+完了フィルタのタブ+画面ビュー段階1(screens.yaml+一覧)→
+  人間確認 → 段階2(ワイヤーフレーム)。タスクは
+  [tasks/tools/docs-site/task.md](tasks/tools/docs-site/task.md) に
+  サイクル起草予定(決定ログ Q5/Q6)
+
+### 次(Next)
+
+- **カードUI・演出強化**: 文章メインの差別化・カード種類別の既定アイコン・
+  白銀比縦長カード(小: タイトル+アイコン74x94対応/大: スマホで読みやすい)・
+  依頼の張り紙カード選択(決定ログ Q2)。ui-visual-design.md への規範化と
+  タスク新設から始める。完了時に「身近な人に見せるか」を再判断(決定ログ Q4)
+
+### いつか(Later)
+
+- [future-requirements.md](requirements/future-requirements.md) の各項目
+  (作者定義報酬・タグシステム・条件付きテキスト・キャンペーン・
+  フォーク還流・Web版フォーク保存 等)
+- P4 バックエンド / P5 AWSデプロイ(**凍結**。再開条件は上記「P4・P5 の凍結」)
 
 ## フェーズ対応表の所在(前提が変わったらここから辿って点検する)
 

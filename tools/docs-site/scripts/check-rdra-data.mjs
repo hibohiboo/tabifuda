@@ -46,6 +46,18 @@ const RequirementSchema = RdraElementSchema.extend({
   actors: z.array(z.string()).optional(),
 });
 
+const LayoutBlockSchema = z.object({
+  label: z.string().min(1),
+  sizeHint: z.enum(["small", "medium", "large"]),
+});
+
+const ScreenSchema = RdraElementSchema.extend({
+  status: z.enum(["implemented", "future"]),
+  actors: z.array(z.string()).optional(),
+  usecases: z.array(z.string()).optional(),
+  layout: z.array(LayoutBlockSchema).optional(),
+});
+
 const FlowStepSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -71,6 +83,7 @@ const FILES = {
   "states.yaml": { states: RdraElementSchema, transitions: StateTransitionSchema },
   "requirements.yaml": { requirements: RequirementSchema },
   "business-flow.yaml": { flows: FlowSchema },
+  "screens.yaml": { screens: ScreenSchema },
 };
 
 function loadYamlFile(fileName) {
@@ -179,6 +192,13 @@ function collectElements(model) {
   for (const r of model.requirements.requirements) {
     elements.push({ id: r.id, fileName: "requirements.yaml", refs: [...(r.actors ?? [])] });
   }
+  for (const sc of model.screens.screens) {
+    elements.push({
+      id: sc.id,
+      fileName: "screens.yaml",
+      refs: [...(sc.actors ?? []), ...(sc.usecases ?? [])],
+    });
+  }
   for (const flow of model.businessFlow.flows) {
     elements.push({ id: flow.id, fileName: "business-flow.yaml", refs: [] });
     for (const step of flow.steps) {
@@ -209,6 +229,7 @@ export function checkRdraData() {
     states: docs["states.yaml"],
     requirements: docs["requirements.yaml"],
     businessFlow: docs["business-flow.yaml"],
+    screens: docs["screens.yaml"],
   };
   const elements = collectElements(model);
 

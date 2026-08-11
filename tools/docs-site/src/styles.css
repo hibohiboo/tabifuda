@@ -62,6 +62,29 @@ body {
   color: #9a6b2f;
 }
 
+.view-filter {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+}
+
+.view-filter__tab {
+  padding: 0.2rem 0.75rem;
+  border: 1px solid #cbbfa9;
+  border-radius: 1rem;
+  background: #fff;
+  color: #6b6257;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.view-filter__tab--active {
+  background: #9a6b2f;
+  border-color: #9a6b2f;
+  color: #fffdf8;
+  font-weight: 600;
+}
+
 .task-list {
   display: flex;
   flex-direction: column;
@@ -119,6 +142,11 @@ body {
 .badge--planned {
   background: #d8cfbf;
   color: #5c5449;
+}
+
+.badge--frozen {
+  background: #7d8894;
+  color: #fff;
 }
 
 .task__cycles {
@@ -279,6 +307,28 @@ body {
   overflow-x: auto;
 }
 
+.flow-block {
+  margin-bottom: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e3d9c6;
+}
+
+.flow-block:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.flow-block:last-child {
+  margin-bottom: 0;
+}
+
+.flow-block__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5c5449;
+}
+
 .layer__diagram svg {
   max-width: 100%;
   height: auto;
@@ -307,6 +357,45 @@ body {
   font-size: 0.7rem;
   color: #9a6b2f;
   word-break: break-all;
+}
+
+/* ワイヤーフレーム: スマホ幅を模した枠にsizeHint比の縦積みブロック */
+.wireframe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 140px;
+  margin: 0.4rem auto 0;
+  padding: 0.35rem;
+  border: 2px solid #cbbfa9;
+  border-radius: 0.75rem;
+  background: #faf7f0;
+}
+
+.wireframe__block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.6rem;
+  line-height: 1.2;
+  color: #5c5449;
+  background: #fff;
+  border: 1px dashed #cbbfa9;
+  border-radius: 0.25rem;
+  padding: 0.2rem;
+}
+
+.wireframe__block--small {
+  flex: 1;
+}
+
+.wireframe__block--medium {
+  flex: 2;
+}
+
+.wireframe__block--large {
+  flex: 3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -339,9 +428,24 @@ body {
     background: #474034;
     color: #b6ac9c;
   }
+  .wireframe {
+    background: #2a251e;
+    border-color: #55492f;
+  }
+  .wireframe__block {
+    background: #332d24;
+    border-color: #55492f;
+    color: #b6ac9c;
+  }
   .layer__diagram {
     background: #2a251e;
     border-color: #474034;
+  }
+  .flow-block {
+    border-color: #474034;
+  }
+  .flow-block__title {
+    color: #b6ac9c;
   }
   .nav {
     border-color: #474034;
@@ -359,6 +463,16 @@ body {
   .view-note a {
     color: #d3a75f;
   }
+  .view-filter__tab {
+    background: #332d24;
+    border-color: #55492f;
+    color: #9a9080;
+  }
+  .view-filter__tab--active {
+    background: #c89b5a;
+    border-color: #c89b5a;
+    color: #211d18;
+  }
   .task {
     background: #332d24;
     border-color: #55492f;
@@ -369,6 +483,10 @@ body {
   .badge--planned {
     background: #474034;
     color: #b6ac9c;
+  }
+  .badge--frozen {
+    background: #3f4854;
+    color: #c3ccd6;
   }
   .cycle {
     border-color: #55492f;
