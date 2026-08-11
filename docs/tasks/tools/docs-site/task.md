@@ -10,7 +10,7 @@ cycles:
   D4: done
   D5: done
   D6: done
-  D7: planned
+  D7: done
 ---
 
 # ツールタスク: docs-site(docs 総合ビューア)
@@ -264,12 +264,12 @@ player中心の9件のみで、business-flow.yaml も player の「1プレイの
 ・関係ハイライト(screens等からの1ホップ参照)には新規4本+1本が正しく
 投入済みで、表示ロジックのみの問題。
 
-- [ ] `RdraView.tsx`のシステム外部環境セクションを`model.flows`全件を
+- [x] `RdraView.tsx`のシステム外部環境セクションを`model.flows`全件を
   ループして表示するよう修正(見出し・Mermaid図・ステップカードをフローごとに
   繰り返す構成に変更。既存の1本表示との見た目の連続性は保つ)
-- [ ] Mermaid描画(`flowDiagram`)がフローごとに独立したdiagramになることを確認
+- [x] Mermaid描画(`flowDiagram`)がフローごとに独立したdiagramになることを確認
   (idの衝突が起きないか。ステップidはファイル横断で一意なため問題ない見込み)
-- [ ] 目視確認(Playwright): 5本すべてのフロー名・図・ステップカードが表示され
+- [x] 目視確認(Playwright): 6本すべてのフロー名・図・ステップカードが表示され
   コンソールエラーが無いことを確認
 
 ## 完了条件

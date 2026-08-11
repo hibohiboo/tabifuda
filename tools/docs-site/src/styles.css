@@ -307,6 +307,28 @@ body {
   overflow-x: auto;
 }
 
+.flow-block {
+  margin-bottom: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e3d9c6;
+}
+
+.flow-block:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.flow-block:last-child {
+  margin-bottom: 0;
+}
+
+.flow-block__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5c5449;
+}
+
 .layer__diagram svg {
   max-width: 100%;
   height: auto;
@@ -418,6 +440,12 @@ body {
   .layer__diagram {
     background: #2a251e;
     border-color: #474034;
+  }
+  .flow-block {
+    border-color: #474034;
+  }
+  .flow-block__title {
+    color: #b6ac9c;
   }
   .nav {
     border-color: #474034;

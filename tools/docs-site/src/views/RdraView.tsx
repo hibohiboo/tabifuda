@@ -120,7 +120,6 @@ export default function RdraView() {
     selected: selectedId === id,
     dimmed: related !== null && !related.has(id),
   });
-  const flow = model.flows[0];
 
   return (
     <>
@@ -167,22 +166,27 @@ export default function RdraView() {
 
       <section className="layer">
         <h2 className="layer__title">システム外部環境</h2>
-        <p className="layer__hint">
-          業務フロー: {flow.name} —{" "}
-          <a href={sourceUrl(flow.source)} target="_blank" rel="noreferrer">
-            出典
-          </a>
-        </p>
-        {flow.steps.length > 0 && (
-          <div className="layer__diagram">
-            <Mermaid definition={flowDiagram(flow)} />
+        <p className="layer__hint">業務フロー(全{model.flows.length}本)</p>
+        {model.flows.map((flow) => (
+          <div key={flow.id} className="flow-block">
+            <h3 className="flow-block__title">
+              {flow.name} —{" "}
+              <a href={sourceUrl(flow.source)} target="_blank" rel="noreferrer">
+                出典
+              </a>
+            </h3>
+            {flow.steps.length > 0 && (
+              <div className="layer__diagram">
+                <Mermaid definition={flowDiagram(flow)} />
+              </div>
+            )}
+            <div className="layer__cards">
+              {flow.steps.map((s) => (
+                <ElementCard key={s.id} element={s} refs={flowStepRefs(s)} onSelect={toggle} {...cardState(s.id)} />
+              ))}
+            </div>
           </div>
-        )}
-        <div className="layer__cards">
-          {flow.steps.map((s) => (
-            <ElementCard key={s.id} element={s} refs={flowStepRefs(s)} onSelect={toggle} {...cardState(s.id)} />
-          ))}
-        </div>
+        ))}
       </section>
 
       <section className="layer">
