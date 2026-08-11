@@ -50,11 +50,9 @@ Q3)。各項目の内容の正は従来どおりタスク文書・規範文書�
 
 ### 今(Now)
 
-- **docs-site 改修**: frozen表示(ブランチ `docs-site-frozen-status`
-  取り込み)+完了フィルタのタブ+画面ビュー段階1(screens.yaml+一覧)→
-  人間確認 → 段階2(ワイヤーフレーム)。タスクは
-  [tasks/tools/docs-site/task.md](tasks/tools/docs-site/task.md) に
-  サイクル起草予定(決定ログ Q5/Q6)
+- (2026-08-12: 旧項目「docs-site 改修」は D7 まで完了し本節から除いた。
+  詳細は [tasks/tools/docs-site/task.md](tasks/tools/docs-site/task.md)。
+  次の「今」は未判断)
 
 ### 次(Next)
 
