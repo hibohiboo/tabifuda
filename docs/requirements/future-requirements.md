@@ -250,6 +250,23 @@ GMがセッション中に改編した結果を作者へ還流する話で、本
 現行モデルへの影響: 大。P4(凍結中)のサーバ側設計と、ロケーション情報
 モデルの新設が前提になる。
 
+## 11. 依頼(シナリオ)選択を張り紙カードから選ぶUI
+
+要望(P3.5完了後の見直し、Q2の演出検討時に案として出た。
+[tasks/plans/post-p3.5-replanning-decisions.md](../tasks/plans/post-p3.5-replanning-decisions.md)
+Q2): 依頼(遊べるシナリオ)の選択を、CardWirthの「張り紙」のようなカードUIで
+行いたい。
+
+現状: シナリオ選択機能自体が未実装(apps/webは`simple-hunt`固定で起動する)。
+[design/ui-visual-design.md](../design/ui-visual-design.md)「カードの
+ビジュアル方針」で決定したカード自体の見た目(白銀比・既定アイコン・
+2サイズ)は[tasks/projects/phase6/task.md](../tasks/projects/phase6/task.md)
+で実装するが、依頼選択画面(複数シナリオからの選択UI)はシナリオ選択機能の
+新規実装を要するため P6 のスコープ外とした(2026-08-12)。
+
+現行モデルへの影響: 小(表示層の話。シナリオ選択機能自体は§1の
+「セッション募集」との関連が強い)。
+
 ## v0.1への逆輸入候補(小さい予約)
 
 1. `CardDef.tags: Vec<Tag>` を空フィールドとして今から持つ(§4)
