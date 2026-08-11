@@ -154,14 +154,14 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
 ([../../plans/post-p3.5-replanning-decisions.md](../../plans/post-p3.5-replanning-decisions.md)
 Q5)。D3〜D5はこの決定ログの切り出しタスク2にあたる。
 
-- [ ] `docs-site-frozen-status` ブランチの取り込み: 進捗statusに `frozen`
+- [x] `docs-site-frozen-status` ブランチの取り込み: 進捗statusに `frozen`
   (progress.ts の型・STATUSES、ProgressView のバッジ「凍結」、styles.css の
   配色ライト/ダーク)。**マージ順: 見直し本体のブランチ
   (`frozen` frontmatter を含む)より先、または同時に master へ入れる**
   (先に文書側だけ入ると Pages ビルドが落ちる)
-- [ ] 進捗ビューにフィルタタブ: 既定は未完了(in-progress / planned / frozen)
+- [x] 進捗ビューにフィルタタブ: 既定は未完了(in-progress / planned / frozen)
   のみを表示し、「完了」「全部」タブで切り替える
-- [ ] RDRAビューの要求(requirements)にも同様のフィルタ: 既定は `future`
+- [x] RDRAビューの要求(requirements)にも同様のフィルタ: 既定は `future`
   のみ、「実現済み」「全部」で切り替え(完了が上に積もる問題への対処)
 
 ### D4: 画面ビュー段階1(画面一覧+関係)
@@ -169,27 +169,27 @@ Q5)。D3〜D5はこの決定ログの切り出しタスク2にあたる。
 経緯: 同見直し Q6。**D4完了時に人間が画面一覧をレビューしてから D5 に進む**
 (段階ゲート)。
 
-- [ ] `docs/rdra/screens.yaml` 新設: 依頼選択 / シナリオ中(プレイ画面) /
+- [x] `docs/rdra/screens.yaml` 新設: 依頼選択 / シナリオ中(プレイ画面) /
   冒険記タイムライン(プレイ中の別画面) / シナリオ終了後 / 作者ページ /
   GMページ の6画面から開始(冒険記タイムラインはD4レビューで分離。
   2026-08-02)。各画面は id / name / description /
   `status: implemented | future`(**未作成が一目で分かるように**)/
   関連 `usecases:` `actors:` を持つ
-- [ ] rdra/README.md のファイル構成表・形式説明に screens.yaml を追記
-- [ ] `check-rdra-data.mjs` のスキーマ検証・参照id検証に screens を追加
-- [ ] RDRAビューのシステム境界レイヤーに「画面」を表示(関係ハイライトの
+- [x] rdra/README.md のファイル構成表・形式説明に screens.yaml を追記
+- [x] `check-rdra-data.mjs` のスキーマ検証・参照id検証に screens を追加
+- [x] RDRAビューのシステム境界レイヤーに「画面」を表示(関係ハイライトの
   1ホップグラフに参加。future画面はバッジ等で視覚的に区別)
-- [ ] 人間レビュー: 画面の過不足・画面↔Command対応の穴(どのCommandを
+- [x] 人間レビュー: 画面の過不足・画面↔Command対応の穴(どのCommandを
   どの画面から打つか)を確認し、結果を本タスクの plans/ に記録
 
 ### D5: 画面ビュー段階2(ワイヤーフレーム)
 
-- [ ] **人間の事前決定**: ワイヤーフレームのデータ形式(screens.yaml に
+- [x] **人間の事前決定**: ワイヤーフレームのデータ形式(screens.yaml に
   領域・要素の構造を持たせるか、別ファイルか。描画は枠+ラベルの簡易
   ボックスレイアウトを想定)。D4のレビュー結果を踏まえて決める
-- [ ] 各画面のワイヤーフレーム表示(スマホ幅での見え方も確認できる形が
+- [x] 各画面のワイヤーフレーム表示(スマホ幅での見え方も確認できる形が
   望ましい。Q2の「スマホで選択するには小さい」が発端のため)
-- [ ] カード実物のビジュアル(白銀比・アイコン)は本タスクでは作り込まない
+- [x] カード実物のビジュアル(白銀比・アイコン)は本タスクでは作り込まない
   (packages/ui のカードコンポーネント試作=カードUI強化タスクの担当。
   二重投資を避ける)
 
