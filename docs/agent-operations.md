@@ -220,6 +220,12 @@ Event追加がP3.5自身のCLIコードのワイルドカードに落ちてい�
   4. `handoff`: 60%ハンドオフの実行手順(渡す側・受ける側)
   5. `decision-log`(2026-07-18): 人間の判断が要る論点の決定ログ運用
      (上記「人間の判断が要る論点の進め方」が正)
+  6. `client-conventions`(2026-08-12): TS側(apps/web・packages/ui・
+     tools/docs-site)実装時の規約チェックリスト。core-invariantsのTS版
+     (docs/design/client-conventions.mdが正)。phase-cycleが「コアに触れる
+     サイクル/TS側に触れるサイクル」で参照先を分けたことに伴い新設
+     (経緯: TS変更のみのサイクルでcargo系コマンドを無条件実行していた
+     agent-journal.md 2026-08-12の教訓)
 - 残候補: `scenario-validate` はP2のシナリオlintと同一実装を共有する前提のため、
   P2 C1(lint実装)完了後に作成する
 - **スキルには手順と参照先のみを書き、仕様を二重化しない**(正は docs/)。

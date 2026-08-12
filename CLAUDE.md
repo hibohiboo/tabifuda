@@ -45,6 +45,8 @@ docs/
 ## 必読文書(タスク種別ごと)
 
 - コアのロジックに触れる → docs/design/domain-model.md
+- TS側(apps/web・packages/ui・tools/docs-site)の表示・操作に触れる →
+  docs/design/client-conventions.md(手順の索引は client-conventions スキル)
 - 新機能の要否判断 → docs/requirements/future-requirements.md(実装済みと誤認しない)
 - 運用・進め方 → docs/agent-operations.md
 - 横断方針(権限・ログ・UGC・削除)に触れる → docs/design/cross-cutting.md
@@ -55,12 +57,18 @@ docs/
 ## コマンド
 
 ```
-cargo test --workspace        # テスト(コミット前必須)
+cargo test --workspace        # テスト(コミット前必須。crates/に変更がある場合)
 cargo clippy --workspace -- -D warnings
 cargo fmt --all
+
+pnpm --filter <pkg> typecheck       # TS側(変更のあったworkspaceに対して)
+pnpm --filter <pkg> lint --if-present  # lintスクリプトが無いパッケージでも失敗しない
+pnpm --filter <pkg> build
 ```
 
-(pnpm系はP3以降に追記。パッケージマネージャの選定根拠は docs/adr/0002-package-manager.md 参照)
+crates/とTS側は独立して変更されうるため、**変更が無い側のコマンドは実行しない**
+(意味のない実行はしない。判定は `git diff <base>...HEAD --stat` で対象ディレクトリを見る)。
+パッケージマネージャの選定根拠は docs/adr/0002-package-manager.md 参照。
 
 ## Rust規約
 
@@ -99,7 +107,8 @@ cargo fmt --all
 
 ## 作業の終わり方
 
-1. `cargo test` `clippy` `fmt` を通す
+1. 変更範囲に応じた検証コマンドを通す(詳細な条件分岐は phase-cycle スキル
+   「終わり方」参照。crates/変更ならcargo3点セット、TS側変更ならpnpm系)
 2. 設計文書との乖離がないか自己チェック(乖離があれば文書も同PRで直す)
 3. 作業中に自分(エージェント)が誤解した点があれば docs/agent-journal.md に1行追記。
    **その場で修正済みでも記録する**(ジャーナルの目的は個別修正ではなく傾向分析)
