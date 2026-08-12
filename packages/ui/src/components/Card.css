@@ -19,7 +19,7 @@
 }
 
 .tf-card--small {
-  /* 幅84 x 高さ84*√2(白銀比) ≈ 119。アイコン領域はCardWirthの74x94相当。 */
+  /* 幅84 x 高さ84*√2(白銀比) ≈ 119。 */
   width: 84px;
   height: 119px;
   padding: 4px;
@@ -28,8 +28,10 @@
 }
 
 .tf-card__icon {
-  width: 74px;
-  height: 74px;
+  /* CardWirthの74x94相当(縦横比≈74:94)を保ったまま、タイトル領域を
+     残せる幅に収める。94px四方ではなく比率のみ踏襲する。 */
+  width: 68px;
+  aspect-ratio: 74 / 94;
   flex-shrink: 0;
 }
 
