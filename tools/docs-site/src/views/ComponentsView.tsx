@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import {
+  Card,
   ErrorBanner,
   FreeTextInput,
   GmJudgePanel,
@@ -10,6 +11,7 @@ import {
 } from "@tabifuda/ui";
 import { sourceUrl } from "../model";
 import {
+  sampleCardsByKind,
   sampleError,
   sampleEvents,
   sampleHand,
@@ -54,6 +56,16 @@ export default function ComponentsView() {
       <section className="layer">
         <h2 className="layer__title">コンポーネント一覧</h2>
         <div className="task-list catalog">
+          <CatalogItem
+            title="Card"
+            description="CardKind種類別の既定アイコンを持つカード(白銀比縦長・小サイズ)。CardKind全6種の見本。"
+          >
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {sampleCardsByKind.map((def) => (
+                <Card key={def.id} name={def.name} kind={def.kind} />
+              ))}
+            </div>
+          </CatalogItem>
           <CatalogItem title="ErrorBanner" description="wasm境界のエラーを表示する。">
             <ErrorBanner error={sampleError} />
           </CatalogItem>

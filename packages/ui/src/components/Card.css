@@ -1,0 +1,45 @@
+/* カードのビジュアル方針(docs/design/ui-visual-design.md「カードのビジュアル方針」):
+   文章メインの差別化・種類別既定アイコン・白銀比(1:√2)縦長・小/大2サイズ。
+   このサイクル(P6 C1)では小サイズのみ実装する。
+   クラス名は tf- プレフィックスを付け、tools/docs-site/src/styles.css の
+   .card 系クラス(タスク一覧カード用。無関係の既存クラス)との衝突を避ける。
+   配色はui-visual-design.md「未決事項」でC2着手前に決定する予定のため、
+   ここでは既存apps/web/src/App.cssのダークモード配色をそのまま踏襲する
+   (新しい色を決めない)。 */
+
+.tf-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #55555a;
+  border-radius: 6px;
+  background: #1c1c24;
+  color: #e8e6df;
+  overflow: hidden;
+}
+
+.tf-card--small {
+  /* 幅84 x 高さ84*√2(白銀比) ≈ 119。アイコン領域はCardWirthの74x94相当。 */
+  width: 84px;
+  height: 119px;
+  padding: 4px;
+  gap: 4px;
+  box-sizing: border-box;
+}
+
+.tf-card__icon {
+  width: 74px;
+  height: 74px;
+  flex-shrink: 0;
+}
+
+.tf-card__title {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.1;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

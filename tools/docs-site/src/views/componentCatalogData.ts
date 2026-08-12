@@ -1,4 +1,4 @@
-import type { CardInstance, Event, HandCard, Proposal, Scenario, WasmError } from "@tabifuda/ui";
+import type { CardDef, CardInstance, Event, HandCard, Proposal, Scenario, WasmError } from "@tabifuda/ui";
 import raw from "../../../../shared/scenarios/simple-hunt.json";
 
 // コンポーネントカタログの表示用サンプルデータ。実プレイの状態遷移を厳密に
@@ -25,6 +25,21 @@ export const sampleError: WasmError = {
   kind: "decode",
   error: "サンプルエラー(表示例)",
 };
+
+// Cardコンポーネント(CardKind全6種の見本)用。simple-hunt.jsonにはAction/
+// Proposal/Itemが登場しないため、種別を示すためだけの最小サンプルを用意する。
+function sampleCard(id: string, name: string, kind: CardDef["kind"]): CardDef {
+  return { id, name, kind, text: "", tags: [], effects: [], requires: [] };
+}
+
+export const sampleCardsByKind: CardDef[] = [
+  sampleCard("sample-action", "斬りかかる", "Action"),
+  sampleCard("sample-scenario", "獣の巣に到着する", "Scenario"),
+  sampleCard("sample-dialogue", "依頼を受ける", "Dialogue"),
+  sampleCard("sample-proposal", "洞窟も調べたい", "Proposal"),
+  sampleCard("sample-item", "傷薬", "Item"),
+  sampleCard("sample-marker", "依頼受諾", "Marker"),
+];
 
 export const sampleEvents: Event[] = [
   {

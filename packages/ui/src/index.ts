@@ -2,6 +2,8 @@
 // apps/web・tools/docs-siteの利用側バンドラ(Vite)がトランスパイルする前提。
 // docs/design/client-conventions.md「UIコンポーネントの置き場(packages/ui)」参照。
 
+export { Card } from "./components/Card";
+export { CARD_KIND_ICONS } from "./components/cardIcons";
 export { ErrorBanner } from "./components/ErrorBanner";
 export { FreeTextInput } from "./components/FreeTextInput";
 export { GmJudgePanel } from "./components/GmJudgePanel";
