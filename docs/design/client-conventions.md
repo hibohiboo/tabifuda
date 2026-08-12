@@ -81,6 +81,13 @@ component-catalogタスク(tools/docs-siteにコンポーネントカタログ�
   コードを共有しない」の原則に対し、`packages/ui`のみ例外として依存を
   許可する(同パッケージはwasmランタイム・ビルド成果物を含まないため、
   原則の趣旨=docs-siteのビルドを単純・独立に保つ、を壊さない)
+- **CSSの副作用import**(P6 C1決定、2026-08-12): コンポーネントが
+  `import "./X.css"` する場合、`vite/client`型は導入せず(依存を増やさない)、
+  `packages/ui/src/css.d.ts`の`declare module "*.css"`のみで型を満たす
+- **クラス名の衝突回避**(P6 C1決定、2026-08-12): `tools/docs-site/src/styles.css`
+  には独自クラス(`.card`系等)が既にあるため、`packages/ui`から追加する
+  クラス名は無関係な既存クラスと衝突しないプレフィックスを付ける
+  (前例: カードコンポーネントの`tf-card`)
 
 ## 手札表示からの Marker 除外
 
