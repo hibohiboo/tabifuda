@@ -21,13 +21,15 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
 3. docs/tasks/projects/phaseN/task.md の該当サイクルに加え、**同文書の共通制約・完了条件の
    節も必ず読む**(サイクル節だけ読んで着手しない)
 4. CLAUDE.md「必読文書」表に従い、該当する設計文書を読む。
-   コアに触れるなら docs/design/domain-model.md、テストを書くなら
-   docs/design/test-strategy.md は必須
+   コアに触れるなら docs/design/domain-model.md、TS側(apps/web・
+   packages/ui・tools/docs-site)に触れるなら
+   docs/design/client-conventions.md(索引は client-conventions スキル)、
+   テストを書くなら docs/design/test-strategy.md は必須
 5. **タスク文書は事前に書かれたもの。** 現状の実装や設計文書と食い違う記述を
    見つけたら、着手せず人間に差分を報告し、タスク文書の改訂を先に行う
-6. 型骨格・スキーマ系タスクでは、対象設計文書に登場する型名を全て列挙し、
-   **「参照はあるが定義が無い」型を実装着手前に洗い出して人間に報告する**
-   (設計文書自体の内部不整合は読んだだけでは気づきにくい)
+6. 型骨格・スキーマ系タスク(主にcrates/の型設計)では、対象設計文書に登場する
+   型名を全て列挙し、**「参照はあるが定義が無い」型を実装着手前に洗い出して
+   人間に報告する**(設計文書自体の内部不整合は読んだだけでは気づきにくい)
 
 ## 1. スコープ確認
 
@@ -51,9 +53,18 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
   単位で分かる、の2点が目的。全項目1コミットにする必要はなく、意味的な
   まとまりとビルドの健全性を優先する)
 - タスク文書が plan mode を指定していればそれに従う
-- コアの純粋性を厳守(IO・時刻・乱数・グローバル状態なし)。
-  変更は必ず decide / apply を通す
-- テストは受理/拒否を対で書く。観点は core-invariants スキルを参照
+- **crates/ に触れるサイクル**:
+  - コアの純粋性を厳守(IO・時刻・乱数・グローバル状態なし)。
+    変更は必ず decide / apply を通す
+  - テストは受理/拒否を対で書く。観点は core-invariants スキルを参照
+- **TS側(apps/web・packages/ui・tools/docs-site)に触れるサイクル**:
+  - docs/design/client-conventions.md の規約に従う。索引は
+    client-conventions スキルを参照
+  - Event/CommandをTS側で分岐処理する箇所は必ずHandlerMapパターンを使う
+    (switchのdefault:や部分if連鎖で新variantを黙って無視しない)
+  - CSS実装方法・ライブラリ導入等、新しい実装パターンを採用したら
+    docs/design/client-conventions.md に追記する(次サイクルが同じ調査を
+    繰り返さないため)
 
 ## 3. 停止ポイント(人間の判断を待つ)
 
@@ -67,11 +78,21 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
 
 ## 4. 終わり方(CLAUDE.md「作業の終わり方」の実行)
 
-1. `cargo test --workspace` / `cargo clippy --workspace -- -D warnings` /
-   `cargo fmt --all` を通す。CI設定(ci.yml等)を変更するサイクルでは、
-   ローカル動作確認に使った環境変数・コマンド文字列をそのままCI設定へ
-   転記する(再入力すると暗黙の前提が抜け落ちやすい。P3 C1で
-   `TS_RS_EXPORT_DIR`未設定のままコミットした教訓)
+1. **変更範囲に応じて検証コマンドを絞る**(`git diff <base>...HEAD --stat`
+   で対象ディレクトリを確認し、変更が無い側は実行しない):
+   - `crates/` に変更がある場合のみ `cargo test --workspace` /
+     `cargo clippy --workspace -- -D warnings` / `cargo fmt --all` を通す
+   - TS側(`apps/`・`packages/`・`tools/`)に変更がある場合、変更のあった
+     ワークスペースに対して `pnpm --filter <pkg> typecheck` /
+     `pnpm --filter <pkg> lint --if-present`(lintスクリプト未定義でも
+     失敗しない)/ 必要なら `build` を通す
+   - 両方に変更があれば両方実行する(2026-08-12: TS変更のみのサイクルで
+     cargo fmtを無条件実行し、存在しないdocs-site lintを実行してエラーに
+     した教訓。docs/agent-journal.md参照)
+   - CI設定(ci.yml等)を変更するサイクルでは、ローカル動作確認に使った
+     環境変数・コマンド文字列をそのままCI設定へ転記する(再入力すると
+     暗黙の前提が抜け落ちやすい。P3 C1で`TS_RS_EXPORT_DIR`未設定のまま
+     コミットした教訓)
 2. **crates/tabifuda-core・tabifuda-wasmで`#[non_exhaustive]`enum
    (Event/Command/PatchOp/RuleError等)やts-rs対象の構造体フィールドに
    変更を加えたら、そのサイクルが「crates/のみ・Web非対応」を謳っていても
