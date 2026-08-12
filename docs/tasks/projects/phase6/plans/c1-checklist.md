@@ -27,8 +27,8 @@
       docs-siteに存在しない)
 - [x] 既存コンポーネント(Hand等)は変更しない(このサイクルは新設のみ)
 - [x] `pnpm --filter @tabifuda/web typecheck` / `lint`(利用側への影響なし確認)
-- [ ] design-syncで設計文書との乖離チェック
-- [ ] task.md frontmatter更新(C1: planned → done)
+- [x] design-syncで設計文書との乖離チェック(乖離1件検出・同PRで修正。下記参照)
+- [x] task.md frontmatter更新(C1: planned → done)
 
 ## 実装メモ(経緯)
 
