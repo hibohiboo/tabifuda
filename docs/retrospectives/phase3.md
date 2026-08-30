@@ -4,8 +4,8 @@
 (コミット `4f42357`〜`04315b6`、ブランチ `phase3`。派生作業ブランチ
 `tabifuda-wasm-readme-and-ci-fix`/`agent-ops-branch-hygiene`/
 `agent-ops-checklist-branch-workflow`は`phase3`へマージ済み)。
-位置づけ: 記録文書(非規範)。ここで挙げた対応項目は反映先の文書が正であり、
-本文書は経緯を残す。
+位置づけ: 記録([docs/README.md](../README.md)「文書区分の定義」)。
+ここで挙げた対応項目は反映先の文書が正であり、本文書は経緯を残す。
 
 注記: 上記コミット範囲の前後には、docs-site(RDRAビューア)の別タスクや
 依存パッケージ更新など、Phase 3と無関係な並行コミットが挟まっている

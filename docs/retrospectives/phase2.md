@@ -1,8 +1,9 @@
 # Phase 2 ふりかえり(2026-07-19)
 
 対象: docs/tasks/projects/phase2/task.md C1〜C4(コミット `6045dff`〜`6183662`)。
-位置づけ: 記録文書(非規範)。ここで挙げた対応項目は反映先の文書
-(future-requirements.md / projects/phase3/task.md 等)が正であり、本文書は経緯を残す。
+位置づけ: 記録([docs/README.md](../README.md)「文書区分の定義」)。
+ここで挙げた対応項目は反映先の文書(future-requirements.md /
+projects/phase3/task.md 等)が正であり、本文書は経緯を残す。
 
 ## 成果
 

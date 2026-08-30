@@ -55,3 +55,33 @@ docs/README.md への参照を添える(独立した再定義は削除):
 - [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
   (SSoT方針・定義の一本化)
 - [docs/README.md](../../README.md)「文書区分の定義」(正の所在)
+
+---
+
+## 完了記録(2026-08-31)
+
+### 1. 既存後発文書への参照追記
+
+- retrospectives/phase2.md・phase3.md・phase3.5.md: 3ファイルとも
+  「位置づけ: 記録文書(非規範)。...」が一字一句同一の独立再定義だった。
+  docs/README.md「文書区分の定義」への参照に統一。あわせて区分を
+  「記録」に修正(「非規範」は不正確——非規範は「規範と食い違ったら
+  こちら側を直す」対象だが、ふりかえりは経緯記録であり将来の指図では
+  ないため、docs/README.mdの分類表でも記録の実例として挙げている)
+- docs/tasks/tools/docs-site/task.md: 既にdocs/README.md「文書間の
+  優先順位」を参照済みだったため、新設の「文書区分の定義」への参照を
+  追加するのみに留めた
+
+### 2. 発生源への標準文言組み込み
+
+- docs/agent-operations.md「フェーズ完了時のふりかえり」手順に、
+  冒頭の位置づけ宣言の定型文を追記
+- .claude/agents/retrospective.md「ドラフトの構成」に項目0として
+  同じ定型文を追記(ドラフト生成時点から統一形式になるように)
+
+### スコープ判断: 対象外とした箇所
+
+client-conventions.md・ui-visual-design.md の「非規範」表記は、一般的な
+区分定義の再掲ではなく「coreのdecide/applyには影響しない」
+「client-conventions.mdとは役割が異なる」という**その文書固有の関係性
+説明**であり、複製ではないため変更対象から除外した(過剰修正の回避)。
