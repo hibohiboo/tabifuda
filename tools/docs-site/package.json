@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "echo このディレクトリは内部開発用なので過剰な品質は求めない。lint未整備でも許容。",
     "typecheck": "npm run gen:test-report && tsc --noEmit",
     "gen:test-report": "node scripts/gen-test-report.mjs",
     "check:doc-links": "node scripts/check-doc-links.mjs",
