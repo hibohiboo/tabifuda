@@ -382,3 +382,23 @@ L42-43のコメントが `docs/tasks/` を参照する既存Rust規約違反を�
   の旧名言及は既存方針どおり未修正。改名先ファイル冒頭に旧名注記を追加
 - 再発防止: tasks/README.md「plansの振り分けルール」に
   「横断として残す場合も内容が分かる名前へリネームする」を追記
+
+---
+
+## 全チケット完了(2026-08-31)
+
+C3で起票した4件すべてに対応した(優先度順)。
+
+| チケット | 優先度 | 結果 |
+|---|---|---|
+| [rustdoc-references-to-domain-model.md](rustdoc-references-to-domain-model.md) | 高 | 対応済み。crates/2箇所のrustdocをdomain-model.mdへの1行参照に縮小 |
+| [normalize-document-classification-definitions.md](normalize-document-classification-definitions.md) | 中 | 対応済み。ふりかえり3件+docs-site/task.mdを参照形式に統一、発生源2箇所に定型文組み込み |
+| [fix-lib-rs-docs-tasks-reference.md](fix-lib-rs-docs-tasks-reference.md) | 中(副産物発見分) | 対応済み。テスト関数名規約をtest-strategy.mdへ移設し参照化 |
+| [reduce-redundant-declarations-frontmatter-rdra.md](reduce-redundant-declarations-frontmatter-rdra.md) | 低 | 対応不要と判定。現役文書は既に対応済み、歴史記録は既存方針により対象外 |
+
+途中で派生した論点「コード→docsコメント参照の是非」もユーザーと議論の上
+ADR 0007「帰結」に規律(入口のみ・不変条件のみ・ポインタ1行のみ)として
+明文化し、design-syncスキルに検出観点を追加した。
+
+**本タスクは完了。** `refactor-professional` ブランチに一連のコミットが
+積まれている。masterへの統合(PR作成・マージ)は人間の判断を仰ぐ。

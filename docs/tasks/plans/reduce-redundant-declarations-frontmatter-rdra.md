@@ -59,3 +59,23 @@
   (SSoT方針・冗長度の削減)
 - [docs/tasks/README.md](../../README.md)「frontmatter が正」
 - [docs/rdra/README.md](../../README.md)「非規範の索引」
+
+---
+
+## 完了記録(2026-08-31。対応不要と判断)
+
+対象4箇所を個別に確認した結果:
+
+- **docs/tasks/tools/docs-site/task.md**: 別チケット
+  ([normalize-document-classification-definitions.md](normalize-document-classification-definitions.md))
+  で既に docs/README.md・docs/tasks/README.md への参照追記が完了済み
+- **docs/tasks/tools/docs-site/plans/docs-site-progress-plan.md**・
+  **docs/tasks/tools/docs-site/plans/serene-skipping-gadget.md**: 中身は
+  「ユーザー決定事項(2026-07-20)」という特定時点の決定記録であり、
+  tasks/README.md「経緯」節が定める既存方針
+  (「過去の計画・決定ログ・レビュー記録内の旧パス言及…は歴史記録なので
+  直していない」)に該当する性質の文書。今から参照を後付けするのは
+  この既存方針と矛盾するため、**編集しない**
+
+結論: 現役の指示文書(task.md)は前チケットで対応済み、歴史記録
+(plans/の決定ログ)は既存方針により対象外。本チケットに追加作業なし。
