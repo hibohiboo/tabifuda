@@ -82,6 +82,8 @@ crates/とTS側は独立して変更されうるため、**変更が無い側の
 - ID型はnewtypeで包む(生Stringを引き回さない)
 - コードコメントから docs/tasks/(工程文書)を参照しない。参照してよいのは
   docs/design/(規範)のみ、それもコードから読み取れない制約を指す場合に限る。
+  置くのはクレート/モジュールの入口(lib.rs先頭等)のみ、内容を再掲しない
+  ポインタ1行に留める(docs/adr/0007-ssot-single-responsibility.md)。
   由来・経緯(どのサイクルで書いたか等)はコミットメッセージ/PRに書く
 - tabifuda-coreの公開APIにpanicを含めない。エラーは `RuleError` / `PatchError` で返す
 - テスト: decideの各Commandに正常系+拒否系(Paused中のPlayCard等)を必ず対で書く
