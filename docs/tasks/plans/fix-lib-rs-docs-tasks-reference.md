@@ -47,3 +47,15 @@ ssot-single-responsibility-rules.md のフォルダ構成レビュー(item 4: �
 
 - [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
 - [docs/agent-journal.md](../../agent-journal.md) 2026-07-20エントリ(同種の過去是正)
+
+---
+
+## 完了記録(2026-08-31)
+
+- [docs/design/test-strategy.md](../../design/test-strategy.md)「テスト
+  ファイルの置き場所」節に「テスト関数名(日本語)」小節を新設し、
+  制約の一次情報(日本語命名・non_snake_case許可の理由)を移設
+- [crates/tabifuda-core/src/lib.rs](../../../crates/tabifuda-core/src/lib.rs)
+  のコメントを test-strategy.md への1行参照に変更(docs/adr/0007の
+  「コード→docs参照の規律」に適合する形)
+- `cargo test --workspace`(186件全通過)・clippy・fmt 確認済み

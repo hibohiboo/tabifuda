@@ -35,10 +35,8 @@ pub use scenario::{
 };
 pub use session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStatus};
 
-// テスト関数名は日本語で検証内容を表す(docs/tasks/tools/docs-site/task.md
-// D2「テストビュー」。cargo test出力がそのままGitHub Pagesの説明文になる)。
-// 英語のCommand/Event/型名をそのまま含めるため先頭が大文字ASCIIになる場合があり、
-// 意図的にnon_snake_caseを許可する。
+// テスト関数名の日本語命名規約は docs/design/test-strategy.md
+// 「テスト関数名(日本語)」参照。
 #[cfg(test)]
 #[allow(non_snake_case)]
 mod engine_tests;
