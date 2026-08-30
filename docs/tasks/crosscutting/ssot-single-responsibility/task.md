@@ -1,8 +1,16 @@
-# 計画: 1ファイル1責務とSSoTのルール化(書籍「プロフェッショナルAI駆動開発」導入分)
+---
+status: done
+cycles:
+  C1: done
+  C2: done
+  C3: done
+---
+
+# 1ファイル1責務とSSoTのルール化(書籍「プロフェッショナルAI駆動開発」導入分)
 
 ## Context
 
-[プロフェッショナルAI駆動開発.md](../../requirements/プロフェッショナルAI駆動開発.md)
+[プロフェッショナルAI駆動開発.md](../../../requirements/プロフェッショナルAI駆動開発.md)
 の個人導入チェックリストのうち、まず以下の2原則をプロジェクトのルールとして
 明文化する(ユーザー判断、2026-08-31)。
 
@@ -97,10 +105,10 @@ SSoT:
 **事実**: コアの「純粋性」「decide/apply」「イベント経由」「乱数決定性」の4原則
 
 **記載場所**:
-- [docs/design/domain-model.md](../../design/domain-model.md) L10-14「基本原則」
-- [CLAUDE.md](../../../CLAUDE.md) L9-13「最重要ルール」2・3
-- [crates/tabifuda-core/src/lib.rs](../../../crates/tabifuda-core/src/lib.rs) L3-8 rustdoc
-- [crates/tabifuda-wasm/src/lib.rs](../../../crates/tabifuda-wasm/src/lib.rs) L4-7 rustdoc
+- [docs/design/domain-model.md](../../../design/domain-model.md) L10-14「基本原則」
+- [CLAUDE.md](../../../../CLAUDE.md) L9-13「最重要ルール」2・3
+- [crates/tabifuda-core/src/lib.rs](../../../../crates/tabifuda-core/src/lib.rs) L3-8 rustdoc
+- [crates/tabifuda-wasm/src/lib.rs](../../../../crates/tabifuda-wasm/src/lib.rs) L4-7 rustdoc
 
 **正はどこか**：明文のルールなし。domain-model.mdが技術的には最詳だが、CLAUDE.mdが「最重要」を名乗っている。実装側(lib.rs)が正を指示していない
 
@@ -111,11 +119,11 @@ SSoT:
 **事実**: task.md frontmatter に記載されたサイクル進捗
 
 **記載場所**:
-- [docs/tasks/README.md](../../README.md) L37「frontmatter が正」
-- [docs/tasks/tools/docs-site/task.md](../../tools/docs-site/task.md) L40「正は各 task.md の frontmatter」
-- [docs/roadmap.md](../../roadmap.md) L5-6「各タスク文書が正」の注記
-- [docs/tasks/tools/docs-site/plans/docs-site-progress-plan.md](../../tools/docs-site/plans/docs-site-progress-plan.md) L16
-- [docs/tasks/tools/docs-site/plans/d7-checklist.md](../../tools/docs-site/plans/d7-checklist.md) L3(経緯記録のみ)
+- [docs/tasks/README.md](../../../README.md) L37「frontmatter が正」
+- [docs/tasks/tools/docs-site/task.md](../../../tasks/tools/docs-site/task.md) L40「正は各 task.md の frontmatter」
+- [docs/roadmap.md](../../../roadmap.md) L5-6「各タスク文書が正」の注記
+- [docs/tasks/tools/docs-site/plans/docs-site-progress-plan.md](../../../tasks/tools/docs-site/plans/docs-site-progress-plan.md) L16
+- [docs/tasks/tools/docs-site/plans/d7-checklist.md](../../../tasks/tools/docs-site/plans/d7-checklist.md) L3(経緯記録のみ)
 
 **正はどこか**：tasks/README.md が「正」を宣言している(複数宣言で重複)
 
@@ -126,9 +134,9 @@ SSoT:
 **事実**: RDRAYAMLは「手動キュレーションの非規範な索引」
 
 **記載場所**:
-- [docs/rdra/README.md](../../rdra/README.md) L10「正は design/ のまま」
-- [docs/tasks/tools/docs-site/task.md](../../tools/docs-site/task.md) L37-38
-- [docs/tasks/tools/docs-site/plans/serene-skipping-gadget.md](../../tools/docs-site/plans/serene-skipping-gadget.md) L15「非規範の索引」
+- [docs/rdra/README.md](../../../rdra/README.md) L10「正は design/ のまま」
+- [docs/tasks/tools/docs-site/task.md](../../../tasks/tools/docs-site/task.md) L37-38
+- [docs/tasks/tools/docs-site/plans/serene-skipping-gadget.md](../../../tasks/tools/docs-site/plans/serene-skipping-gadget.md) L15「非規範の索引」
 
 **判定**: 正はrdra/README.mdで宣言済み。他所の記載は参照・確認目的。冗長性あるが違反ではない
 
@@ -137,11 +145,11 @@ SSoT:
 **事実**: 「規範」「正」「非規範」「索引」という概念の定義と使い分け
 
 **記載場所**:
-- [docs/README.md](../../README.md) L50-52「design/の規範文書が正」、L53「解説は非規範」
-- [docs/design/domain-model.md](../../design/domain-model.md) L6-7「本文書は現在の仕様のみ」
-- [docs/tasks/tools/docs-site/task.md](../../tools/docs-site/task.md) L35-40
-- [docs/rdra/README.md](../../rdra/README.md) L10「規範は design/ のまま」
-- [docs/retrospectives/phase3.md](../../retrospectives/phase3.md) L7「記録文書(非規範)」
+- [docs/README.md](../../../README.md) L50-52「design/の規範文書が正」、L53「解説は非規範」
+- [docs/design/domain-model.md](../../../design/domain-model.md) L6-7「本文書は現在の仕様のみ」
+- [docs/tasks/tools/docs-site/task.md](../../../tasks/tools/docs-site/task.md) L35-40
+- [docs/rdra/README.md](../../../rdra/README.md) L10「規範は design/ のまま」
+- [docs/retrospectives/phase3.md](../../../retrospectives/phase3.md) L7「記録文書(非規範)」
 
 **判定**: 概念は README.md で一度定義されているが、後発ファイル(phase3ふりかえり等)では独立に「非規範」を再定義している。「規範/非規範」の基準を統一ルール化する際の参考になる
 
@@ -267,17 +275,17 @@ C1で見つかった3件は全て対応する。以下の方針で C2/C3 に振�
 
 ## C2 完了記録(2026-08-31)
 
-- [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+- [docs/adr/0007-ssot-single-responsibility.md](../../../adr/0007-ssot-single-responsibility.md)
   新規作成。SSoT・1ファイル1責務の採用決定、C1で見つかった3件の「正の所在」
   判断、分割の兆候基準を記録
-- [CLAUDE.md](../../../CLAUDE.md)最重要ルールに、ルール2・3への
+- [CLAUDE.md](../../../../CLAUDE.md)最重要ルールに、ルール2・3への
   「正はdomain-model.md『基本原則』」参照追記+ルール5(SSoT・1ファイル
   1責務の要約、ADR 0007への参照)を新設
-- [docs/README.md](../../README.md)「文書間の優先順位」の前に「文書区分の
+- [docs/README.md](../../../README.md)「文書間の優先順位」の前に「文書区分の
   定義(SSoT)」節を新設。規範/非規範/索引/記録の定義をここに一本化し、
   ADR 0007から参照する形にした。adr/の説明行にADR 0007を含めた
   (ただしADR個別一覧は元々列挙形式ではないため既存書式を踏襲)
-- [プロフェッショナルAI駆動開発.md](../../requirements/プロフェッショナルAI駆動開発.md)
+- [プロフェッショナルAI駆動開発.md](../../../requirements/プロフェッショナルAI駆動開発.md)
   「ルールへの誘導」を完了チェック。「フォルダ構成」はC3完了後まで保留
 
 **停止ポイント**: 文面レビューを人間に依頼する。承認後、C3(3件のチケット
@@ -287,7 +295,7 @@ C1で見つかった3件は全て対応する。以下の方針で C2/C3 に振�
 
 ## C3 完了記録(3件のチケット起票。2026-08-31)
 
-### 1. [rustdoc-references-to-domain-model.md](rustdoc-references-to-domain-model.md)
+### 1. [rustdoc-references-to-domain-model.md](plans/rustdoc-references-to-domain-model.md)
 
 **内容**: crates/tabifuda-core・crates/tabifuda-wasm の lib.rs rustdoc参照先を
 CLAUDE.md から domain-model.md へ統一。全文再掲を1行ポインタに縮める。
@@ -296,7 +304,7 @@ CLAUDE.md から domain-model.md へ統一。全文再掲を1行ポインタに�
 
 **関連**: SSoT方針・正の所在決定、Rust規約(コードは docs/design/ 参照のみOK)
 
-### 2. [normalize-document-classification-definitions.md](normalize-document-classification-definitions.md)
+### 2. [normalize-document-classification-definitions.md](plans/normalize-document-classification-definitions.md)
 
 **内容**: 「規範/非規範/索引/記録」の定義を docs/README.md「文書区分の定義」に統一。
 後発文書(ふりかえり等)から参照する形に統一。発生源(agent-operations.md手順、
@@ -306,7 +314,7 @@ retrospective エージェント)に標準文言を組み込み、今後の新�
 
 **関連**: SSoT方針・定義の一本化
 
-### 3. [reduce-redundant-declarations-frontmatter-rdra.md](reduce-redundant-declarations-frontmatter-rdra.md)
+### 3. [reduce-redundant-declarations-frontmatter-rdra.md](plans/reduce-redundant-declarations-frontmatter-rdra.md)
 
 **内容**: 「進捗の正は frontmatter」「RDRA は非規範の索引」という正が既に定義
 されているにもかかわらず、後発文書で個別に再説明されている箇所を参照形式に統一。
@@ -356,22 +364,22 @@ Rust規約「コードコメントは docs/design/ のみ参照可」と衝突�
 design/ の外へ移動できない。移動より参照規約の単純さを優先し、
 **物理配置は変えず、意図的な例外として明記する**方針で対応:
 
-- [docs/README.md](../../README.md)「文書区分の定義」に例外注記を追加
-- [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+- [docs/README.md](../../../README.md)「文書区分の定義」に例外注記を追加
+- [docs/adr/0007-ssot-single-responsibility.md](../../../adr/0007-ssot-single-responsibility.md)
   「帰結」に本決定+項目2のリネーム決定を追記
 
 ### 項目4の対応記録
 
-- [docs/design/test-strategy.md](../../design/test-strategy.md)に
+- [docs/design/test-strategy.md](../../../design/test-strategy.md)に
   「テストファイルの置き場所」節を新設。crates/core の `src/*_tests.rs`
   分離パターン(`tests/`結合テストではなくsrc内モジュールである理由含む)
   を明文化
 
 ### 副産物: スコープ外の発見(別チケット化)
 
-item 4対応中に、[crates/tabifuda-core/src/lib.rs](../../../crates/tabifuda-core/src/lib.rs)
+item 4対応中に、[crates/tabifuda-core/src/lib.rs](../../../../crates/tabifuda-core/src/lib.rs)
 L42-43のコメントが `docs/tasks/` を参照する既存Rust規約違反を発見。
-その場で直さず[fix-lib-rs-docs-tasks-reference.md](fix-lib-rs-docs-tasks-reference.md)
+その場で直さず[fix-lib-rs-docs-tasks-reference.md](plans/fix-lib-rs-docs-tasks-reference.md)
 として別チケット化した(コード変更を伴うため)。
 
 ### 項目2の対応記録(ユーザー決定: 1件のうちに改名)
@@ -391,10 +399,10 @@ C3で起票した4件すべてに対応した(優先度順)。
 
 | チケット | 優先度 | 結果 |
 |---|---|---|
-| [rustdoc-references-to-domain-model.md](rustdoc-references-to-domain-model.md) | 高 | 対応済み。crates/2箇所のrustdocをdomain-model.mdへの1行参照に縮小 |
-| [normalize-document-classification-definitions.md](normalize-document-classification-definitions.md) | 中 | 対応済み。ふりかえり3件+docs-site/task.mdを参照形式に統一、発生源2箇所に定型文組み込み |
-| [fix-lib-rs-docs-tasks-reference.md](fix-lib-rs-docs-tasks-reference.md) | 中(副産物発見分) | 対応済み。テスト関数名規約をtest-strategy.mdへ移設し参照化 |
-| [reduce-redundant-declarations-frontmatter-rdra.md](reduce-redundant-declarations-frontmatter-rdra.md) | 低 | 対応不要と判定。現役文書は既に対応済み、歴史記録は既存方針により対象外 |
+| [rustdoc-references-to-domain-model.md](plans/rustdoc-references-to-domain-model.md) | 高 | 対応済み。crates/2箇所のrustdocをdomain-model.mdへの1行参照に縮小 |
+| [normalize-document-classification-definitions.md](plans/normalize-document-classification-definitions.md) | 中 | 対応済み。ふりかえり3件+docs-site/task.mdを参照形式に統一、発生源2箇所に定型文組み込み |
+| [fix-lib-rs-docs-tasks-reference.md](plans/fix-lib-rs-docs-tasks-reference.md) | 中(副産物発見分) | 対応済み。テスト関数名規約をtest-strategy.mdへ移設し参照化 |
+| [reduce-redundant-declarations-frontmatter-rdra.md](plans/reduce-redundant-declarations-frontmatter-rdra.md) | 低 | 対応不要と判定。現役文書は既に対応済み、歴史記録は既存方針により対象外 |
 
 途中で派生した論点「コード→docsコメント参照の是非」もユーザーと議論の上
 ADR 0007「帰結」に規律(入口のみ・不変条件のみ・ポインタ1行のみ)として

@@ -106,4 +106,53 @@ frontmatter(`status: done`)を付与する。5ファイルは互いに参照し�
 
 - [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
 - [docs-tasks-restructure.md](docs-tasks-restructure.md)(前回のtasks/構造再編の前例)
-- [ssot-single-responsibility-rules.md](ssot-single-responsibility-rules.md)(移動対象・きっかけ)
+- [tasks/crosscutting/ssot-single-responsibility/task.md](../crosscutting/ssot-single-responsibility/task.md)(移動対象・きっかけ)
+
+---
+
+## 完了記録(2026-08-31)
+
+### 1. ディレクトリ構造・規律の文書化
+
+- [docs/tasks/README.md](../../README.md): `crosscutting/` の節を新設
+  (projects/・tools/と並列、frontmatter機構の適用を明記)。
+  「plans の振り分けルール」を「横断タスクの振り分けルール
+  (crosscutting/ vs plans/)」に改訂し、「現役文書から実行系タスクへの
+  直接リンク禁止(task.mdは対象外)」を追記
+- [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+  「帰結」にリンク規律の決定を追記
+
+### 2. 既存5ファイルの移動
+
+**推奨案1(マスター+従属plans/)** を採用。
+`tasks/crosscutting/ssot-single-responsibility/`を新設し:
+- `ssot-single-responsibility-rules.md` → `task.md`(frontmatter
+  `status: done`、cycles C1/C2/C3を`done`で追加。本文の見出し
+  `### C1: ...`〜`### C3: ...`と一致させた)
+- 4チケットは同ディレクトリの`plans/`へ移動
+
+### 3. リンクの張り替え
+
+- ADR 0007: L17・末尾2箇所を新パス`tasks/crosscutting/
+  ssot-single-responsibility/task.md`へ更新
+- プロフェッショナルAI駆動開発.md: 「フォルダ構成」チェックを完了に更新
+  (棚卸し是正・フォルダ構成レビューが実際に全完了済みだったため)
+
+### 副産物: 移動作業中に発見したリンク切れバグ
+
+`git mv`後の相対パス機械的シフトで検証したところ、移動対象ファイル内の
+`docs/tasks/tools/docs-site/...`への参照が、**移動前から**`tasks/`
+セグメント抜けで壊れていたことが判明(実在ファイル確認で発覚。ラベルは
+「docs/tasks/tools/docs-site/...」なのに相対パスの計算が1階層足りな
+かった)。移動と同時に修正した(同一ファイルの同じリンク群の修正であり
+別チケット化するまでもない軽微な誤り)。
+
+### スコープ判断: 対象外
+
+- `hand-card-removal.md`は当初「実行系」と誤分類していたが、内容は
+  カード消費・除去の設計決定記録であり、domain-model.md「決定の経緯」
+  表からの参照は規律が想定する「経緯はADR・決定ログ経由」の正規形。
+  **移動せずplans/に残留**
+- docs-site進捗ビューへの表示対応は別チケット
+  ([crosscutting-progress-view.md](../tools/docs-site/plans/crosscutting-progress-view.md))
+  へ分離(未着手)

@@ -2,7 +2,7 @@
 
 ## 概要
 
-[docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+[docs/adr/0007-ssot-single-responsibility.md](../../../../adr/0007-ssot-single-responsibility.md)
 で確定した方針に基づき、crates/ のrustdocコメントから基本原則への参照先を
 CLAUDE.md から domain-model.md へ変更する。
 
@@ -18,10 +18,10 @@ CLAUDE.md を参照しているのは規約違反。domain-model.md は設計(�
 
 ## 変更対象
 
-- [crates/tabifuda-core/src/lib.rs](../../../crates/tabifuda-core/src/lib.rs) L3-8
+- [crates/tabifuda-core/src/lib.rs](../../../../../crates/tabifuda-core/src/lib.rs) L3-8
   rustdocのコメント。CLAUDE.md を参照する部分を domain-model.md へ変更し、
   全文再掲をやめて1行ポインタに縮める
-- [crates/tabifuda-wasm/src/lib.rs](../../../crates/tabifuda-wasm/src/lib.rs) L4-7
+- [crates/tabifuda-wasm/src/lib.rs](../../../../../crates/tabifuda-wasm/src/lib.rs) L4-7
   同上。同様に参照先をCLAUDE.md から domain-model.md へ変更
 
 ## スコープ
@@ -39,7 +39,7 @@ CLAUDE.md を参照しているのは規約違反。domain-model.md は設計(�
 
 ## 関連
 
-- [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+- [docs/adr/0007-ssot-single-responsibility.md](../../../../adr/0007-ssot-single-responsibility.md)
   (SSoT方針・正の所在決定)
-- [docs/design/domain-model.md](../../design/domain-model.md)L10-14
+- [docs/design/domain-model.md](../../../../design/domain-model.md)L10-14
   (正の所在：基本原則)

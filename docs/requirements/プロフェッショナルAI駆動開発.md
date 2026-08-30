@@ -19,8 +19,8 @@ Y|アウトプット|書いた本人が意図を説明できるコード|提出�
 - [x] AGENTS.md / CLAUDE.md に地図を書いた。 （ 技術スタック・ディレクトリ構成・主要コマンド）
 - [x] AGENTS.md / CLAUDE.md に地図を書いた。 （ ルールへの誘導 ）
   (docs/adr/0007-ssot-single-responsibility.md。SSoT・1ファイル1責務をルール化しCLAUDE.mdから誘導)
-- [ ] フォルダ構成をAIっと相談して決めた （１ファイル１責務・どこに何があるのかわかる構成 ）
-  (ルールは上記ADRで確定。既存構成への適用=棚卸しの是正はdocs/tasks/plans/ssot-single-responsibility-rules.md C3で別チケット化中。全チケット完了後にチェック)
+- [x] フォルダ構成をAIっと相談して決めた （１ファイル１責務・どこに何があるのかわかる構成 ）
+  (ルールは上記ADRで確定。棚卸しの是正・フォルダ構成レビューはtasks/crosscutting/ssot-single-responsibility/で完了)
 - [ ] ルールファイルを３本置いた（ テスト・レビュー・アーキテクチャ）
 - [ ] テストが１コマンドで走る
 - [ ] 秘密鍵は自分で管理した

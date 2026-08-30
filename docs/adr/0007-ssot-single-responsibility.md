@@ -14,7 +14,7 @@
 いずれも本プロジェクトで既に実践されている慣行(CLAUDE.md「設計文書が正、
 実装が従」、docs/README.md「文書間の優先順位」、crates/・apps/・packages/の
 層別ディレクトリ構成)の明文化であり、新規導入ではない。棚卸し
-([docs/tasks/plans/ssot-single-responsibility-rules.md](../tasks/plans/ssot-single-responsibility-rules.md))
+([tasks/crosscutting/ssot-single-responsibility/task.md](../tasks/crosscutting/ssot-single-responsibility/task.md))
 の結果、コードは概ね健全な一方、docsに以下3件の是正候補が見つかった。
 
 1. コアの基本原則(純粋性・decide/apply・イベント経由・乱数決定性)が
@@ -95,9 +95,23 @@ CLAUDE.md・domain-model.mdは「毎セッション読む地図+最重要ルー�
   上位の解だが、必要性の判断から別途起票する(先回りしない)
 - 新規文書・スキルを作るときは、詳細を複製せず「正はどこか」を1行で
   示す形を既定とする
-- 既存の違反是正は本ADRの決定に基づき、docs/tasks/plans/
-  ssot-single-responsibility-rules.mdのC3としてチケット化し、
-  コード変更を伴うものは別PRで扱う
+- 既存の違反是正は本ADRの決定に基づき、
+  tasks/crosscutting/ssot-single-responsibility/task.mdのC3として
+  チケット化し、コード変更を伴うものは別PRで扱う
 - CLAUDE.md・domain-model.mdの物理分割は、本ADRの分割の兆候基準に
   当てはまった時点で別途起票する(frozen相当の保留であり、今回の
   是正対象には含めない)
+- **現役文書から実行系タスク(工程文書)への直接リンクを禁じる
+  (2026-08-31、人間承認)。** コード側の既存規約「コードコメントから
+  docs/tasks/を参照しない」のdocs版。経緯を示したい場合はADR・決定ログ
+  経由にする。この禁止は`tasks/plans/`直下のような**追跡機構を持たない
+  一時的なチケット**が対象であり、`tasks/crosscutting/<slug>/task.md`
+  (frontmatterで追跡される、`projects/phaseN/task.md`と同格の存在)への
+  リンクは対象外(roadmap.mdがphaseN/task.mdを指すのと同じ通常運用)。
+  発見の経緯: ssot-single-responsibility-rules.mdが`tasks/plans/`直下に
+  居座ったことで「終わったか残っているか一目で分からない」状態になった
+  (詳細: [tasks/plans/crosscutting-task-structure.md](../tasks/plans/crosscutting-task-structure.md)。
+  この文書自体はtasks/構造の再編記録であり、docs-tasks-restructure.mdと
+  同じ性質のためtasks/plans/に留める)。対応として`tasks/crosscutting/`を
+  新設し、実行系タスクはfrontmatter付きtask.mdとして追跡機構に乗せる
+  ことにした(tasks/README.md「横断タスクの振り分けルール」)

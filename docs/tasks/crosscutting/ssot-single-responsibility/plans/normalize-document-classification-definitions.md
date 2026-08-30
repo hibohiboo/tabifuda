@@ -2,9 +2,9 @@
 
 ## 概要
 
-[docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+[docs/adr/0007-ssot-single-responsibility.md](../../../../adr/0007-ssot-single-responsibility.md)
 で確定した方針に基づき、「規範」「非規範」「索引」「記録」という文書区分の定義を
-[docs/README.md](../../README.md)「文書区分の定義」に一本化し、後発文書(ふりかえり等)
+[docs/README.md](../../../../README.md)「文書区分の定義」に一本化し、後発文書(ふりかえり等)
 から参照する形にする。同時に、発生源(作成手順・エージェント定義)に標準文言を組み込む。
 
 ## 背景
@@ -20,17 +20,17 @@
 以下の文書で「位置づけ」や「規範」「非規範」の説明をしている箇所に
 docs/README.md への参照を添える(独立した再定義は削除):
 
-- [docs/retrospectives/phase2.md](../../retrospectives/phase2.md) L4-5
-- [docs/retrospectives/phase3.md](../../retrospectives/phase3.md) L7
-- [docs/retrospectives/phase3.5.md](../../retrospectives/phase3.5.md) L5-7
-- [docs/tasks/tools/docs-site/task.md](../../tools/docs-site/task.md) L35-40
+- [docs/retrospectives/phase2.md](../../../../retrospectives/phase2.md) L4-5
+- [docs/retrospectives/phase3.md](../../../../retrospectives/phase3.md) L7
+- [docs/retrospectives/phase3.5.md](../../../../retrospectives/phase3.5.md) L5-7
+- [docs/tasks/tools/docs-site/task.md](../../../../tasks/tools/docs-site/task.md) L35-40
 - その他検索で見つかる箇所
 
 ### 2. 発生源への標準文言組み込み
 
 新たに作られるふりかえりは自動的に統一した形式になるよう:
 
-- [docs/agent-operations.md](../../agent-operations.md)「フェーズ完了時のふりかえり」
+- [docs/agent-operations.md](../../../../agent-operations.md)「フェーズ完了時のふりかえり」
   手順の中に、「位置づけ: 記録文書(非規範)。詳細は docs/README.md『文書区分の定義』参照」
   という標準テンプレート文言を記載
 - retrospective エージェント定義(docs/agent-operations.md参照の retrospective スキルの説明)
@@ -52,9 +52,9 @@ docs/README.md への参照を添える(独立した再定義は削除):
 
 ## 関連
 
-- [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+- [docs/adr/0007-ssot-single-responsibility.md](../../../../adr/0007-ssot-single-responsibility.md)
   (SSoT方針・定義の一本化)
-- [docs/README.md](../../README.md)「文書区分の定義」(正の所在)
+- [docs/README.md](../../../../README.md)「文書区分の定義」(正の所在)
 
 ---
 

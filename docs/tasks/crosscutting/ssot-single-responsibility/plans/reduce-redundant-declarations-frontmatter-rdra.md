@@ -2,7 +2,7 @@
 
 ## 概要
 
-[docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+[docs/adr/0007-ssot-single-responsibility.md](../../../../adr/0007-ssot-single-responsibility.md)
 で確定した SSoT 方針に基づき、「進捗の正はfrontmatter」「RDRA は非規範の索引」
 という事実が複数の文書で「正は〜」の宣言なしで重複記載されている箇所を統一する。
 
@@ -18,9 +18,9 @@
 
 複数箇所で「サイクル粒度の正は task.md frontmatter」と述べられている：
 
-- [docs/tasks/README.md](../../README.md) L37「frontmatter が正」← **これが正**
-- [docs/tasks/tools/docs-site/task.md](../../tools/docs-site/task.md) L40
-- [docs/tasks/tools/docs-site/plans/docs-site-progress-plan.md](../../tools/docs-site/plans/docs-site-progress-plan.md) L16
+- [docs/tasks/README.md](../../../../README.md) L37「frontmatter が正」← **これが正**
+- [docs/tasks/tools/docs-site/task.md](../../../../tasks/tools/docs-site/task.md) L40
+- [docs/tasks/tools/docs-site/plans/docs-site-progress-plan.md](../../../../tasks/tools/docs-site/plans/docs-site-progress-plan.md) L16
 
 後発2者を「正は tasks/README.md『frontmatter が正』」への参照に統一。
 
@@ -28,10 +28,10 @@
 
 複数箇所で「非規範の索引」と述べられている：
 
-- [docs/rdra/README.md](../../rdra/README.md) L10「規範は design/ のまま」← **これが正**
-- [docs/README.md](../../README.md) L21「RDRAモデルデータ(非規範の索引)」
-- [docs/tasks/tools/docs-site/task.md](../../tools/docs-site/task.md) L37-38
-- [docs/tasks/tools/docs-site/plans/serene-skipping-gadget.md](../../tools/docs-site/plans/serene-skipping-gadget.md)
+- [docs/rdra/README.md](../../../../rdra/README.md) L10「規範は design/ のまま」← **これが正**
+- [docs/README.md](../../../../README.md) L21「RDRAモデルデータ(非規範の索引)」
+- [docs/tasks/tools/docs-site/task.md](../../../../tasks/tools/docs-site/task.md) L37-38
+- [docs/tasks/tools/docs-site/plans/serene-skipping-gadget.md](../../../../tasks/tools/docs-site/plans/serene-skipping-gadget.md)
 
 後発文書を「正は rdra/README.md『規範は design/』」への参照に統一。
 
@@ -55,10 +55,10 @@
 
 ## 関連
 
-- [docs/adr/0007-ssot-single-responsibility.md](../../adr/0007-ssot-single-responsibility.md)
+- [docs/adr/0007-ssot-single-responsibility.md](../../../../adr/0007-ssot-single-responsibility.md)
   (SSoT方針・冗長度の削減)
-- [docs/tasks/README.md](../../README.md)「frontmatter が正」
-- [docs/rdra/README.md](../../README.md)「非規範の索引」
+- [docs/tasks/README.md](../../../../README.md)「frontmatter が正」
+- [docs/rdra/README.md](../../../../README.md)「非規範の索引」
 
 ---
 
