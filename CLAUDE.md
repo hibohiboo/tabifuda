@@ -8,10 +8,15 @@
    仕様を変える実装をする場合、先に設計文書を更新してから実装する。
 2. **crates/tabifuda-core は純粋に保つ。** IO・時刻取得・乱数生成・グローバル状態を持ち込まない。
    乱数が必要な場合は結果を引数/イベントとして外から与える(リプレイ決定性のため)。
+   正は docs/design/domain-model.md「基本原則」(docs/adr/0007-ssot-single-responsibility.md)。
 3. **すべての進行はイベント。** 状態を直接書き換える近道を作らない。
    変更は必ず `decide(state, command) -> Result<Vec<Event>, RuleError>` と
    `apply(state, event) -> State` を通す。
+   正は docs/design/domain-model.md「基本原則」(docs/adr/0007-ssot-single-responsibility.md)。
 4. 迷ったら実装せず質問する。特に Event / Command / PatchOp の追加は要相談。
+5. **SSoT(1つの事実の正は一か所)。** 他所で言及するときは「正は〜」と
+   明記して参照し、複製しない。1ファイル1責務(役割説明が「と」で繋がったら
+   分割候補。行数等の機械的しきい値は設けない)。詳細は docs/adr/0007-ssot-single-responsibility.md。
 
 ## リポジトリ構成
 

@@ -40,7 +40,7 @@ P3.5 は後から挿入したフェーズ(2026-07-20)。既存の ADR・決定�
 
 フェーズ間の作業(どのフェーズにも属さない改善・再検討)は発生しうる。
 実例: P2 完了後のカード消費・除去
-([tasks/plans/merry-leaping-tide.md](tasks/plans/merry-leaping-tide.md))と
+([tasks/plans/hand-card-removal.md](tasks/plans/hand-card-removal.md))と
 ProposalId 発番の再検討([adr/0005](adr/0005-proposal-id-issuance.md))。
 
 ## 今・次・いつか(Now / Next / Later)

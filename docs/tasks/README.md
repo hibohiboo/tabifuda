@@ -47,12 +47,14 @@ cycles:               # 本文のサイクル見出し(### C1: ...)と1対1。�
 - **特定のフェーズ/ツールに対する**計画・決定ログ → その `projects/phaseN/plans/`
   または `tools/<name>/plans/` に置く
 - **フェーズ横断**(どのタスクにも属さない改善・再検討。例:
-  [plans/merry-leaping-tide.md](plans/merry-leaping-tide.md)、
+  [plans/hand-card-removal.md](plans/hand-card-removal.md)、
   [plans/proposal-id-issuance-decisions.md](plans/proposal-id-issuance-decisions.md))
   → `tasks/plans/` 直下に置く
 - plan mode の自動生成ファイルは `.claude/settings.json` の `plansDirectory`
   (= `tasks/plans/`)に作られる。**セッションの終わりに、対象タスクの
-  `plans/` へ `git mv` する**(横断ならそのまま)
+  `plans/` へ `git mv` する**(横断ならそのまま)。横断として残す場合も、
+  **自動生成名のままにせず内容が分かる名前へリネームする**
+  (どこに何があるか名前で分かる構成を保つ。adr/0007)
 - 決定ログ(`*-decisions.md`)の書式・運用は
   [../agent-operations.md](../agent-operations.md)「人間の判断が要る論点の進め方」が正
 
