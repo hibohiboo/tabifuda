@@ -2,7 +2,8 @@
 
 ## 背景
 
-[ssot-single-responsibility-rules.md](ssot-single-responsibility-rules.md)完了後、
+[ssot-single-responsibility-rules.md](../crosscutting/ssot-single-responsibility/task.md)
+(現・task.md。当時の名残でこの節では旧名のまま言及する)完了後、
 `docs/tasks/plans/` 直下に「終わったか残っているか一目で分からない」状態が
 生じた(実行系チケット4枚+マスター計画1枚+決定ログ2枚+記録2枚+リネーム後の
 決定記録1枚が無区別に並ぶ)。

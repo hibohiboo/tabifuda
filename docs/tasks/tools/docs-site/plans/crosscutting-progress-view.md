@@ -50,3 +50,24 @@
 - [crosscutting-task-structure.md](../../../plans/crosscutting-task-structure.md)
   (前提。crosscutting/が存在しないと表示対象が無い)
 - [docs/adr/0007-ssot-single-responsibility.md](../../../../adr/0007-ssot-single-responsibility.md)
+
+---
+
+## 完了記録(2026-08-31)
+
+1. [tools/docs-site/src/progressData.ts](../../../../../tools/docs-site/src/progressData.ts):
+   glob パターンに `crosscutting` を追加
+2. [tools/docs-site/src/progress.ts](../../../../../tools/docs-site/src/progress.ts):
+   `group` 型と収集用正規表現に `crosscutting` を追加
+3. [tools/docs-site/src/views/ProgressView.tsx](../../../../../tools/docs-site/src/views/ProgressView.tsx):
+   「crosscutting(横断タスク)」セクションを projects と tools の間に追加
+
+`pnpm --filter docs-site typecheck` / `build` 確認済み。ビルド時に
+`tasks/crosscutting/ssot-single-responsibility/task.md` が実際に収集され、
+frontmatter とサイクル見出し(C1〜C3)の整合検証も通過することを実データで
+確認した。
+
+**副産物(スコープ外・未修正)**: `pnpm --filter docs-site lint --if-present`
+が、lintスクリプトが無いにもかかわらず終了コード1を返す
+(CLAUDE.md「lintスクリプトが無いパッケージでも失敗しない」という記述と
+実際のpnpm挙動が食い違う)。本チケットの変更とは無関係のため未修正。

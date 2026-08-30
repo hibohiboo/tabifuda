@@ -53,6 +53,7 @@ export default function ProgressView() {
   const doneCycles = allCycles.filter((c) => c.status === "done").length;
   const visibleTasks = tasks.filter((t) => matchesFilter(t.status, filter));
   const projects = visibleTasks.filter((t) => t.group === "projects");
+  const crosscutting = visibleTasks.filter((t) => t.group === "crosscutting");
   const tools = visibleTasks.filter((t) => t.group === "tools");
 
   return (
@@ -77,6 +78,14 @@ export default function ProgressView() {
         <h2 className="layer__title">projects(開発フェーズ)</h2>
         <div className="task-list">
           {projects.map((t) => (
+            <TaskCard key={t.id} task={t} />
+          ))}
+        </div>
+      </section>
+      <section className="layer">
+        <h2 className="layer__title">crosscutting(横断タスク)</h2>
+        <div className="task-list">
+          {crosscutting.map((t) => (
             <TaskCard key={t.id} task={t} />
           ))}
         </div>
