@@ -1,6 +1,8 @@
-# CLAUDE.md
+# **Tabifuda(旅札)**。
+カード制TRPGのルールブック兼プレイ環境。本ファイルはAIコーディングエージェント向けの地図である。
 
-**Tabifuda(旅札)**。カード制TRPG(CardWirth風)のモノレポ。Rustコア+TS Web+コンソール版。
+## 技術スタック
+モノレポ。Rustコア+TS Web+コンソール版。
 
 ## 最重要ルール
 
@@ -47,7 +49,12 @@ docs/
   agent-journal.md  エージェント失敗ジャーナル(1行/件)
 ```
 
-## 必読文書(タスク種別ごと)
+## 開発ルールの適用
+
+ファイルを読む・変更する・レビューするときは、対象パスに一致するルールを先に読む。
+複数一致した場合はすべて適用する。
+
+### 必読文書(タスク種別ごと)
 
 - コアのロジックに触れる → docs/design/domain-model.md
 - TS側(apps/web・packages/ui・tools/docs-site)の表示・操作に触れる →
@@ -58,6 +65,8 @@ docs/
 - 手法・構造の是非を判断する → docs/adr/0001-methodology.md
 - CI/ワークフローに触れる → docs/adr/0003-ci-pipeline.md
 - .claude/ の設定(settings・plans・memory)に触れる → docs/adr/0004-claude-config.md
+
+ルールと仕様書が矛盾した場合は、推測で進めず作業を止めて矛盾を報告する
 
 ## コマンド
 
