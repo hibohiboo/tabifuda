@@ -16,9 +16,7 @@
    `apply(state, event) -> State` を通す。
    正は docs/design/domain-model.md「基本原則」(docs/adr/0007-ssot-single-responsibility.md)。
 4. 迷ったら実装せず質問する。特に Event / Command / PatchOp の追加は要相談。
-5. **SSoT(1つの事実の正は一か所)。** 他所で言及するときは「正は〜」と
-   明記して参照し、複製しない。1ファイル1責務(役割説明が「と」で繋がったら
-   分割候補。行数等の機械的しきい値は設けない)。詳細は docs/adr/0007-ssot-single-responsibility.md。
+5. **SSoT(1つの事実の正は一か所)。** 他所で言及するときは「正は〜」と明記して参照し、複製しない。1ファイル1責務(役割説明が「と」で繋がったら分割候補。行数等の機械的しきい値は設けない)。詳細は docs/adr/0007-ssot-single-responsibility.md。
 
 ## リポジトリ構成
 

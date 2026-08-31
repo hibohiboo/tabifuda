@@ -12,6 +12,12 @@ cycles:
 
 実行モデル: Sonnet 5。1サイクル=1セッション=1PR。
 開始前の儀式は phase2/task.md 冒頭と同じ。
+
+apps/api配下の実装規約は `.claude/rules/api-architecture.md`
+(`paths: apps/api/src/**` で自動適用)。導入時(このフェーズで
+apps/api/src/ に最初のファイルを置くサイクル)に、実際に読み込まれるかを
+確認すること(`paths:` frontmatterの解釈に環境依存の既知の制約あり。
+詳細は docs/adr/0004-claude-config.md「ルール置き場」)。
 **フェーズ入り口で2つの上流判断を行う(Opus 4.8レビュー対象)**:
 1. DBスキーマ+イベントストア設計
 2. 境界づけられたコンテキストの要否(ADR 0001の宿題:
