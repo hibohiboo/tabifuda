@@ -109,6 +109,12 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
    として即座に検出する設計のため。client-conventions.md「Event/Command
    の網羅性」)。P3.5でEvent追加時にこれを怠り、フェーズ完了後の別件確認
    まで2サイクル気づかれなかった教訓
+   - **`Character`等、公開型のフィールドを追加・変更したら
+     `(cd crates/tabifuda-wasm && wasm-pack test --node)` も実行する。**
+     `cargo test --workspace`は`#![cfg(target_arch = "wasm32")]`なテスト
+     (`crates/tabifuda-wasm/tests/`)をコンパイル対象に含めないため、
+     ここでしか検出できない型不整合がある(2026-09-11、`owned_cards`
+     フィールド追加時にfixtureへの追従が漏れ、CIで初めて発覚した教訓)
 3. design-sync スキルで設計文書との乖離チェック(乖離があれば同PRで文書も直す)
 4. **非規範文書(domain-guide.md / demo.md)への影響を確認する。**
    遊び方・操作手順に見える変更(カードの挙動、UI操作の追加等)があれば
