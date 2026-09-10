@@ -43,7 +43,7 @@ description: 設計文書(docs/design/)と実装(crates/)の乖離チェック�
 6. **コードコメント内の docs/ 参照が生きているか確認する**。
    `grep -rn "docs/" crates/` で参照を列挙し、(a) 参照先ファイル・節が
    実在するか、(b) 参照先が docs/design/ のみか(docs/tasks/ 参照は規約違反。
-   CLAUDE.md Rust規約)、(c) クレート/モジュールの入口の1行ポインタに
+   .claude/rules/core-architecture.md)、(c) クレート/モジュールの入口の1行ポインタに
    収まっているか(内容の再掲は SSoT 違反。adr/0007)を見る。
    コメント内のパスは改名で黙って壊れるため、このチェックが唯一の検出網
 

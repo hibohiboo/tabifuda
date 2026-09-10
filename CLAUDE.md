@@ -82,9 +82,9 @@ crates/とTS側は独立して変更されうるため、**変更が無い側の
 (意味のない実行はしない。判定は `git diff <base>...HEAD --stat` で対象ディレクトリを見る)。
 パッケージマネージャの選定根拠は docs/adr/0002-package-manager.md 参照。
 
-## Rust規約(crates/tabifuda-core)
+## Rust規約(crates/)
 
-正は `.claude/rules/core-architecture.md`(`paths: crates/tabifuda-core/src/**`
+正は `.claude/rules/core-architecture.md`(`paths: crates/*/src/**`
 で対象ファイルを読むときに自動適用)。api-architecture.md(TS/APIレイヤー版)と
 同じ位置づけの、レイヤー固有実装規約の置き場(docs/adr/0004-claude-config.md
 「ルール置き場」)。

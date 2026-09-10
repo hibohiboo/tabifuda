@@ -6,7 +6,9 @@ description: テスト駆動開発で機能追加・バグ修正を実装する�
 # tdd
 
 ## 0. 開始条件
-- ルールファイル（testing.md と変更パスに該当するもの）を読む
+- docs/design/test-strategy.md(テストの置き場と書き方の正)と、変更パスに該当する
+  .claude/rules/ を読む。crates/ なら core-invariants スキル、apps/web の
+  E2E なら .claude/rules/testing.md が索引
 - 期待する振る舞いは要件・プランを出典にする。実装コードを正解にしない
 - 期待結果があいまい、仕様と実装が矛盾する場合は、推測でテストを書かず停止して報告する
 

@@ -1,12 +1,14 @@
 ---
 paths:
-  - "crates/tabifuda-core/src/**"
+  - "crates/*/src/**"
 ---
 
-# crates/tabifuda-core 実装規約
+# crates/ 実装規約(中心は tabifuda-core)
 
 正はCLAUDE.md最重要ルール2(コアの純粋性)・3(すべての進行はイベント)。
-本ファイルはその具体化として、crates/tabifuda-core配下でのRust実装規約を集める。
+本ファイルはその具体化として、crates/ 配下でのRust実装規約を集める。
+項目のうち「tabifuda-core」と明記したものは core のみ、それ以外は
+cli / wasm を含む全クレートに適用する。
 
 ## enum設計
 
@@ -21,7 +23,7 @@ paths:
 
 - tabifuda-coreの公開APIにpanicを含めない。エラーは `RuleError` / `PatchError` で返す
 
-## コードコメントからのdocs参照
+## コードコメントからのdocs参照(全クレート)
 
 - コードコメントから docs/tasks/(工程文書)を参照しない。参照してよいのは
   docs/design/(規範)のみ、それもコードから読み取れない制約を指す場合に限る。
@@ -31,5 +33,4 @@ paths:
 
 ## テスト
 
-- decideの各Commandに正常系+拒否系(Paused中のPlayCard等)を必ず対で書く。
-  詳細な観点は docs/design/test-strategy.md・core-invariantsスキル参照
+- 正は docs/design/test-strategy.md。観点の索引は core-invariants スキル

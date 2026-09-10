@@ -12,7 +12,7 @@ paths:
 
 ## 実行コマンド
 
-`pnpm --filter web test:e2e`(内部は`playwright test`)。単体テストランナー
+`pnpm --filter @tabifuda/web test:e2e`(内部は`playwright test`)。単体テストランナー
 (vitest等)は導入していない。TS側の境界値・分岐検証はtest-strategy.md
 「重複を作らないためのルール」のとおりcoreのプロパティ/テーブル駆動テストに
 寄せ、apps/web側にルール分岐を生やさない。
