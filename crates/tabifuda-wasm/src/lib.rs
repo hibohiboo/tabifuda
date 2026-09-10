@@ -3,8 +3,8 @@
 //!
 //! ステートレス: WASM側でSessionを可変オブジェクトとして保持しない。
 //! Command/Event/Session/Scenario等はすべてJSON文字列で受け渡す
-//! (CLAUDE.md最重要ルール2・3。coreの純粋性・イベント経由の進行を境界の
-//! 外でも保つ)。
+//! (docs/design/domain-model.md「基本原則」。coreの純粋性・イベント経由の
+//! 進行を境界の外でも保つ)。
 
 use serde::{Deserialize, Serialize};
 use tabifuda_core::{

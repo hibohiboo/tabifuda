@@ -1,5 +1,8 @@
 # 計画: 使用済み・不要カードの手札除去(Phase 2ふりかえり起票分)
 
+(旧ファイル名: merry-leaping-tide.md。plan mode自動生成名から改名。
+歴史記録内の旧名言及は方針どおり未修正)
+
 ## Context
 
 Phase 2ふりかえり([docs/retrospectives/phase2.md](../../retrospectives/phase2.md))で、

@@ -29,7 +29,7 @@ RDRA風の図・タスク進捗・テスト結果として可視化している(
 | [design/scenario-lint.md](design/scenario-lint.md) | シナリオlint(静的検証)の規範: 検査項目・重大度・探索範囲。lintに触れるなら必読 |
 | [design/cross-cutting.md](design/cross-cutting.md) | 横断方針: 権限・ログ・UGC(自由入力)・削除・シークレット |
 | [design/test-strategy.md](design/test-strategy.md) | テストの置き場所と書き方。不変条件1〜5。コアのテストを書くなら必読 |
-| [adr/](adr/) | アーキテクチャ決定記録(手法・パッケージマネージャ・CI・.claude設定・ID発番)。「なぜこうなっているか」を遡る |
+| [adr/](adr/) | アーキテクチャ決定記録(手法・パッケージマネージャ・CI・.claude設定・ID発番・SSoT/1ファイル1責務)。「なぜこうなっているか」を遡る |
 
 ### 進め方視点(タスクと運用。エージェント・人間の共通ルール)
 
@@ -44,6 +44,25 @@ RDRA風の図・タスク進捗・テスト結果として可視化している(
 | [agent-journal.md](agent-journal.md) | エージェント失敗ジャーナル(1行/件)。週次棚卸しの材料 |
 | handoff/ | ハンドオフ用の一時メモ置き場(通常は空。使い捨て運用。手順は agent-operations.md「コンテキスト管理とハンドオフ」) |
 | [retrospectives/](retrospectives/) | フェーズ完了時のふりかえり(1フェーズ1ファイル、非規範)。作成手順は agent-operations.md「フェーズ完了時のふりかえり」 |
+| [prompt-sample.md](prompt-sample.md) | 開発フロー各ステップで使う依頼文サンプル集(非規範)。チェックリスト作成・レビュー・実装・TDDの各段階で穴埋めして使う |
+
+## 文書区分の定義(SSoT。ここが正。docs/adr/0007-ssot-single-responsibility.md参照)
+
+他の文書で「規範」「非規範」「索引」「記録」を名乗るときは、この定義に
+従う(個別に再定義しない。参照だけ添える)。
+
+| 区分 | 意味 | 例 |
+|---|---|---|
+| 規範 | 仕様の正。矛盾時にここへ揃える | design/domain-model.md 等(下記1.) |
+| 非規範 | 規範の解説・可視化・要約。規範と食い違ったらこちら側を直す | domain-guide.md、roadmap.md、rdra/ |
+| 索引 | 文書間の道案内のみ。詳細を複製しない | 本ファイル、tasks/README.md |
+| 記録 | 過去の経緯・判断の証跡。将来の指図ではない | retrospectives/、決定ログ、adr/(経緯部分) |
+
+**例外**: design/reviews/ は区分としては記録だが、design/ 直下に置く。
+crates/ のコードコメントは docs/design/ のみ参照できる(CLAUDE.md Rust規約)
+ため、コードから参照されるレビュー記録(例: golden_tests.rs → p1-c1-type-review.md)
+を design/ の外へ出すとその規約と衝突する。置き場所より参照規約を優先した
+意図的な例外(adr/0007-ssot-single-responsibility.md「帰結」参照)。
 
 ## 文書間の優先順位(矛盾したとき)
 

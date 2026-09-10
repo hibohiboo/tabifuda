@@ -10,7 +10,7 @@ export interface CycleProgress {
 
 export interface TaskProgress {
   id: string; // phase0, docs-site など(ディレクトリ名)
-  group: "projects" | "tools";
+  group: "projects" | "tools" | "crosscutting";
   title: string;
   status: ProgressStatus;
   cycles: CycleProgress[];
@@ -55,7 +55,7 @@ function parseCycleHeadings(body: string): Map<string, string> {
 
 function parseTask(path: string, raw: string): TaskProgress {
   // path 例: ../../../docs/tasks/projects/phase0/task.md
-  const rel = path.match(/docs\/(tasks\/(projects|tools)\/([^/]+)\/task\.md)$/);
+  const rel = path.match(/docs\/(tasks\/(projects|tools|crosscutting)\/([^/]+)\/task\.md)$/);
   if (rel === null) throw new Error(`task.md のパスが想定外: ${path}`);
   const [, source, group, id] = rel;
   const { fm, body } = parseFrontmatter(raw, id);

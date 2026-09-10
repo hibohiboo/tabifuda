@@ -18,6 +18,23 @@
 | インフラ設定ミス | 中 | デプロイ後 | スモーク最小限 |
 | UIの表示崩れ | 低 | 手動+スモーク | 自動化は後回し |
 
+## テストファイルの置き場所(1ファイル1責務。adr/0007)
+
+crates/core のテストは `src/` 直下に観点ごとの別ファイルとして分離する
+(`engine_tests.rs`・`golden_tests.rs`・`invariant_tests.rs`・`lint_tests.rs`・
+`patch_tests.rs`・`replay_tests.rs`・`roundtrip_tests.rs`)。`lib.rs` から
+`#[cfg(test)] mod ***_tests;` で宣言する(`tests/` 配下の結合テストではなく
+`src/` 内モジュールなのは、privateな内部関数を直接呼ぶ単体テストのため)。
+新しい観点を追加するときも1ファイル1観点を保ち、既存ファイルへ観点混在で
+追記しない。
+
+### テスト関数名(日本語)
+
+crates/core のテスト関数名は日本語で検証内容を表す(`cargo test` の出力が
+そのまま tools/docs-site のテストビューの説明文になるため)。英語の
+Command/Event/型名をそのまま含めるため関数名の先頭が大文字ASCIIになる
+場合があり、該当モジュールには `#[allow(non_snake_case)]` を付ける。
+
 ## レイヤ別の書き方
 
 ### 1. crates/core(テストの8割をここに)

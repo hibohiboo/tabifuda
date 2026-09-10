@@ -1,11 +1,7 @@
 //! tabifuda-core: カード制TRPG(CardWirth風)のルール・状態機械。
 //!
-//! このクレートの原則(CLAUDE.md 最重要ルール2・3):
-//! - 純粋に保つ。IO・時刻取得・乱数生成・グローバル状態を持ち込まない。
-//!   乱数が必要な場合は結果を引数/イベントとして外から与える(リプレイ決定性のため)。
-//! - すべての進行はイベント。状態を直接書き換える近道を作らない。
-//!   変更は必ず `decide(state, command) -> Result<Vec<Event>, RuleError>` と
-//!   `apply(state, event) -> State` を通す(decide/applyはC2で実装)。
+//! このクレートが守る原則の正は docs/design/domain-model.md「基本原則」
+//! (純粋性・decide/apply・イベント経由の進行・乱数決定性)。
 
 pub mod actor;
 pub mod card;
@@ -39,10 +35,8 @@ pub use scenario::{
 };
 pub use session::{CardInstance, Proposal, ScenarioSnapshot, Session, SessionStatus};
 
-// テスト関数名は日本語で検証内容を表す(docs/tasks/tools/docs-site/task.md
-// D2「テストビュー」。cargo test出力がそのままGitHub Pagesの説明文になる)。
-// 英語のCommand/Event/型名をそのまま含めるため先頭が大文字ASCIIになる場合があり、
-// 意図的にnon_snake_caseを許可する。
+// テスト関数名の日本語命名規約は docs/design/test-strategy.md
+// 「テスト関数名(日本語)」参照。
 #[cfg(test)]
 #[allow(non_snake_case)]
 mod engine_tests;

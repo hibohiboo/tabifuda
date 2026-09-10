@@ -766,7 +766,7 @@ struct SaveFile {
 | state の Option 化・CardInstanceId 発番・EndSession 権限 | agent-journal.md 2026-07-19(P1 C2) |
 | ProposalId の連番発番(UUID不採用の根拠訂正含む) | adr/0005-proposal-id-issuance.md / tasks/plans/proposal-id-issuance-decisions.md |
 | validate の「現在シーン削除」拒否テスト保留 | agent-journal.md 2026-07-19(P1 C4) |
-| カードの消費・除去 | retrospectives/phase2.md / tasks/plans/merry-leaping-tide.md |
+| カードの消費・除去 | retrospectives/phase2.md / tasks/plans/hand-card-removal.md(旧merry-leaping-tide.md) |
 | シナリオファイル配置と lint 仕様 | tasks/projects/phase2/task.md C1 / git履歴 |
 | 実行時索引の HashMap→BTreeMap 化・セッションの保存と再開 | tasks/projects/phase3/plans/wasm-boundary-decisions.md 論点1 / tasks/projects/phase3.5/task.md C1 |
 | パーティファイル・操作対象キャラの決定 | tasks/projects/phase3.5/task.md C2 |

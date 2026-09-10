@@ -2,8 +2,8 @@
 
 対象: [tasks/projects/phase3.5/task.md](../tasks/projects/phase3.5/task.md) C1〜C4
 (ブランチ `phase3.5`)。
-位置づけ: 記録文書(非規範)。ここで挙げた対応項目は反映先の文書が正であり、
-本文書は経緯を残す。
+位置づけ: 記録([docs/README.md](../README.md)「文書区分の定義」)。
+ここで挙げた対応項目は反映先の文書が正であり、本文書は経緯を残す。
 
 ## 成果
 

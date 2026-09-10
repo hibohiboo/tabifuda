@@ -34,7 +34,8 @@ docs/ を GitHub Pages で多面的に可視化する静的サイト。
 
 ## 位置づけ(規範との関係)
 
-- RDRAモデルデータ(docs/rdra/*.yaml)は**手動キュレーションの非規範な索引**。
+- RDRAモデルデータ(docs/rdra/*.yaml)は**手動キュレーションの非規範な索引**
+  (区分の定義は docs/README.md「文書区分の定義」)。
   規範は従来どおり design/ の文書(docs/README.md「文書間の優先順位」)。
   規範文書と食い違ったら**YAML側を直す**(正を二重化しない)
 - サイクル粒度の進捗の**正は各 task.md の frontmatter**

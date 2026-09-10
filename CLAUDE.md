@@ -1,6 +1,8 @@
-# CLAUDE.md
+# **Tabifuda(旅札)**。
+カード制TRPGのルールブック兼プレイ環境。本ファイルはAIコーディングエージェント向けの地図である。
 
-**Tabifuda(旅札)**。カード制TRPG(CardWirth風)のモノレポ。Rustコア+TS Web+コンソール版。
+## 技術スタック
+モノレポ。Rustコア+TS Web+コンソール版。
 
 ## 最重要ルール
 
@@ -8,10 +10,13 @@
    仕様を変える実装をする場合、先に設計文書を更新してから実装する。
 2. **crates/tabifuda-core は純粋に保つ。** IO・時刻取得・乱数生成・グローバル状態を持ち込まない。
    乱数が必要な場合は結果を引数/イベントとして外から与える(リプレイ決定性のため)。
+   正は docs/design/domain-model.md「基本原則」(docs/adr/0007-ssot-single-responsibility.md)。
 3. **すべての進行はイベント。** 状態を直接書き換える近道を作らない。
    変更は必ず `decide(state, command) -> Result<Vec<Event>, RuleError>` と
    `apply(state, event) -> State` を通す。
+   正は docs/design/domain-model.md「基本原則」(docs/adr/0007-ssot-single-responsibility.md)。
 4. 迷ったら実装せず質問する。特に Event / Command / PatchOp の追加は要相談。
+5. **SSoT(1つの事実の正は一か所)。** 他所で言及するときは「正は〜」と明記して参照し、複製しない。1ファイル1責務(役割説明が「と」で繋がったら分割候補。行数等の機械的しきい値は設けない)。詳細は docs/adr/0007-ssot-single-responsibility.md。
 
 ## リポジトリ構成
 
@@ -42,7 +47,12 @@ docs/
   agent-journal.md  エージェント失敗ジャーナル(1行/件)
 ```
 
-## 必読文書(タスク種別ごと)
+## 開発ルールの適用
+
+ファイルを読む・変更する・レビューするときは、対象パスに一致するルールを先に読む。
+複数一致した場合はすべて適用する。
+
+### 必読文書(タスク種別ごと)
 
 - コアのロジックに触れる → docs/design/domain-model.md
 - TS側(apps/web・packages/ui・tools/docs-site)の表示・操作に触れる →
@@ -53,6 +63,8 @@ docs/
 - 手法・構造の是非を判断する → docs/adr/0001-methodology.md
 - CI/ワークフローに触れる → docs/adr/0003-ci-pipeline.md
 - .claude/ の設定(settings・plans・memory)に触れる → docs/adr/0004-claude-config.md
+
+ルールと仕様書が矛盾した場合は、推測で進めず作業を止めて矛盾を報告する
 
 ## コマンド
 
@@ -70,16 +82,12 @@ crates/とTS側は独立して変更されうるため、**変更が無い側の
 (意味のない実行はしない。判定は `git diff <base>...HEAD --stat` で対象ディレクトリを見る)。
 パッケージマネージャの選定根拠は docs/adr/0002-package-manager.md 参照。
 
-## Rust規約
+## Rust規約(crates/)
 
-- Effect / Condition / Event / Command / PatchOp の各enumは追加前提。
-  `#[non_exhaustive]` を付け、serdeは種別名を含むタグ付き表現にする
-- ID型はnewtypeで包む(生Stringを引き回さない)
-- コードコメントから docs/tasks/(工程文書)を参照しない。参照してよいのは
-  docs/design/(規範)のみ、それもコードから読み取れない制約を指す場合に限る。
-  由来・経緯(どのサイクルで書いたか等)はコミットメッセージ/PRに書く
-- tabifuda-coreの公開APIにpanicを含めない。エラーは `RuleError` / `PatchError` で返す
-- テスト: decideの各Commandに正常系+拒否系(Paused中のPlayCard等)を必ず対で書く
+正は `.claude/rules/core-architecture.md`(`paths: crates/*/src/**`
+で対象ファイルを読むときに自動適用)。api-architecture.md(TS/APIレイヤー版)と
+同じ位置づけの、レイヤー固有実装規約の置き場(docs/adr/0004-claude-config.md
+「ルール置き場」)。
 
 ## 用語(揺らさない)
 
