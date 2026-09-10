@@ -44,6 +44,7 @@ RDRA風の図・タスク進捗・テスト結果として可視化している(
 | [agent-journal.md](agent-journal.md) | エージェント失敗ジャーナル(1行/件)。週次棚卸しの材料 |
 | handoff/ | ハンドオフ用の一時メモ置き場(通常は空。使い捨て運用。手順は agent-operations.md「コンテキスト管理とハンドオフ」) |
 | [retrospectives/](retrospectives/) | フェーズ完了時のふりかえり(1フェーズ1ファイル、非規範)。作成手順は agent-operations.md「フェーズ完了時のふりかえり」 |
+| [prompt-sample.md](prompt-sample.md) | 開発フロー各ステップで使う依頼文サンプル集(非規範)。チェックリスト作成・レビュー・実装・TDDの各段階で穴埋めして使う |
 
 ## 文書区分の定義(SSoT。ここが正。docs/adr/0007-ssot-single-responsibility.md参照)
 

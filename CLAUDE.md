@@ -82,18 +82,12 @@ crates/とTS側は独立して変更されうるため、**変更が無い側の
 (意味のない実行はしない。判定は `git diff <base>...HEAD --stat` で対象ディレクトリを見る)。
 パッケージマネージャの選定根拠は docs/adr/0002-package-manager.md 参照。
 
-## Rust規約
+## Rust規約(crates/tabifuda-core)
 
-- Effect / Condition / Event / Command / PatchOp の各enumは追加前提。
-  `#[non_exhaustive]` を付け、serdeは種別名を含むタグ付き表現にする
-- ID型はnewtypeで包む(生Stringを引き回さない)
-- コードコメントから docs/tasks/(工程文書)を参照しない。参照してよいのは
-  docs/design/(規範)のみ、それもコードから読み取れない制約を指す場合に限る。
-  置くのはクレート/モジュールの入口(lib.rs先頭等)のみ、内容を再掲しない
-  ポインタ1行に留める(docs/adr/0007-ssot-single-responsibility.md)。
-  由来・経緯(どのサイクルで書いたか等)はコミットメッセージ/PRに書く
-- tabifuda-coreの公開APIにpanicを含めない。エラーは `RuleError` / `PatchError` で返す
-- テスト: decideの各Commandに正常系+拒否系(Paused中のPlayCard等)を必ず対で書く
+正は `.claude/rules/core-architecture.md`(`paths: crates/tabifuda-core/src/**`
+で対象ファイルを読むときに自動適用)。api-architecture.md(TS/APIレイヤー版)と
+同じ位置づけの、レイヤー固有実装規約の置き場(docs/adr/0004-claude-config.md
+「ルール置き場」)。
 
 ## 用語(揺らさない)
 

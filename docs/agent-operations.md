@@ -245,6 +245,12 @@ Event追加がP3.5自身のCLIコードのワイルドカードに落ちてい�
   2. `retrospective`(Sonnet・読取専用): フェーズふりかえりのドラフト生成。
      保存・反映先への反映・報告はメインセッションが行う
      (上記「フェーズ完了時のふりかえり」参照)
+  3. `design-reviewer`(Haiku・読取専用): サイクルのチェックリスト文書
+     (docs/tasks/projects/phaseN/plans/等)と実装差分の照合。
+     design-sync-screenが設計文書(docs/design/)を対象にするのに対し、
+     こちらは着手前に書いたチェックリストとの過不足を見る
+  4. `edge-case-reviewer`(Sonnet・読取専用): 実装差分の異常系・境界値の
+     抜けの検査。Rust/TSどちらの差分にも使う
 
 ## コスト運用ルール
 

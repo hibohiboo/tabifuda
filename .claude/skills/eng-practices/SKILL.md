@@ -1,6 +1,6 @@
 ---
 name: eng-practices
-description: PRを出す前に、自分のgit diffをGoole Engineering Practicesのチェックリストでセルフレビューする。実装がひと段落して、commi・push・PRの直前に使う。 出典 http://github.com/google/eng-practices (CC BY 3.0)
+description: PRを出す前に、自分のgit diffをGoogle Engineering Practicesのチェックリストでセルフレビューする。実装がひと段落して、commit・push・PRの直前に使う。 出典 http://github.com/google/eng-practices (CC BY 3.0)
 ---
 
 # eng-practices （レビューを通る差分に自分で仕上げる）
@@ -9,7 +9,7 @@ description: PRを出す前に、自分のgit diffをGoole Engineering Practices
 
 ## 1. 差分を読み直す
 
-`git diff main...HEAD` を、レビューアーになったつもりで通読する。
+`git diff master...HEAD` を、レビューアーになったつもりで通読する。
 
 
 ## 2. チェックリストを当てる
