@@ -47,6 +47,7 @@ fn fixture_party() -> Vec<Character> {
         name: "勇者".to_string(),
         stats: Default::default(),
         deck: vec![],
+        owned_cards: vec![],
     }]
 }
 
