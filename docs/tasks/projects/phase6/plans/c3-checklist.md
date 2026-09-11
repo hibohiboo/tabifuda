@@ -76,6 +76,14 @@ C2は既にdone。ユーザー確認の上、C3として正式に着手する
       スクロールと一緒に流れる・`findCardDef`の二重呼び出し・使われない
       CSS宣言(`font-size: 0.7rem`)。見送り2件(useAutoFitTitleのresize
       非対応・CardLargeの自由入力欄実装重複)は理由付きでコミットに記録
+- [x] `edge-case-reviewer`指摘のP1 2件を修正: Modalのフォーカス復帰が
+      「出す」の主要フロー(カード自体が手札から除去される経路)では
+      previouslyFocusedがdetachedになり空振りしていた点(フォールバック
+      先を追加)、`RewardsGranted`/`CardsDiscarded`が3枚以上ある場合に
+      折り返さず画面幅をはみ出す点(`max-width`追加、カタログサンプルも
+      複数枚化)。P2の2件(GmJudgePanelの空文字カード名が送信をブロック
+      しない/textareaのresizeとスクロール層の組み合わせ)は差分前から
+      ある挙動、または目視確認済みの軽微な見た目の話のため見送り
 - [ ] **Q4再訪**(post-p3.5-replanning-decisions.md): 身近な1〜2人に
       見せるかをユーザーに確認し、結果を本ファイルに記録
 - [ ] task.md frontmatter更新(C3: planned → done)
