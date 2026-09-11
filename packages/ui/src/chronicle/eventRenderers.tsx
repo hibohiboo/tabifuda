@@ -9,8 +9,12 @@ export interface ChronicleContext {
   scenario: Scenario;
 }
 
-function cardName(ctx: ChronicleContext, cardId: string): string {
-  return findCardDef(ctx.scenario, cardId)?.name ?? cardId;
+// defを解決済みの前提でラベルを作る(cardIdへのフォールバックのみ担当)。
+// 呼び出し側でfindCardDefを1回だけ呼び、CardThumbsとラベル生成の両方に
+// 使い回す(findCardDefの二重呼び出しを避ける。/code-review指摘、
+// 2026-09-12)。
+function cardLabel(def: CardDef | undefined, cardId: string): string {
+  return def?.name ?? cardId;
 }
 
 function outcomeLabel(outcome: Outcome): string {
@@ -50,25 +54,31 @@ export const eventRenderers: HandlerMap<Event, ReactNode, ChronicleContext> = {
       <p>{payload.narration}</p>
     </div>
   ),
-  CardDealt: (payload, ctx) => (
-    <div className="tf-chronicle-event">
-      <CardThumbs defs={[findCardDef(ctx.scenario, payload.card)]} />
-      <p className="chronicle-minor">
-        {payload.to} に『{cardName(ctx, payload.card)}』が配られた
-      </p>
-    </div>
-  ),
-  CardPlayed: (payload, ctx) => (
-    <div className="tf-chronicle-event">
-      <CardThumbs defs={[findCardDef(ctx.scenario, payload.card)]} />
-      <div>
-        <p>
-          {payload.by} は『{cardName(ctx, payload.card)}』を出した。
+  CardDealt: (payload, ctx) => {
+    const def = findCardDef(ctx.scenario, payload.card);
+    return (
+      <div className="tf-chronicle-event">
+        <CardThumbs defs={[def]} />
+        <p className="chronicle-minor">
+          {payload.to} に『{cardLabel(def, payload.card)}』が配られた
         </p>
-        {payload.free_text !== null && <blockquote>{payload.free_text}</blockquote>}
       </div>
-    </div>
-  ),
+    );
+  },
+  CardPlayed: (payload, ctx) => {
+    const def = findCardDef(ctx.scenario, payload.card);
+    return (
+      <div className="tf-chronicle-event">
+        <CardThumbs defs={[def]} />
+        <div>
+          <p>
+            {payload.by} は『{cardLabel(def, payload.card)}』を出した。
+          </p>
+          {payload.free_text !== null && <blockquote>{payload.free_text}</blockquote>}
+        </div>
+      </div>
+    );
+  },
   CardRemoved: () => null,
   EffectApplied: () => <p className="chronicle-minor">(未解決の効果が記録された)</p>,
   ProposalSubmitted: (payload) => (
@@ -88,13 +98,16 @@ export const eventRenderers: HandlerMap<Event, ReactNode, ChronicleContext> = {
       </p>
     </div>
   ),
-  CardsDiscarded: (payload, ctx) => (
-    <div className="tf-chronicle-event">
-      <CardThumbs defs={payload.cards.map((card) => findCardDef(ctx.scenario, card))} />
-      <p className="chronicle-minor">
-        {payload.from} は『
-        {payload.cards.map((card) => cardName(ctx, card)).join("』『")}』を持ち出せなかった。
-      </p>
-    </div>
-  ),
+  CardsDiscarded: (payload, ctx) => {
+    const defs = payload.cards.map((card) => findCardDef(ctx.scenario, card));
+    return (
+      <div className="tf-chronicle-event">
+        <CardThumbs defs={defs} />
+        <p className="chronicle-minor">
+          {payload.from} は『
+          {payload.cards.map((card, i) => cardLabel(defs[i], card)).join("』『")}』を持ち出せなかった。
+        </p>
+      </div>
+    );
+  },
 };

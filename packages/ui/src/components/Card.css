@@ -48,10 +48,13 @@
      で省略する。
      タイトル左に種別アイコンを添える案(2026-09-12)は、小サイズカードでは
      使える幅が更に狭くなり短いタイトルまで縮小される実害が出たため不採用。
-     大サイズは幅に余裕があるため.tf-card__title-row(下記)で維持する。 */
+     大サイズは幅に余裕があるため.tf-card__title-row(下記)で維持する。
+     font-sizeはここでは指定しない: Card.tsx/CardLarge.tsxが
+     useAutoFitTitleの結果を毎回inline styleで指定するため、CSS側の
+     値は常に上書きされ実際には使われない(基準サイズの正はuseAutoFitTitle
+     呼び出し側のbaseSizePx引数。/code-review指摘、2026-09-12)。 */
   align-self: stretch;
   margin: 0;
-  font-size: 0.7rem;
   line-height: 1.2;
   text-align: left;
   overflow: hidden;
@@ -91,16 +94,20 @@
   position: relative;
   width: min(320px, 100%);
   aspect-ratio: 1 / 1.41421356;
-  padding: 16px;
-  gap: 12px;
   box-sizing: border-box;
-  overflow-y: auto;
+  /* overflow: hiddenは.tf-cardから継承。スクロールは.tf-card__scroll側で
+     行い、このレベルではしない(背景アイコンをスクロールさせないため。
+     下記参照)。 */
 }
 
 /* 中央の大アイコンは、うっすら見える程度の透過した背景として敷き、
    タイトル・本文をその上に重ねる(2026-09-12、ユーザー指定)。position:
    absoluteでflexのフローから外し、カード中央に大きく配置する。
-   pointer-eventsを切って、下の「出す」操作等への干渉を避ける。 */
+   pointer-eventsを切って、下の「出す」操作等への干渉を避ける。
+   .tf-card--large直下(.tf-card__scrollの外)に置くことで、本文が長くて
+   スクロールしても背景は動かない「固定された透かし」のままにする
+   (/code-review指摘、2026-09-12: .tf-card__scroll側に置いていた旧実装は
+   スクロールと一緒に背景ごと流れてしまっていた)。 */
 .tf-card--large .tf-card__icon {
   position: absolute;
   inset: 0;
@@ -111,14 +118,20 @@
   pointer-events: none;
 }
 
-/* 背景アイコンより前面に出すため、テキスト系要素にstacking contextを
-   持たせる(position: staticのままだとposition: absoluteの背景アイコンの
-   下に描画されてしまう)。 */
-.tf-card--large .tf-card__title-row,
-.tf-card--large .tf-card__text,
-.tf-card--large .tf-card__free-text {
+/* 背景アイコンの上に重なる、スクロール可能な前面コンテンツ層。
+   z-index: 1により背景アイコン(z-index: 0)より前面になる。 */
+.tf-card__scroll {
   position: relative;
   z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .tf-card__text {

@@ -62,23 +62,29 @@ export function CardLarge({
   return (
     <div className="tf-card-expand">
       <div className="tf-card tf-card--large" style={{ borderColor: CARD_KIND_COLORS[def.kind] }}>
-        <div className="tf-card__title-row">
-          <Icon className="tf-card__title-icon" />
-          <p className="tf-card__title" ref={ref} style={{ fontSize: `${fontSize}px` }}>
-            {def.name}
-          </p>
-        </div>
+        {/* 背景アイコンは.tf-card--large直下(スクロールしない層)に置く。
+            .tf-card__scroll側に置くと、本文が長くスクロールした際に
+            背景ごと流れてしまい「固定された透かし」の意図が崩れる
+            (/code-review指摘、2026-09-12)。 */}
         <Icon className="tf-card__icon" />
-        {def.text !== "" && <p className="tf-card__text">{def.text}</p>}
-        {hasFreeText(def.kind) && (
-          <textarea
-            className="tf-card__free-text"
-            maxLength={FREE_TEXT_MAX}
-            placeholder={freeTextPlaceholder(def.kind)}
-            value={freeText}
-            onChange={(event) => setFreeText(event.target.value)}
-          />
-        )}
+        <div className="tf-card__scroll">
+          <div className="tf-card__title-row">
+            <Icon className="tf-card__title-icon" />
+            <p className="tf-card__title" ref={ref} style={{ fontSize: `${fontSize}px` }}>
+              {def.name}
+            </p>
+          </div>
+          {def.text !== "" && <p className="tf-card__text">{def.text}</p>}
+          {hasFreeText(def.kind) && (
+            <textarea
+              className="tf-card__free-text"
+              maxLength={FREE_TEXT_MAX}
+              placeholder={freeTextPlaceholder(def.kind)}
+              value={freeText}
+              onChange={(event) => setFreeText(event.target.value)}
+            />
+          )}
+        </div>
       </div>
       <div className="tf-card-expand__actions">
         <button type="button" onClick={() => onConfirm(resolveFreeText(def.kind, freeText))}>

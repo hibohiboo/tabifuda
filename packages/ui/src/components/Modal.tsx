@@ -30,7 +30,11 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 初期フォーカスをモーダル内へ移す
+    // 初期フォーカスをモーダル内へ移す。閉じたら元の要素へ戻す
+    // (/code-review指摘、2026-09-12: 戻さないとキーボード操作で
+    // 手札一覧からモーダルを開いて閉じるたびにフォーカスがdocument.body
+    // へ飛び、次のTabがページ先頭からやり直しになっていた)。
+    const previouslyFocused = document.activeElement;
     const container = containerRef.current;
     if (container !== null) getFocusable(container)[0]?.focus();
 
@@ -58,7 +62,10 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
       }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
+    };
   }, []);
 
   return (
