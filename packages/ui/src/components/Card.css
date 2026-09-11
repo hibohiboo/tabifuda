@@ -88,6 +88,7 @@
    内部でスクロールさせる(overflow-y: auto。baseの.tf-cardが持つ
    overflow: hiddenを上書き)。 */
 .tf-card--large {
+  position: relative;
   width: min(320px, 100%);
   aspect-ratio: 1 / 1.41421356;
   padding: 16px;
@@ -96,8 +97,28 @@
   overflow-y: auto;
 }
 
+/* 中央の大アイコンは、うっすら見える程度の透過した背景として敷き、
+   タイトル・本文をその上に重ねる(2026-09-12、ユーザー指定)。position:
+   absoluteでflexのフローから外し、カード中央に大きく配置する。
+   pointer-eventsを切って、下の「出す」操作等への干渉を避ける。 */
 .tf-card--large .tf-card__icon {
-  width: 96px;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 75%;
+  opacity: 0.15;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 背景アイコンより前面に出すため、テキスト系要素にstacking contextを
+   持たせる(position: staticのままだとposition: absoluteの背景アイコンの
+   下に描画されてしまう)。 */
+.tf-card--large .tf-card__title-row,
+.tf-card--large .tf-card__text,
+.tf-card--large .tf-card__free-text {
+  position: relative;
+  z-index: 1;
 }
 
 .tf-card__text {
