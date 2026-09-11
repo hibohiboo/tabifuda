@@ -158,6 +158,19 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       `CARD_KIND_ICONS`/`CARD_KIND_COLORS`と既存の`sampleCardsByKind`を
       使い、Card/CardLargeの見本より前に種別名+アイコン+縁取り色の凡例を
       表示する。ブラウザで表示・Playwrightスモーク通過を確認
+- [x] CardKind::Proposalのサンプルが実在しない設計だった件を修正
+      (ユーザー指摘: 「洞窟も調べたい」という具体的提案カードは存在せず、
+      実際の提案操作はCommand::Propose(別コマンド)。CardKind::Proposalは
+      domain-model.md上「常時出せる、GMへの提案カード」)。設計文書
+      (ui-visual-design.md・domain-model.md)を先に更新した上で、CardLarge
+      の自由入力欄をDialogue/Proposalの2種別に拡張(PlayCard.free_textは
+      coreがkind非依存で受け付けるためcore変更は不要)。Proposalは
+      「タイトル」「内容」を書いてほしいがfree_textは単一文字列のため、
+      プレースホルダーにフォーマット例を示す形にした。カタログサンプルを
+      「GMへの提案」に変更。ブラウザで見た目・Playwrightスモーク通過を確認。
+      **注記**: Proposal種別のカードを実際に「出す」際、内部的には
+      PlayCardのままでCommand::Proposeへの切り替えは行っていない
+      (テンプレートシナリオに実運用が無いため次回以降の検討課題)
 
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
 
