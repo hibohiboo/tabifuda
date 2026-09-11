@@ -38,13 +38,17 @@
 /* タイトル行(種別アイコン+タイトル文字列)。カードの左上に表示する
    (2026-09-11、ユーザー指定)。アイコン(中央の大アイコン)・本文は
    .tf-cardのalign-items: centerに従って中央寄せのままにし、この行だけ
-   align-selfで左寄せにする。 */
+   align-selfで左寄せにする。
+   align-self: stretchでカード内寸いっぱいの幅に固定する(2026-09-12、
+   useAutoFitTitle計測バグの修正)。flex-start(コンテンツに合わせて縮む
+   幅)のままだと、テキストが短い間は.tf-card__titleのclientWidthが
+   常にscrollWidthとほぼ一致してしまい、「収まっているかどうか」を
+   判定できなかった(短いタイトルまで誤って縮小される不具合の原因)。 */
 .tf-card__title-row {
-  align-self: flex-start;
+  align-self: stretch;
   display: flex;
   align-items: center;
-  gap: 3px;
-  max-width: 100%;
+  gap: 2px;
   /* flexアイテムの既定min-width: autoのままだと、子(.tf-card__title)の
      text-overflow: ellipsisが機能しない(縮まずにあふれる)ため0にする。 */
   min-width: 0;
@@ -53,20 +57,26 @@
 /* タイトル左の小アイコン(2026-09-12、ユーザー指定)。中央の大アイコン
    (.tf-card__icon)と役割が違うため別クラスにする。 */
 .tf-card__title-icon {
-  width: 10px;
+  width: 8px;
   aspect-ratio: 74 / 94;
   flex-shrink: 0;
 }
 
 .tf-card--large .tf-card__title-icon {
-  width: 16px;
+  width: 14px;
 }
 
 .tf-card__title {
   /* 1行固定(2026-09-12、ユーザー指定: 改行で2行目が見切れる問題への対処)。
      収まらない長さのタイトルはuseAutoFitTitle(Card.tsx/CardLarge.tsx)が
      フォントサイズを縮小する。縮小してもなお収まらない場合はここの
-     text-overflow: ellipsisで省略する。 */
+     text-overflow: ellipsisで省略する。
+     flex: 1でtitle-row内の残り幅(アイコン分を除いた幅)いっぱいに
+     広がる。これによりclientWidthが常に「実際に使える幅」の固定値になり、
+     scrollWidth(テキストが必要とする幅)との比較でオーバーフローを
+     正しく検出できる(flex-startのまま=コンテンツに合わせて縮む幅だと、
+     短いタイトルでもclientWidthがscrollWidthと一致してしまい判定できない)。 */
+  flex: 1 1 0;
   min-width: 0;
   margin: 0;
   font-size: 0.7rem;

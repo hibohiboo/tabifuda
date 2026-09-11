@@ -35,9 +35,9 @@ export function CardLarge({
   // 確定操作(onConfirm呼び出し)はカードの外で行うがテキスト自体は
   // カード内で保持する。
   const [freeText, setFreeText] = useState("");
-  // 基準1.1rem(=17.6px)。改行が必要な長さの時だけ最小11pxまで縮小する
+  // 基準1.1rem(=17.6px)。改行が必要な長さの時だけ最小10pxまで縮小する
   // (2026-09-12、ユーザー指定)。
-  const { ref, fontSize } = useAutoFitTitle(def.name, 17.6, 11);
+  const { ref, fontSize } = useAutoFitTitle(def.name, 17.6, 10);
 
   return (
     <div className="tf-card-expand">
