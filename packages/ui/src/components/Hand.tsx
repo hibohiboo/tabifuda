@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { HandCard } from "../session/scenarioLookup";
 import { Card } from "./Card";
 import { CardLarge } from "./CardLarge";
@@ -16,10 +16,15 @@ export function Hand({
   // 展開→確認の2段階を踏む(P6 C2着手前決定。誤タップでの誤使用を防ぐ)。
   const [selected, setSelected] = useState<string | null>(null);
   const selectedCard = cards.find(({ instance }) => instance.id === selected);
+  // 「出す」で選んだカードが手札から除去されると、モーダルを開く前に
+  // フォーカスしていたボタン自体がDOMから消える。Modalのフォーカス復帰が
+  // 空振りした場合のフォールバック先として手札一覧自体を渡す
+  // (edge-case-reviewerで指摘、2026-09-12)。
+  const handRef = useRef<HTMLUListElement>(null);
 
   return (
     <>
-      <ul className="tf-hand">
+      <ul className="tf-hand" ref={handRef} tabIndex={-1}>
         {cards.map(({ instance, def }) => (
           <li key={instance.id}>
             {def === undefined ? (
@@ -45,7 +50,7 @@ export function Hand({
         ))}
       </ul>
       {selectedCard?.def !== undefined && (
-        <Modal onClose={() => setSelected(null)}>
+        <Modal onClose={() => setSelected(null)} restoreFocusFallbackRef={handRef}>
           <CardLarge
             def={selectedCard.def}
             onConfirm={(freeText) => {

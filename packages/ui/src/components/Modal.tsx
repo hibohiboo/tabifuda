@@ -7,7 +7,7 @@
 // 遷移してモーダルごとアンマウントされ、入力中の自由入力が無警告で消える
 // (edge-case-reviewerで指摘、2026-09-11)。
 import { useEffect, useRef } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import "./Modal.css";
 
 function getFocusable(container: HTMLElement): HTMLElement[] {
@@ -18,7 +18,20 @@ function getFocusable(container: HTMLElement): HTMLElement[] {
   ).filter((el) => !el.hasAttribute("disabled"));
 }
 
-export function Modal({ children, onClose }: { children: ReactNode; onClose: () => void }) {
+export function Modal({
+  children,
+  onClose,
+  restoreFocusFallbackRef,
+}: {
+  children: ReactNode;
+  onClose: () => void;
+  /** 開く前にフォーカスしていた要素が閉じる時点でDOMから消えている場合
+   *  (例: Hand.tsxで「出す」を押しカードが手札から除去された場合)の
+   *  フォーカス復帰先。省略時は何もしない(ブラウザ既定でbodyへ戻る)。
+   *  edge-case-reviewerで指摘、2026-09-12: 「出す」経路では
+   *  previouslyFocusedが常にdetachedになりフォーカス復帰が効かなかった。 */
+  restoreFocusFallbackRef?: RefObject<HTMLElement | null>;
+}) {
   // 呼び出し側(Hand.tsx)は毎レンダーで新しいアロー関数を渡すため、effectの
   // 依存にonClose自体を含めるとモーダル表示中の無関係な再レンダーのたびに
   // documentのリスナーを付け外ししてしまう。refで最新値だけ追従させ、
@@ -34,7 +47,12 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
     // (/code-review指摘、2026-09-12: 戻さないとキーボード操作で
     // 手札一覧からモーダルを開いて閉じるたびにフォーカスがdocument.body
     // へ飛び、次のTabがページ先頭からやり直しになっていた)。
-    const previouslyFocused = document.activeElement;
+    const previouslyFocused: Element | null = document.activeElement;
+    // クリーンアップ実行時点でrestoreFocusFallbackRef.currentを直接読むと
+    // 「その時点で変わっている可能性がある」とeslintに指摘されるため、
+    // ここでローカル変数にコピーしておく(このrefは通常アンマウントまで
+    // 同じ要素を指し続けるため実質的な違いは無い)。
+    const fallback = restoreFocusFallbackRef?.current ?? null;
     const container = containerRef.current;
     if (container !== null) getFocusable(container)[0]?.focus();
 
@@ -64,9 +82,17 @@ export function Modal({ children, onClose }: { children: ReactNode; onClose: () 
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
+      // 「出す」でカード自体が手札から除去されると、previouslyFocusedは
+      // このクリーンアップ実行時点で既にDOMから切り離されている
+      // (isConnected: false)。その場合はfallback(呼び出し側が用意する
+      // 手札一覧コンテナ等)へフォーカスする。
+      if (previouslyFocused instanceof HTMLElement && previouslyFocused.isConnected) {
+        previouslyFocused.focus();
+      } else {
+        fallback?.focus();
+      }
     };
-  }, []);
+  }, [restoreFocusFallbackRef]);
 
   return (
     <div
