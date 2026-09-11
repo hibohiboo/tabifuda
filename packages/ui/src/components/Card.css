@@ -62,6 +62,10 @@
 
 .tf-card__title--large {
   font-size: 1.1rem;
+  /* 小サイズの2行クランプ(display: -webkit-box)を解除し、通常のブロック
+     表示に戻す(-webkit-line-clamp: unsetだけでは-webkit-boxが残る
+     ブラウザがあるため、displayも明示的に上書きする)。 */
+  display: block;
   -webkit-line-clamp: unset;
 }
 
