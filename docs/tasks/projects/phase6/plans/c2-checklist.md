@@ -66,8 +66,10 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       書かれたセレクタ(例:`getByRole("button", { name: "獣の巣に到着する" })`
       で即クリック)は全て「タップして展開→出す」の2手順に直す**
 - [x] `pnpm --filter @tabifuda/web test:e2e`で通過確認
-- [ ] design-syncで設計文書との乖離チェック(`design-sync-screen`エージェント
-      に一次スクリーニングを任せてよい)
+- [x] design-syncで設計文書との乖離チェック。2件検出し同PRで文書側を修正
+      (大サイズカードの白銀比は小サイズ限定の原則と明記/アニメーション
+      手段の用語を「CSS Transitionのみ」→「CSSのみ(Transition/Animation)」
+      に訂正)。非規範文書(demo.md)のWeb版操作説明も新フローに更新
 - [ ] task.md frontmatter更新(C2: planned → done)
 
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
