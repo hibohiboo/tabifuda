@@ -3,7 +3,7 @@ status: in-progress
 cycles:
   C1: done
   C2: done
-  C3: planned
+  C3: in-progress
 ---
 
 # Phase 6 実装タスク: カードUI改善
