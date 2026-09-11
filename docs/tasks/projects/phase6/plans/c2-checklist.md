@@ -32,41 +32,40 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
 
 ## 実装
 
-- [ ] `packages/ui/src/components/cardIcons.tsx`と対になる、`CardKind`→
-      縁取り色のマッピングを追加(`CARD_KIND_COLORS`等。網羅性は
+- [x] `packages/ui/src/components/cardIcons.tsx`と対になる、`CardKind`→
+      縁取り色のマッピングを追加(`CARD_KIND_COLORS`。網羅性は
       `Record<CardKind, string>`で担保。C1の`CARD_KIND_ICONS`と同じ考え方)
-- [ ] `Card.css`に`.tf-card`へ`border-color`を種別ごとに適用する仕組みを追加
-      (小サイズCardにも縁取り色を反映)
-- [ ] `CardLarge`コンポーネントを新設(`packages/ui/src/components/CardLarge.tsx`)。
+- [x] `Card.css`に`.tf-card`へ`border-color`を種別ごとに適用する仕組みを追加
+      (小サイズCardにも縁取り色を反映。実装はコンポーネント側`style`指定)
+- [x] `CardLarge`コンポーネントを新設(`packages/ui/src/components/CardLarge.tsx`)。
       カード名・種別アイコン・本文(`CardDef.text`)を表示。スマホ幅で
       読みやすいレイアウトにする
-- [ ] `CardLarge`にDialogue用の自由入力欄(既存`FreeTextInput`を再利用)を
+- [x] `CardLarge`にDialogue用の自由入力欄(既存`FreeTextInput`を再利用)を
       内部統合する。他種別では表示しない
-- [ ] モーダル/オーバーレイの表示に使う仕組みを用意する(`packages/ui`に
-      既存のモーダル系コンポーネントが無ければ、`CardLarge`表示専用として
-      最小実装する。ライブラリは導入しない)
-- [ ] `Hand.tsx`を置き換え:
+- [x] モーダル/オーバーレイの表示に使う仕組みを用意する(`Modal.tsx`を新設。
+      Escキー・オーバーレイクリックで閉じる最小実装。ライブラリは導入しない)
+- [x] `Hand.tsx`を置き換え:
   - 手札一覧は小`Card`をボタン化して横に並べる(横スクロール)
   - タップで対応する`CardLarge`をモーダル表示する状態管理に変更
   - モーダル内の確定操作は既存同様「出す」ボタン(`onPlay`呼び出し)
   - モーダルを閉じる操作(閉じるボタン/オーバーレイ外タップ)で選択状態を
-    リセットする(既存`armed`相当のstateを流用してよい)
+    リセットする(既存`armed`相当のstateを`selected`に置き換えて流用)
   - Dialogueの場合は自由入力後に「出す」を押して確定する流れを維持する
-- [ ] `apps/web`側(`App.tsx`・`SceneView.tsx`)は、`Hand`へのprops
-      (`cards`/`onPlay`)に変更が無ければ手を入れない(影響確認のみ)
+- [x] `apps/web`側(`App.tsx`・`SceneView.tsx`)は、`Hand`へのprops
+      (`cards`/`onPlay`)に変更が無く、手を入れていない(影響確認のみ)
 
 ## 確認
 
-- [ ] `pnpm --filter @tabifuda/ui typecheck` / `lint`
-- [ ] `pnpm --filter @tabifuda/web typecheck` / `lint`
-- [ ] コンポーネントカタログ(`tools/docs-site`)に`CardLarge`の見本を追加
+- [x] `pnpm --filter @tabifuda/ui typecheck` / `lint`
+- [x] `pnpm --filter @tabifuda/web typecheck` / `lint`
+- [x] コンポーネントカタログ(`tools/docs-site`)に`CardLarge`の見本を追加
       (6種類)。既存`Card`の見本にも縁取り色反映後の見た目を反映
-- [ ] `pnpm --filter docs-site typecheck` / `build`
-- [ ] `apps/web/e2e/simple-hunt.spec.ts`を新フロー(カードをタップ→モーダル
+- [x] `pnpm --filter docs-site typecheck` / `build`
+- [x] `apps/web/e2e/simple-hunt.spec.ts`を新フロー(カードをタップ→モーダル
       内「出す」で確定)に書き換える。**現状の「ワンタップ即時使用」を前提に
       書かれたセレクタ(例:`getByRole("button", { name: "獣の巣に到着する" })`
       で即クリック)は全て「タップして展開→出す」の2手順に直す**
-- [ ] `pnpm --filter @tabifuda/web test:e2e`で通過確認
+- [x] `pnpm --filter @tabifuda/web test:e2e`で通過確認
 - [ ] design-syncで設計文書との乖離チェック(`design-sync-screen`エージェント
       に一次スクリーニングを任せてよい)
 - [ ] task.md frontmatter更新(C2: planned → done)
