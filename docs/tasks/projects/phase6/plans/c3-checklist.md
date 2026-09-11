@@ -67,6 +67,15 @@ C2は既にdone。ユーザー確認の上、C3として正式に着手する
       client-conventions.mdのeventRenderers.tsx旧パス(apps/web/src/...)を
       packages/ui/src/...に修正、GmJudgePanelカードプレビューの追記。
       ui-visual-design.mdに「山(束)構造は今回見送り」の決定も記録
+
+## レビュー対応
+
+- [x] eng-practicesセルフレビュー: `CardThumbs`の`key`が`def.id`のみだと
+      `CardsDiscarded`(同種カード複数枚)で重複しうる点を修正(index併用)
+- [x] `/code-review`指摘4件を修正: Modalのフォーカス復帰漏れ・背景アイコンが
+      スクロールと一緒に流れる・`findCardDef`の二重呼び出し・使われない
+      CSS宣言(`font-size: 0.7rem`)。見送り2件(useAutoFitTitleのresize
+      非対応・CardLargeの自由入力欄実装重複)は理由付きでコミットに記録
 - [ ] **Q4再訪**(post-p3.5-replanning-decisions.md): 身近な1〜2人に
       見せるかをユーザーに確認し、結果を本ファイルに記録
 - [ ] task.md frontmatter更新(C3: planned → done)
