@@ -72,6 +72,21 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       に訂正)。非規範文書(demo.md)のWeb版操作説明も新フローに更新
 - [x] task.md frontmatter更新(C2: planned → done)
 
+## レビュー対応
+
+- [x] eng-practicesセルフレビュー: 大サイズタイトルの`-webkit-line-clamp: unset`
+      だけでは`display: -webkit-box`が残るブラウザがありうる点を修正
+- [x] `run`スキルでブラウザ実行確認(スクリーンショット): 手札→モーダル展開
+      (Dialogue/非Dialogue)・コンポーネントカタログの縁取り色6種を目視確認
+- [x] `/code-review`指摘2件を修正(Modalのeffect依存が毎レンダー再登録される
+      問題・カタログのサンプル生成関数の重複)
+- [x] `edge-case-reviewer`指摘のP1 3件を修正: IME変換中Escapeでの誤クローズ
+      ・フォーカストラップ未実装によるモーダル外操作でのデータロス・
+      CardDef未解決フォールバックの確認なし即時使用。いずれもブラウザで
+      実際の挙動を確認済み。P2(z-index未指定)も併せて対応。残るP2
+      (Playwrightの命名重複リスク・単体テスト皆無)は将来のリスクとして
+      許容(test-strategy.mdの方針と整合)
+
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
 
 Phase6はフェーズ×モデル対応表に未掲載の新しいフェーズのため、既定の
