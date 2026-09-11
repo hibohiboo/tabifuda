@@ -63,7 +63,10 @@ C2は既にdone。ユーザー確認の上、C3として正式に着手する
 - [x] `apps/web/e2e/simple-hunt.spec.ts`のPlaywrightスモークが
       引き続き通ることを確認。加えて実プレイ(apps/webビルド+preview)で
       通しプレイし、Timelineの見た目・コンソールエラー無しを確認
-- [ ] design-syncで設計文書との乖離チェック
+- [x] design-syncで設計文書との乖離チェック。2件検出し修正:
+      client-conventions.mdのeventRenderers.tsx旧パス(apps/web/src/...)を
+      packages/ui/src/...に修正、GmJudgePanelカードプレビューの追記。
+      ui-visual-design.mdに「山(束)構造は今回見送り」の決定も記録
 - [ ] **Q4再訪**(post-p3.5-replanning-decisions.md): 身近な1〜2人に
       見せるかをユーザーに確認し、結果を本ファイルに記録
 - [ ] task.md frontmatter更新(C3: planned → done)
