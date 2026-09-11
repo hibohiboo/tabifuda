@@ -10,6 +10,10 @@
   background: rgba(0, 0, 0, 0.6);
   box-sizing: border-box;
   animation: tf-modal-fade-in 120ms ease-out;
+  /* 他要素にz-indexを持つスタッキングコンテキストが増えても背面に
+     回り込まないよう明示する(現状は他に指定箇所が無く実害はないが、
+     edge-case-reviewerの指摘で防御的に追加、2026-09-11)。 */
+  z-index: 100;
 }
 
 .tf-modal {

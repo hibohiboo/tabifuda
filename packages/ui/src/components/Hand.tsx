@@ -23,9 +23,13 @@ export function Hand({
         {cards.map(({ instance, def }) => (
           <li key={instance.id}>
             {def === undefined ? (
-              // シナリオにカード定義が見つからない防御的フォールバック
-              // (通常到達しない。旧実装から踏襲)
-              <button type="button" onClick={() => onPlay(instance.id, null)}>
+              // シナリオにカード定義が見つからないのはシナリオデータの
+              // 不整合(パッチ適用ミス等)であり異常系。「全種類統一で
+              // タップ→展開→確認」の例外として確認なしに即時使用させず、
+              // 無効化して使用不能にする(edge-case-reviewerで指摘、
+              // 2026-09-11。通常到達しない経路のため実害は無いが、異常系
+              // でこそ確認省略・即時実行を避ける)
+              <button type="button" disabled title="カード定義を解決できません">
                 {instance.card}
               </button>
             ) : (
