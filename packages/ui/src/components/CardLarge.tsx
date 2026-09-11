@@ -38,8 +38,8 @@ export function CardLarge({
   return (
     <div className="tf-card-expand">
       <div className="tf-card tf-card--large" style={{ borderColor: CARD_KIND_COLORS[def.kind] }}>
-        <Icon className="tf-card__icon" />
         <p className="tf-card__title tf-card__title--large">{def.name}</p>
+        <Icon className="tf-card__icon" />
         {def.text !== "" && <p className="tf-card__text">{def.text}</p>}
         {def.kind === "Dialogue" && (
           <textarea

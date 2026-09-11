@@ -10,8 +10,8 @@ export function Card({ name, kind }: { name: string; kind: CardKind }) {
   const Icon = CARD_KIND_ICONS[kind];
   return (
     <div className="tf-card tf-card--small" style={{ borderColor: CARD_KIND_COLORS[kind] }}>
-      <Icon className="tf-card__icon" />
       <p className="tf-card__title">{name}</p>
+      <Icon className="tf-card__icon" />
     </div>
   );
 }
