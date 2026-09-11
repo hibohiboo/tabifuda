@@ -1,0 +1,21 @@
+/* CardLarge内(自由入力を持つDialogueカード)でカード幅いっぱいに広がる
+   ように、また既存のProposalFormでもフォームらしい幅で使えるように、
+   ルート要素を親の幅いっぱいにする(P6 C2、2026-09-11)。 */
+.tf-free-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tf-free-text__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.tf-free-text__actions {
+  display: flex;
+  gap: 8px;
+}
