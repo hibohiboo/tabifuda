@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import {
+  CARD_KIND_COLORS,
+  CARD_KIND_ICONS,
   Card,
   CardLarge,
   ErrorBanner,
@@ -58,6 +60,36 @@ export default function ComponentsView() {
       <section className="layer">
         <h2 className="layer__title">コンポーネント一覧</h2>
         <div className="task-list catalog">
+          <CatalogItem
+            title="CardKind一覧"
+            description="CardKind(6種)と既定アイコン・縁取り色の対応(cardIcons.tsx・cardColors.ts)。"
+          >
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+              {sampleCardsByKind.map((def) => {
+                const Icon = CARD_KIND_ICONS[def.kind];
+                return (
+                  <div
+                    key={def.id}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <Icon
+                      style={{
+                        width: "32px",
+                        aspectRatio: "74 / 94",
+                        color: CARD_KIND_COLORS[def.kind],
+                      }}
+                    />
+                    <code>{def.kind}</code>
+                  </div>
+                );
+              })}
+            </div>
+          </CatalogItem>
           <CatalogItem
             title="Card"
             description="CardKind種類別の既定アイコン・縁取り色を持つカード(白銀比縦長・小サイズ)。CardKind全6種の見本。"
