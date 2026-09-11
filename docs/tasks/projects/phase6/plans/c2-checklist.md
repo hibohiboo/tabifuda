@@ -119,6 +119,17 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       `min-width: auto`のままだとtext-overflow: ellipsisが機能しない
       ため`min-width: 0`を追加。ブラウザでカタログの見た目・
       Playwrightスモーク通過を確認
+- [x] タイトル自動縮小の判定方法をCanvas計測に切り替え(ユーザー指摘:
+      タイトル横アイコン追加後、小サイズカードでタイトルが「…」省略
+      されるようになった)。scrollWidth/clientWidthの比較には2つの
+      問題があり(1: align-self: flex-startの行はコンテンツに合わせて
+      縮むためclientWidthがscrollWidthと常に一致してしまう、2: 1を
+      align-self: stretch+flex: 1で解消すると今度はoverflow: hiddenの
+      要素のscrollWidthがコンテンツに関わらず要素自身の幅を返す仕様の
+      ため安全マージン判定が常にtrueになる)、Canvas 2Dのmeasuretextで
+      テキストの実際の描画幅を直接計算する方式に変更した。ブラウザで
+      文字数に応じた正しい縮小(短いタイトルは基準サイズのまま)を確認、
+      Playwrightスモーク通過も確認
 
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
 
