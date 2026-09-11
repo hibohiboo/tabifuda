@@ -78,7 +78,23 @@
   text-align: left;
 }
 
-.tf-card__actions {
+.tf-card__free-text {
+  align-self: stretch;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+/* CardLarge全体(カード+アクションボタン)のラッパー。「出す」「キャンセル」
+   はカードの見た目(枠)の外に置く(2026-09-11、ユーザー指定)。 */
+.tf-card-expand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(320px, 100%);
+}
+
+.tf-card-expand__actions {
   display: flex;
   gap: 8px;
 }
