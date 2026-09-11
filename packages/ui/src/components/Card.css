@@ -161,5 +161,15 @@
 
 .tf-card-expand__actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
+}
+
+/* 「出す」「キャンセル」の当たり判定(2026-09-12、ユーザー指摘: スマホで
+   指による誤操作が起きやすいほど狭かった)。モバイルのタップ領域推奨値
+   (Apple HIG 44pt / Material Design 48dp)に合わせ、最低44pxを確保する。 */
+.tf-card-expand__button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 24px;
+  font-size: 1rem;
 }

@@ -87,10 +87,14 @@ export function CardLarge({
         </div>
       </div>
       <div className="tf-card-expand__actions">
-        <button type="button" onClick={() => onConfirm(resolveFreeText(def.kind, freeText))}>
+        <button
+          type="button"
+          className="tf-card-expand__button"
+          onClick={() => onConfirm(resolveFreeText(def.kind, freeText))}
+        >
           出す
         </button>
-        <button type="button" onClick={onCancel}>
+        <button type="button" className="tf-card-expand__button" onClick={onCancel}>
           キャンセル
         </button>
       </div>
