@@ -70,7 +70,7 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       (大サイズカードの白銀比は小サイズ限定の原則と明記/アニメーション
       手段の用語を「CSS Transitionのみ」→「CSSのみ(Transition/Animation)」
       に訂正)。非規範文書(demo.md)のWeb版操作説明も新フローに更新
-- [ ] task.md frontmatter更新(C2: planned → done)
+- [x] task.md frontmatter更新(C2: planned → done)
 
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
 
