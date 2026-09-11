@@ -25,8 +25,10 @@ function CardThumbs({ defs }: { defs: (CardDef | undefined)[] }) {
   if (found.length === 0) return null;
   return (
     <div className="tf-chronicle-cards">
-      {found.map((def) => (
-        <Card key={def.id} name={def.name} kind={def.kind} />
+      {/* CardsDiscarded等は同じCardId(同種カード複数枚)が重複しうるため、
+          def.idだけでなくindexもkeyに含める。 */}
+      {found.map((def, index) => (
+        <Card key={`${def.id}-${index}`} name={def.name} kind={def.kind} />
       ))}
     </div>
   );
