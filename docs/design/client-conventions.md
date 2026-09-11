@@ -25,7 +25,7 @@ wasm-boundary.md方針3の実装。`Event`/`Command`は`#[non_exhaustive]`な
   種別を黙って無視しない」要求を型で満たす)
 - 「明示的に扱うが描画・処理しない」場合はキー自体は書いた上で`null`等の
   no-op値を返す(キーを省略するのではない)。例:
-  `apps/web/src/chronicle/eventRenderers.tsx`の`CardRemoved: () => null`
+  `packages/ui/src/chronicle/eventRenderers.tsx`の`CardRemoved: () => null`
 
 ## 冒険記(Web版タイムライン)のCardRemoved
 
@@ -55,6 +55,9 @@ CLI版`chronicle.rs`はイベントを1パスで畳み込みながら`ScenarioPa
 CardIdを使い、`ApplyPatch{ops:[AddCardDef{...,kind:Scenario,...},
 DealCard{card,to:Party}], note}`を発行する。一意性検証はCLIと同様
 `decide`内の`validate`が担い、TS側はルール分岐を持たない。
+`c`のフォームは入力中のカード名を小`Card`(`kind: "Scenario"`固定)で
+リアルタイムプレビューする(P6 C3、2026-09-12。CLIには無いWeb版独自の
+UI補助であり、CLIパリティの対象外)。
 
 ## UIコンポーネントの置き場(packages/ui、2026-08-01決定)
 
