@@ -46,14 +46,18 @@
   -webkit-box-orient: vertical;
 }
 
-/* 大サイズ(P6 C2、2026-09-11): スマホ幅で詳細(本文・自由入力欄)まで
-   読める必要があるため、小サイズのような固定の白銀比矩形にはせず、
-   幅の上限のみ決めて高さは内容に合わせて伸ばす。 */
+/* 大サイズ(P6 C2、2026-09-11再決定): 小サイズと同じ白銀比(1:√2)の
+   縦長矩形に固定する(ui-visual-design.md「カードのビジュアル方針」)。
+   本文・自由入力欄が矩形に収まらない場合は、カードの形は保ったまま
+   内部でスクロールさせる(overflow-y: auto。baseの.tf-cardが持つ
+   overflow: hiddenを上書き)。 */
 .tf-card--large {
   width: min(320px, 100%);
+  aspect-ratio: 1 / 1.41421356;
   padding: 16px;
   gap: 12px;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .tf-card--large .tf-card__icon {
