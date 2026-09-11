@@ -14,9 +14,12 @@ export function Card({ name, kind }: { name: string; kind: CardKind }) {
   const { ref, fontSize } = useAutoFitTitle(name, 11.2, 7);
   return (
     <div className="tf-card tf-card--small" style={{ borderColor: CARD_KIND_COLORS[kind] }}>
-      <p className="tf-card__title" ref={ref} style={{ fontSize: `${fontSize}px` }}>
-        {name}
-      </p>
+      <div className="tf-card__title-row">
+        <Icon className="tf-card__title-icon" />
+        <p className="tf-card__title" ref={ref} style={{ fontSize: `${fontSize}px` }}>
+          {name}
+        </p>
+      </div>
       <Icon className="tf-card__icon" />
     </div>
   );

@@ -35,16 +35,39 @@
   flex-shrink: 0;
 }
 
+/* タイトル行(種別アイコン+タイトル文字列)。カードの左上に表示する
+   (2026-09-11、ユーザー指定)。アイコン(中央の大アイコン)・本文は
+   .tf-cardのalign-items: centerに従って中央寄せのままにし、この行だけ
+   align-selfで左寄せにする。 */
+.tf-card__title-row {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 100%;
+  /* flexアイテムの既定min-width: autoのままだと、子(.tf-card__title)の
+     text-overflow: ellipsisが機能しない(縮まずにあふれる)ため0にする。 */
+  min-width: 0;
+}
+
+/* タイトル左の小アイコン(2026-09-12、ユーザー指定)。中央の大アイコン
+   (.tf-card__icon)と役割が違うため別クラスにする。 */
+.tf-card__title-icon {
+  width: 10px;
+  aspect-ratio: 74 / 94;
+  flex-shrink: 0;
+}
+
+.tf-card--large .tf-card__title-icon {
+  width: 16px;
+}
+
 .tf-card__title {
-  /* カードの左上に表示する(2026-09-11、ユーザー指定)。アイコン・本文は
-     .tf-cardのalign-items: centerに従って中央寄せのままにし、タイトルだけ
-     align-selfで左寄せにする。
-     1行固定(2026-09-12、ユーザー指定: 改行で2行目が見切れる問題への対処)。
+  /* 1行固定(2026-09-12、ユーザー指定: 改行で2行目が見切れる問題への対処)。
      収まらない長さのタイトルはuseAutoFitTitle(Card.tsx/CardLarge.tsx)が
      フォントサイズを縮小する。縮小してもなお収まらない場合はここの
      text-overflow: ellipsisで省略する。 */
-  align-self: flex-start;
-  max-width: 100%;
+  min-width: 0;
   margin: 0;
   font-size: 0.7rem;
   line-height: 1.2;
