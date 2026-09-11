@@ -96,6 +96,12 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       出す(ユーザー指定)。`CardLarge`は`FreeTextInput`への依存をやめ、
       自由入力状態を内部で直接管理する形に変更。いずれもブラウザで
       見た目を確認し、Playwrightスモークの通過も確認
+- [x] 大サイズカードを白銀比(1:√2)固定に戻す(ユーザー指定。直前の
+      design-sync決定「大サイズは高さ可変」を上書き)。`aspect-ratio`で
+      固定し、収まらない本文・自由入力欄はカード内スクロール
+      (`overflow-y: auto`)で対応。ui-visual-design.md「形状」を更新し、
+      実測の寸法比(1.4142)・カタログでの表示崩れ無し・Playwright
+      スモーク通過を確認
 
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
 
