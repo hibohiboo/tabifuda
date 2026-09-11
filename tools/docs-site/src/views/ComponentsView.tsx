@@ -102,7 +102,7 @@ export default function ComponentsView() {
           </CatalogItem>
           <CatalogItem
             title="CardLarge"
-            description="大サイズカード(カード名・本文まで表示)。Dialogueのみ自由入力欄を内蔵する。CardKind全6種の見本。"
+            description="大サイズカード(カード名・本文まで表示)。Dialogue/Proposalは自由入力欄を内蔵する。CardKind全6種の見本。"
           >
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
               {sampleCardsLargeByKind.map((def) => (

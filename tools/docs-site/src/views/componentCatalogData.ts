@@ -37,7 +37,7 @@ export const sampleCardsByKind: CardDef[] = [
   sampleCard("sample-action", "斬りかかる", "Action"),
   sampleCard("sample-scenario", "獣の巣に到着する", "Scenario"),
   sampleCard("sample-dialogue", "依頼を受ける", "Dialogue"),
-  sampleCard("sample-proposal", "洞窟も調べたい", "Proposal"),
+  sampleCard("sample-proposal", "GMへの提案", "Proposal"),
   sampleCard("sample-item", "傷薬", "Item"),
   sampleCard("sample-marker", "依頼受諾", "Marker"),
 ];
@@ -54,9 +54,9 @@ export const sampleCardsLargeByKind: CardDef[] = [
   sampleCard("sample-large-dialogue", "依頼を受ける", "Dialogue", "村長からの依頼を引き受ける。"),
   sampleCard(
     "sample-large-proposal",
-    "洞窟も調べたい",
+    "GMへの提案",
     "Proposal",
-    "森の外れにある洞窟も調べてみたい、とGMに提案する。",
+    "台本にない新しい選択肢をGMに提案する。タイトルと内容を自由入力欄に書いて出す。",
   ),
   sampleCard("sample-large-item", "傷薬", "Item", "傷を癒やす軟膏。使うと体力を少し回復する。"),
   sampleCard("sample-large-marker", "依頼受諾", "Marker", "依頼を受けたことを示す印。"),

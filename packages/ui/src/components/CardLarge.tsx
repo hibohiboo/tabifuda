@@ -13,11 +13,31 @@ import { CARD_KIND_COLORS } from "./cardColors";
 import { CARD_KIND_ICONS } from "./cardIcons";
 import { useAutoFitTitle } from "./useAutoFitTitle";
 
-// onConfirmへ渡すfreeTextを決める。Dialogue以外は常にnull、Dialogueは
+// 自由入力欄を持つCardKind。PlayCard.free_textはcore実装上どのkindでも
+// 受け付けるが(engine.rs decide_play_card)、UIではDialogue(台詞)と
+// Proposal(GMへの提案。domain-model.md「カード」)の2種別のみ表示する
+// (ui-visual-design.md「画面ごとのUI方向性」2026-09-12)。
+const FREE_TEXT_KINDS: ReadonlySet<CardDef["kind"]> = new Set(["Dialogue", "Proposal"]);
+
+function hasFreeText(kind: CardDef["kind"]): boolean {
+  return FREE_TEXT_KINDS.has(kind);
+}
+
+// onConfirmへ渡すfreeTextを決める。対象外の種別は常にnull、対象種別は
 // 空欄ならnull(free_textを送らない)、入力があればその文字列。
 function resolveFreeText(kind: CardDef["kind"], freeText: string): string | null {
-  if (kind !== "Dialogue") return null;
+  if (!hasFreeText(kind)) return null;
   return freeText === "" ? null : freeText;
+}
+
+// Proposalは「タイトル」「内容」の2項目を書いてもらいたいが、
+// PlayCard.free_textは単一文字列のため、1つの欄にフォーマット例を
+// プレースホルダーとして示す形にする(コマンド構造の変更は伴わない)。
+function freeTextPlaceholder(kind: CardDef["kind"]): string {
+  if (kind === "Proposal") {
+    return "タイトル: 洞窟も調べたい\n内容: 森の外れの洞窟も気になっている";
+  }
+  return "自由入力(任意。空欄でも出せる)";
 }
 
 export function CardLarge({
@@ -26,13 +46,13 @@ export function CardLarge({
   onCancel,
 }: {
   def: CardDef;
-  /** freeTextはCardKind::Dialogueのみ非null(自由入力欄の内容、空欄ならnull)。 */
+  /** freeTextはDialogue/Proposalのみ非null(自由入力欄の内容、空欄ならnull)。 */
   onConfirm: (freeText: string | null) => void;
   onCancel: () => void;
 }) {
   const Icon = CARD_KIND_ICONS[def.kind];
-  // Dialogueのみ使う自由入力欄の内容。ボタンをカード外に出したため、
-  // 確定操作(onConfirm呼び出し)はカードの外で行うがテキスト自体は
+  // Dialogue/Proposalのみ使う自由入力欄の内容。ボタンをカード外に出した
+  // ため、確定操作(onConfirm呼び出し)はカードの外で行うがテキスト自体は
   // カード内で保持する。
   const [freeText, setFreeText] = useState("");
   // 基準1.1rem(=17.6px)。改行が必要な長さの時だけ最小11pxまで縮小する
@@ -50,11 +70,11 @@ export function CardLarge({
         </div>
         <Icon className="tf-card__icon" />
         {def.text !== "" && <p className="tf-card__text">{def.text}</p>}
-        {def.kind === "Dialogue" && (
+        {hasFreeText(def.kind) && (
           <textarea
             className="tf-card__free-text"
             maxLength={FREE_TEXT_MAX}
-            placeholder="自由入力(任意。空欄でも出せる)"
+            placeholder={freeTextPlaceholder(def.kind)}
             value={freeText}
             onChange={(event) => setFreeText(event.target.value)}
           />
