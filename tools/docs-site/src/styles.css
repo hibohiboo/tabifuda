@@ -98,6 +98,35 @@ body {
   background: #faf7f0;
 }
 
+.manual-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.manual-table th,
+.manual-table td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #e3d9c6;
+  vertical-align: top;
+}
+
+.manual-table th {
+  color: #8a8073;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.manual-table__kind {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .task {
   border: 1px solid #cbbfa9;
   border-radius: 0.5rem;

@@ -34,8 +34,8 @@ packages/
   eslint-config/ ESLint共通設定(base.js+frontend.js。apps/web・packages/uiが利用)
   schema/       Drizzleスキーマ・共有型(P4〜)
 tools/
-  docs-site/    docs可視化サイト(RDRA/進捗/テスト/コンポーネントの4ビュー。
-                packages/ui以外はゲーム本体と非依存)。
+  docs-site/    docs可視化サイト(RDRA/進捗/テスト/コンポーネント/マニュアルの
+                5ビュー。packages/ui以外はゲーム本体と非依存)。
                 公開中: https://hibohiboo.github.io/tabifuda/
 docs/
   requirements/ 要件(将来要望メモ含む)
