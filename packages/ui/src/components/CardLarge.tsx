@@ -42,9 +42,12 @@ export function CardLarge({
   return (
     <div className="tf-card-expand">
       <div className="tf-card tf-card--large" style={{ borderColor: CARD_KIND_COLORS[def.kind] }}>
-        <p className="tf-card__title" ref={ref} style={{ fontSize: `${fontSize}px` }}>
-          {def.name}
-        </p>
+        <div className="tf-card__title-row">
+          <Icon className="tf-card__title-icon" />
+          <p className="tf-card__title" ref={ref} style={{ fontSize: `${fontSize}px` }}>
+            {def.name}
+          </p>
+        </div>
         <Icon className="tf-card__icon" />
         {def.text !== "" && <p className="tf-card__text">{def.text}</p>}
         {def.kind === "Dialogue" && (

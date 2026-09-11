@@ -46,9 +46,9 @@
      タイトルはuseAutoFitTitle(Card.tsx/CardLarge.tsx)がフォントサイズを
      縮小する。縮小してもなお収まらない場合はここのtext-overflow: ellipsis
      で省略する。
-     タイトル左に種別アイコンを添える案(2026-09-12)は、小サイズカードで
-     使える幅が更に狭くなり短いタイトルまで縮小される実害が出たため
-     不採用とし、中央の大アイコンのみに戻した。 */
+     タイトル左に種別アイコンを添える案(2026-09-12)は、小サイズカードでは
+     使える幅が更に狭くなり短いタイトルまで縮小される実害が出たため不採用。
+     大サイズは幅に余裕があるため.tf-card__title-row(下記)で維持する。 */
   align-self: stretch;
   margin: 0;
   font-size: 0.7rem;
@@ -57,6 +57,29 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* 大サイズ限定のタイトル行(種別アイコン+タイトル文字列、2026-09-12)。
+   小サイズは幅制約(84px)のため不採用だが、大サイズ(320px)は余裕がある。
+   .tf-card__title-row内では.tf-card__titleにflex: 1 1 0を与え、行の
+   残り幅(アイコン分を除いた幅)いっぱいに広げる(親がrow方向のflex
+   コンテナのため、align-self: stretchだけでは幅方向に伸びない)。 */
+.tf-card__title-row {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tf-card__title-row .tf-card__title {
+  flex: 1 1 0;
+}
+
+.tf-card__title-icon {
+  width: 14px;
+  aspect-ratio: 74 / 94;
+  flex-shrink: 0;
 }
 
 /* 大サイズ(P6 C2、2026-09-11再決定): 小サイズと同じ白銀比(1:√2)の
