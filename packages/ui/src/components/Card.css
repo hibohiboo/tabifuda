@@ -1,17 +1,17 @@
 /* カードのビジュアル方針(docs/design/ui-visual-design.md「カードのビジュアル方針」):
    文章メインの差別化・種類別既定アイコン・白銀比(1:√2)縦長・小/大2サイズ。
-   このサイクル(P6 C1)では小サイズのみ実装する。
    クラス名は tf- プレフィックスを付け、tools/docs-site/src/styles.css の
    .card 系クラス(タスク一覧カード用。無関係の既存クラス)との衝突を避ける。
-   配色はui-visual-design.md「未決事項」でC2着手前に決定する予定のため、
-   ここでは既存apps/web/src/App.cssのダークモード配色をそのまま踏襲する
-   (新しい色を決めない)。 */
+   基調配色はapps/web/src/App.cssのダークモード配色を踏襲する。縁取り色は
+   CardKindごとに変える(cardColors.ts。同文書「配色・フォント・実装手段」
+   2026-09-11決定)ため、border-colorはコンポーネント側でstyle指定する
+   (Card.tsx/CardLarge.tsx参照)。 */
 
 .tf-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid #55555a;
+  border: 2px solid #55555a;
   border-radius: 6px;
   background: #1c1c24;
   color: #e8e6df;
@@ -44,4 +44,37 @@
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+/* 大サイズ(P6 C2、2026-09-11): スマホ幅で詳細(本文・自由入力欄)まで
+   読める必要があるため、小サイズのような固定の白銀比矩形にはせず、
+   幅の上限のみ決めて高さは内容に合わせて伸ばす。 */
+.tf-card--large {
+  width: min(320px, 100%);
+  padding: 16px;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.tf-card--large .tf-card__icon {
+  width: 96px;
+}
+
+.tf-card__title--large {
+  font-size: 1.1rem;
+  -webkit-line-clamp: unset;
+}
+
+.tf-card__text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  align-self: stretch;
+  text-align: left;
+}
+
+.tf-card__actions {
+  display: flex;
+  gap: 8px;
 }

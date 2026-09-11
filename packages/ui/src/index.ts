@@ -3,11 +3,14 @@
 // docs/design/client-conventions.md「UIコンポーネントの置き場(packages/ui)」参照。
 
 export { Card } from "./components/Card";
+export { CardLarge } from "./components/CardLarge";
+export { CARD_KIND_COLORS } from "./components/cardColors";
 export { CARD_KIND_ICONS } from "./components/cardIcons";
 export { ErrorBanner } from "./components/ErrorBanner";
 export { FreeTextInput } from "./components/FreeTextInput";
 export { GmJudgePanel } from "./components/GmJudgePanel";
 export { Hand } from "./components/Hand";
+export { Modal } from "./components/Modal";
 export { ProposalForm } from "./components/ProposalForm";
 export { SceneView } from "./components/SceneView";
 

@@ -1,0 +1,24 @@
+/* 手札一覧(Hearthstone/Shadowverse等の手札UIを参考にする。
+   ui-visual-design.md「画面ごとのUI方向性」)。横スクロールの一覧。 */
+.tf-hand {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.tf-hand li {
+  flex-shrink: 0;
+}
+
+/* Cardをボタンでラップする際、既定のbutton装飾を消してCard自体の
+   見た目だけを見せる。 */
+.tf-hand__card-button {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: block;
+}

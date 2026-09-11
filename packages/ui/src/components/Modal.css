@@ -1,0 +1,28 @@
+/* 状態変化(カード展開)の把握を助ける最小限のフェードのみ
+   (ui-visual-design.md「演出の強さ」「アニメーション実装手段」)。 */
+.tf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  box-sizing: border-box;
+  animation: tf-modal-fade-in 120ms ease-out;
+}
+
+.tf-modal {
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+@keyframes tf-modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

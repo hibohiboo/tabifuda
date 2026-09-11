@@ -41,6 +41,30 @@ export const sampleCardsByKind: CardDef[] = [
   sampleCard("sample-marker", "依頼受諾", "Marker"),
 ];
 
+// CardLarge(P6 C2、大サイズ)用。本文(text)まで見せるため空文字にはしない。
+function sampleCardLarge(id: string, name: string, kind: CardDef["kind"], text: string): CardDef {
+  return { id, name, kind, text, tags: [], effects: [], requires: [] };
+}
+
+export const sampleCardsLargeByKind: CardDef[] = [
+  sampleCardLarge("sample-large-action", "斬りかかる", "Action", "武器を構え、目の前の獣に斬りかかる。"),
+  sampleCardLarge(
+    "sample-large-scenario",
+    "獣の巣に到着する",
+    "Scenario",
+    "森の奥、獣の巣とおぼしき洞穴の前に辿り着いた。",
+  ),
+  sampleCardLarge("sample-large-dialogue", "依頼を受ける", "Dialogue", "村長からの依頼を引き受ける。"),
+  sampleCardLarge(
+    "sample-large-proposal",
+    "洞窟も調べたい",
+    "Proposal",
+    "森の外れにある洞窟も調べてみたい、とGMに提案する。",
+  ),
+  sampleCardLarge("sample-large-item", "傷薬", "Item", "傷を癒やす軟膏。使うと体力を少し回復する。"),
+  sampleCardLarge("sample-large-marker", "依頼受諾", "Marker", "依頼を受けたことを示す印。"),
+];
+
 export const sampleEvents: Event[] = [
   {
     SessionStarted: {
