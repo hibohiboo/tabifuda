@@ -96,8 +96,10 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
      `cargo clippy --workspace -- -D warnings` / `cargo fmt --all` を通す
    - TS側(`apps/`・`packages/`・`tools/`)に変更がある場合、変更のあった
      ワークスペースに対して `pnpm --filter <pkg> typecheck` /
-     `pnpm --filter <pkg> lint --if-present`(lintスクリプト未定義でも
-     失敗しない)/ 必要なら `build` を通す
+     `pnpm --filter <pkg> run --if-present lint`(`--if-present`は`run`の
+     直後に置く。スクリプト名の後に置くとlintへの引数として渡ってしまい
+     未定義時にエラー終了する。lintスクリプト未定義でも失敗しないのが
+     正しい形)/ 必要なら `build` を通す
    - 両方に変更があれば両方実行する(2026-08-12: TS変更のみのサイクルで
      cargo fmtを無条件実行し、存在しないdocs-site lintを実行してエラーに
      した教訓。docs/agent-journal.md参照)

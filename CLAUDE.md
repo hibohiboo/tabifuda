@@ -74,7 +74,7 @@ cargo clippy --workspace -- -D warnings
 cargo fmt --all
 
 pnpm --filter <pkg> typecheck       # TS側(変更のあったworkspaceに対して)
-pnpm --filter <pkg> lint --if-present  # lintスクリプトが無いパッケージでも失敗しない
+pnpm --filter <pkg> run --if-present lint  # lintスクリプトが無いパッケージでも失敗しない
 pnpm --filter <pkg> build
 ```
 
