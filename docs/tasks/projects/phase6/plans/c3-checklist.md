@@ -38,29 +38,31 @@ C2は既にdone。ユーザー確認の上、C3として正式に着手する
 
 ## 実装
 
-- [ ] `eventRenderers.tsx`: `CardDealt`/`CardPlayed`/`RewardsGranted`/
+- [x] `eventRenderers.tsx`: `CardDealt`/`CardPlayed`/`RewardsGranted`/
       `CardsDiscarded`で、`findCardDef`が解決できた場合に小`Card`を
       文の左に添える。解決できない場合は現状通りテキストのみ
       (`cardName`のフォールバック`?? cardId`と一貫)
-- [ ] 複数カードのイベント(`RewardsGranted`/`CardsDiscarded`)は、
+- [x] 複数カードのイベント(`RewardsGranted`/`CardsDiscarded`)は、
       小Cardを横並び(`flex-wrap`)で並べる
-- [ ] レイアウト用CSSを新設(`packages/ui/src/chronicle/eventRenderers.css`
+- [x] レイアウト用CSSを新設(`packages/ui/src/chronicle/eventRenderers.css`
       等、`tf-`プレフィックス)
-- [ ] `GmJudgePanel.tsx`: `responding`状態のフォームに、入力中の
-      `cardName`/`answerText`を反映した`Card`(`kind: "Scenario"`)の
-      プレビューを追加(未入力時のフォールバック表示も検討)
-- [ ] `componentCatalogData.ts`の`sampleEvents`に`CardDealt`・
+- [x] `GmJudgePanel.tsx`: `responding`状態のフォームに、入力中の
+      `cardName`を反映した`Card`(`kind: "Scenario"`)のプレビューを追加
+      (未入力時は「(カード名未入力)」表示。回答文はtextareaで既に見える
+      ため小Cardの本文欄には反映しない)
+- [x] `componentCatalogData.ts`の`sampleEvents`に`CardDealt`・
       `RewardsGranted`・`CardsDiscarded`を追加し、カタログの
-      Timeline見本でも新しい表示を確認できるようにする
+      Timeline見本でも新しい表示を確認できるようにした
 
 ## 確認
 
-- [ ] `pnpm --filter @tabifuda/ui typecheck` / `run --if-present lint`
-- [ ] `pnpm --filter @tabifuda/web typecheck` / `run --if-present lint`
-- [ ] コンポーネントカタログでTimeline/GmJudgePanelの見た目を確認
-- [ ] `pnpm --filter docs-site typecheck` / `build`
-- [ ] `apps/web/e2e/simple-hunt.spec.ts`のPlaywrightスモークが
-      引き続き通ることを確認
+- [x] `pnpm --filter @tabifuda/ui typecheck` / `run --if-present lint`
+- [x] `pnpm --filter @tabifuda/web typecheck`(docs-siteのtypecheckも実行)
+- [x] コンポーネントカタログでTimeline/GmJudgePanelの見た目を確認
+- [x] `pnpm --filter docs-site typecheck` / `build`
+- [x] `apps/web/e2e/simple-hunt.spec.ts`のPlaywrightスモークが
+      引き続き通ることを確認。加えて実プレイ(apps/webビルド+preview)で
+      通しプレイし、Timelineの見た目・コンソールエラー無しを確認
 - [ ] design-syncで設計文書との乖離チェック
 - [ ] **Q4再訪**(post-p3.5-replanning-decisions.md): 身近な1〜2人に
       見せるかをユーザーに確認し、結果を本ファイルに記録
