@@ -64,7 +64,8 @@ screens:
     layout:
       - label: ヘッダー(戻る)
         sizeHint: small
-      - label: タイムライン(フェーズの山→開くとイベントのリスト)
+      - label: タイムライン(フラットな時系列リスト。カードが登場する
+          イベントには小カードを添える)
         sizeHint: large
 
   - id: post-scenario
