@@ -11,6 +11,7 @@ cycles:
   D5: done
   D6: done
   D7: done
+  D8: done
 ---
 
 # ツールタスク: docs-site(docs 総合ビューア)
@@ -26,11 +27,15 @@ cycles:
 
 docs/ を GitHub Pages で多面的に可視化する静的サイト。
 **公開中: https://hibohiboo.github.io/tabifuda/**(D1完了時点からmaster pushで
-自動デプロイ)。3ビューを持つ:
+自動デプロイ)。5ビューを持つ:
 
 1. **RDRA ビュー**: 設計文書を RDRA(https://www.rdra.jp/)のレイヤー構造で一望
 2. **進捗ビュー**: 全タスク(projects/tools)のサイクル粒度の進捗を一望
 3. **テストビュー**: テスト戦略(test-strategy.md)と実テストの対応・成否を一望
+4. **コンポーネントビュー**: `packages/ui`の主要コンポーネントを静的サンプル
+   データで一望(component-catalogタスク)
+5. **マニュアルビュー**: WebUIを使う上で必要な用語の意味を、出典リンク付きの
+   独自要約でまとめる(D8)
 
 ## 位置づけ(規範との関係)
 
@@ -272,6 +277,45 @@ player中心の9件のみで、business-flow.yaml も player の「1プレイの
   (idの衝突が起きないか。ステップidはファイル横断で一意なため問題ない見込み)
 - [x] 目視確認(Playwright): 6本すべてのフロー名・図・ステップカードが表示され
   コンソールエラーが無いことを確認
+
+### D8: マニュアルタブ
+
+経緯: 2026-09-12、ユーザーから「CardKindの定義を表で見たい」という質問を機に、
+コンポーネントタブの横にWebUI向けマニュアルタブを新設したいという要望が出た。
+既存の「コンポーネントカタログ」タブはUI見本(アイコン・縁取り色)のみで意味の
+説明を持たず、RDRAビューの情報モデル「card」要素もdescriptionが1〜2行の要約
+止まり(docs/rdra/README.md「description は1〜2行の要約に留める」)。
+プレイヤー・GM・作者がWebUIを使う上で必要な「用語の意味」をまとまった形で
+読める場所が無いのがギャップ。
+
+方針(ユーザーと合意済み):
+- 新タブ「マニュアル」をコンポーネントタブの横に追加(既存4タブ+1)
+- 表の中身は domain-model.md の該当表をそのまま複製せず、**マニュアル向けに
+  書き起こした独自要約+出典リンク**とする(RDRA/進捗ビューと同じ
+  「非規範の索引、規範文書と食い違ったらこちら側を直す」の位置づけ)。
+  domain-model.mdからの自動抽出は行わない(既存方針を踏襲)
+- 第1弾のコンテンツは CardKind(種別・出所・説明)の表。以降の用語は
+  必要になった時点で追加(先回りしない)
+
+- [x] マニュアルタブの置き場所・データ形式を決める: docs/rdra/のような
+  専用ディレクトリ(YAML+CIスキーマ検証)は現時点で用語1件(CardKind)しか無く
+  過剰と判断し、`componentCatalogData.ts`と同じ`views/manualData.ts`に
+  TS静的データを持つ形にした。`CARD_KIND_MANUAL`は`Record<CardKind, ...>`
+  (`@tabifuda/ui`の`CardKind`型を使用)で網羅させ、Rust側にCardKind
+  variantが増えたら型エラーで追記漏れを検知する(client-conventions.md
+  「単純なリテラル合併型はRecord<Kind, ...>で網羅」を適用)
+- [x] CardKind(種別・出所・説明)の表を`ManualView.tsx`で表形式表示。
+  各行にアイコン(`CARD_KIND_ICONS`流用)を添え、出典リンクは
+  `sourceUrl("design/domain-model.md#カード")`
+- [x] ナビにタブ追加(`App.tsx`の`VIEWS`に`#/manual`を追加)
+- [x] CLAUDE.md「リポジトリ構成」・docs/tasks/tools/docs-site/task.md
+  「目的」の記述を5ビュー(RDRA/進捗/テスト/コンポーネント/マニュアル)に更新
+  (併せて「目的」節が3ビューのまま古くなっていたコンポーネントビューの
+  記載漏れも同時に補った)
+- [x] 目視確認(Playwright): `apps/web`の`@playwright/test`を借りて
+  一時specでdevサーバーへアクセスし、タブ一覧・表6行・出典リンクの
+  href・コンソールエラー無しを確認(スクリーンショットも目視、
+  一時ファイルは作業後に削除)
 
 ## 完了条件
 

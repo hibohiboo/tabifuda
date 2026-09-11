@@ -3,12 +3,14 @@ import RdraView from "./views/RdraView";
 import ProgressView from "./views/ProgressView";
 import TestsView from "./views/TestsView";
 import ComponentsView from "./views/ComponentsView";
+import ManualView from "./views/ManualView";
 
 const VIEWS = [
   { hash: "#/rdra", label: "RDRA", component: RdraView },
   { hash: "#/progress", label: "進捗", component: ProgressView },
   { hash: "#/tests", label: "テスト", component: TestsView },
   { hash: "#/components", label: "コンポーネント", component: ComponentsView },
+  { hash: "#/manual", label: "マニュアル", component: ManualView },
 ] as const;
 
 function useHash(): string {
