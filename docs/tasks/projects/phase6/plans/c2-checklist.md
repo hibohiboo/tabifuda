@@ -102,6 +102,10 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       (`overflow-y: auto`)で対応。ui-visual-design.md「形状」を更新し、
       実測の寸法比(1.4142)・カタログでの表示崩れ無し・Playwright
       スモーク通過を確認
+- [x] カードのタイトルを左上に表示(ユーザー指定)。JSX上でタイトルを
+      アイコンより先に配置し`align-self: flex-start`/`text-align: left`
+      で左上寄せ、アイコン・本文は中央寄せのまま(小/大共通)。ブラウザで
+      カタログの見た目・Playwrightスモーク通過を確認
 
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
 
