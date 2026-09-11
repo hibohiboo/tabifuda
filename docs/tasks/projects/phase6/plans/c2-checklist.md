@@ -153,6 +153,11 @@ C1の反省(質問手順を踏まずに実装した。[c1-checklist.md](c1-check
       大きく配置、`pointer-events: none`で操作への干渉を防止。テキスト系
       要素に`position: relative`+`z-index: 1`を与え前面に描画されるように
       した。ブラウザでカタログ全6種の見た目・Playwrightスモーク通過を確認
+- [x] コンポーネントカタログに「CardKind一覧」セクションを追加(ユーザー
+      指定: CardKind6種とアイコンの対応をカタログから確認したい)。
+      `CARD_KIND_ICONS`/`CARD_KIND_COLORS`と既存の`sampleCardsByKind`を
+      使い、Card/CardLargeの見本より前に種別名+アイコン+縁取り色の凡例を
+      表示する。ブラウザで表示・Playwrightスモーク通過を確認
 
 ## 実装順・割り当て(agent-operations.md「タスク種別ごとの割り当て」参照)
 
