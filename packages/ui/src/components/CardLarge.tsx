@@ -11,6 +11,7 @@ import type { CardDef } from "../core/bindings";
 import { FREE_TEXT_MAX } from "../session/limits";
 import { CARD_KIND_COLORS } from "./cardColors";
 import { CARD_KIND_ICONS } from "./cardIcons";
+import { useAutoFitTitle } from "./useAutoFitTitle";
 
 // onConfirmへ渡すfreeTextを決める。Dialogue以外は常にnull、Dialogueは
 // 空欄ならnull(free_textを送らない)、入力があればその文字列。
@@ -34,11 +35,16 @@ export function CardLarge({
   // 確定操作(onConfirm呼び出し)はカードの外で行うがテキスト自体は
   // カード内で保持する。
   const [freeText, setFreeText] = useState("");
+  // 基準1.1rem(=17.6px)。改行が必要な長さの時だけ最小11pxまで縮小する
+  // (2026-09-12、ユーザー指定)。
+  const { ref, fontSize } = useAutoFitTitle(def.name, 17.6, 11);
 
   return (
     <div className="tf-card-expand">
       <div className="tf-card tf-card--large" style={{ borderColor: CARD_KIND_COLORS[def.kind] }}>
-        <p className="tf-card__title tf-card__title--large">{def.name}</p>
+        <p className="tf-card__title" ref={ref} style={{ fontSize: `${fontSize}px` }}>
+          {def.name}
+        </p>
         <Icon className="tf-card__icon" />
         {def.text !== "" && <p className="tf-card__text">{def.text}</p>}
         {def.kind === "Dialogue" && (
