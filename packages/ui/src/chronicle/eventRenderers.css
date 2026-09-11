@@ -1,0 +1,16 @@
+/* 冒険記(Timeline)でカードが登場するイベントの行レイアウト
+   (P6 C3、2026-09-12)。小Cardを文章の左に添える(client-conventions.md
+   「クラス名の衝突回避」に倣いtf-プレフィックス)。 */
+.tf-chronicle-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* 複数枚(RewardsGranted/CardsDiscarded)は折り返して並べる。 */
+.tf-chronicle-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex-shrink: 0;
+}

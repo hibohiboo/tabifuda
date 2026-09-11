@@ -79,7 +79,11 @@ export const sampleEvents: Event[] = [
       local_instances: ["inst-1"],
     },
   },
+  { CardDealt: { to: "hunter", card: "arrive", instance: "inst-3" } },
   { CardPlayed: { by: "hunter", card: "reply", free_text: "引き受けよう" } },
   { ScenarioPatched: { patch: { ops: [], note: "GMが応答した" } } },
+  // quest_accepted(依頼受諾、Marker)を持ち帰った例(P6 C3、2026-09-12)。
+  { RewardsGranted: { to: "hunter", cards: [sampleScenario.card_defs[1]] } },
+  { CardsDiscarded: { from: "hunter", cards: ["defeat"] } },
   { SessionEnded: { outcome: "Victory" } },
 ];

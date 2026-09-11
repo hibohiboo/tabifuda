@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import type { Event, Outcome, Scenario } from "../core/bindings";
+import { Card } from "../components/Card";
+import type { CardDef, Event, Outcome, Scenario } from "../core/bindings";
 import type { HandlerMap } from "../core/taggedUnion";
 import { findCardDef } from "../session/scenarioLookup";
+import "./eventRenderers.css";
 
 export interface ChronicleContext {
   scenario: Scenario;
@@ -13,6 +15,21 @@ function cardName(ctx: ChronicleContext, cardId: string): string {
 
 function outcomeLabel(outcome: Outcome): string {
   return outcome === "Victory" ? "勝利" : "敗北";
+}
+
+// カードが登場するイベントの文章の左に小Cardを添える(P6 C3、2026-09-12)。
+// CardDefが解決できない場合は何も描画しない(cardName関数の`?? cardId`と
+// 同じフォールバック方針: 小Cardは省略しテキストのみで表示を続ける)。
+function CardThumbs({ defs }: { defs: (CardDef | undefined)[] }) {
+  const found = defs.filter((def): def is CardDef => def !== undefined);
+  if (found.length === 0) return null;
+  return (
+    <div className="tf-chronicle-cards">
+      {found.map((def) => (
+        <Card key={def.id} name={def.name} kind={def.kind} />
+      ))}
+    </div>
+  );
 }
 
 // docs/design/client-conventions.md「Event/Commandの網羅性」参照。
@@ -32,16 +49,22 @@ export const eventRenderers: HandlerMap<Event, ReactNode, ChronicleContext> = {
     </div>
   ),
   CardDealt: (payload, ctx) => (
-    <p className="chronicle-minor">
-      {payload.to} に『{cardName(ctx, payload.card)}』が配られた
-    </p>
+    <div className="tf-chronicle-event">
+      <CardThumbs defs={[findCardDef(ctx.scenario, payload.card)]} />
+      <p className="chronicle-minor">
+        {payload.to} に『{cardName(ctx, payload.card)}』が配られた
+      </p>
+    </div>
   ),
   CardPlayed: (payload, ctx) => (
-    <div>
-      <p>
-        {payload.by} は『{cardName(ctx, payload.card)}』を出した。
-      </p>
-      {payload.free_text !== null && <blockquote>{payload.free_text}</blockquote>}
+    <div className="tf-chronicle-event">
+      <CardThumbs defs={[findCardDef(ctx.scenario, payload.card)]} />
+      <div>
+        <p>
+          {payload.by} は『{cardName(ctx, payload.card)}』を出した。
+        </p>
+        {payload.free_text !== null && <blockquote>{payload.free_text}</blockquote>}
+      </div>
     </div>
   ),
   CardRemoved: () => null,
@@ -56,14 +79,20 @@ export const eventRenderers: HandlerMap<Event, ReactNode, ChronicleContext> = {
   PhaseAdvanced: (payload) => <h3>── フェーズが {payload.phase} へ ──</h3>,
   SessionEnded: (payload) => <p>=== 冒険の終わり: {outcomeLabel(payload.outcome)} ===</p>,
   RewardsGranted: (payload) => (
-    <p>
-      {payload.to} は『{payload.cards.map((card) => card.name).join("』『")}』を持ち帰った。
-    </p>
+    <div className="tf-chronicle-event">
+      <CardThumbs defs={payload.cards} />
+      <p>
+        {payload.to} は『{payload.cards.map((card) => card.name).join("』『")}』を持ち帰った。
+      </p>
+    </div>
   ),
   CardsDiscarded: (payload, ctx) => (
-    <p className="chronicle-minor">
-      {payload.from} は『
-      {payload.cards.map((card) => cardName(ctx, card)).join("』『")}』を持ち出せなかった。
-    </p>
+    <div className="tf-chronicle-event">
+      <CardThumbs defs={payload.cards.map((card) => findCardDef(ctx.scenario, card))} />
+      <p className="chronicle-minor">
+        {payload.from} は『
+        {payload.cards.map((card) => cardName(ctx, card)).join("』『")}』を持ち出せなかった。
+      </p>
+    </div>
   ),
 };
