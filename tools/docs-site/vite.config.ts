@@ -73,6 +73,7 @@ function rdraDataCheckPlugin(): Plugin {
 export default defineConfig({
   base: "/tabifuda/",
   server: {
+    host: "0.0.0.0",
     fs: {
       // packages/ui(component-catalogタスク)とshared/scenarios/を
       // tools/docs-siteの外から読めるようにする(apps/webのvite.config.tsと同じ理由)
