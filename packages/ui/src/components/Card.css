@@ -35,49 +35,21 @@
   flex-shrink: 0;
 }
 
-/* タイトル行(種別アイコン+タイトル文字列)。カードの左上に表示する
-   (2026-09-11、ユーザー指定)。アイコン(中央の大アイコン)・本文は
-   .tf-cardのalign-items: centerに従って中央寄せのままにし、この行だけ
-   align-selfで左寄せにする。
-   align-self: stretchでカード内寸いっぱいの幅に固定する(2026-09-12、
-   useAutoFitTitle計測バグの修正)。flex-start(コンテンツに合わせて縮む
-   幅)のままだと、テキストが短い間は.tf-card__titleのclientWidthが
-   常にscrollWidthとほぼ一致してしまい、「収まっているかどうか」を
-   判定できなかった(短いタイトルまで誤って縮小される不具合の原因)。 */
-.tf-card__title-row {
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  /* flexアイテムの既定min-width: autoのままだと、子(.tf-card__title)の
-     text-overflow: ellipsisが機能しない(縮まずにあふれる)ため0にする。 */
-  min-width: 0;
-}
-
-/* タイトル左の小アイコン(2026-09-12、ユーザー指定)。中央の大アイコン
-   (.tf-card__icon)と役割が違うため別クラスにする。 */
-.tf-card__title-icon {
-  width: 8px;
-  aspect-ratio: 74 / 94;
-  flex-shrink: 0;
-}
-
-.tf-card--large .tf-card__title-icon {
-  width: 14px;
-}
-
 .tf-card__title {
-  /* 1行固定(2026-09-12、ユーザー指定: 改行で2行目が見切れる問題への対処)。
-     収まらない長さのタイトルはuseAutoFitTitle(Card.tsx/CardLarge.tsx)が
-     フォントサイズを縮小する。縮小してもなお収まらない場合はここの
-     text-overflow: ellipsisで省略する。
-     flex: 1でtitle-row内の残り幅(アイコン分を除いた幅)いっぱいに
-     広がる。これによりclientWidthが常に「実際に使える幅」の固定値になり、
-     scrollWidth(テキストが必要とする幅)との比較でオーバーフローを
-     正しく検出できる(flex-startのまま=コンテンツに合わせて縮む幅だと、
-     短いタイトルでもclientWidthがscrollWidthと一致してしまい判定できない)。 */
-  flex: 1 1 0;
-  min-width: 0;
+  /* カードの左上に表示する(2026-09-11、ユーザー指定)。align-self: stretch
+     でカード内寸いっぱいの幅に固定し、text-align: leftで視覚的に左寄せに
+     する(align-self: flex-start(コンテンツに合わせて縮む幅)のままだと、
+     useAutoFitTitleがclientWidthを「実際に使える幅」として読み取れず、
+     短いタイトルまで誤って縮小されてしまう。2026-09-12発覚)。
+     アイコン・本文は.tf-cardのalign-items: centerに従って中央寄せのまま。
+     1行固定(改行で2行目が見切れる問題への対処)。収まらない長さの
+     タイトルはuseAutoFitTitle(Card.tsx/CardLarge.tsx)がフォントサイズを
+     縮小する。縮小してもなお収まらない場合はここのtext-overflow: ellipsis
+     で省略する。
+     タイトル左に種別アイコンを添える案(2026-09-12)は、小サイズカードで
+     使える幅が更に狭くなり短いタイトルまで縮小される実害が出たため
+     不採用とし、中央の大アイコンのみに戻した。 */
+  align-self: stretch;
   margin: 0;
   font-size: 0.7rem;
   line-height: 1.2;
