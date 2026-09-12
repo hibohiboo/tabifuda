@@ -254,26 +254,22 @@ GMがセッション中に改編した結果を作者へ還流する話で、本
 
 ## 11. 依頼(シナリオ)選択を張り紙カードから選ぶUI
 
-要望(P3.5完了後の見直し、Q2の演出検討時に案として出た。
+**実装済み**: [tasks/projects/phase7/task.md](../tasks/projects/phase7/task.md)
+C1・C2(2026-09-12)で採用。`shared/scenarios/`配下の複数シナリオを
+`apps/web`が動的検出し、張り紙カードUI(`packages/ui`の`ScenarioSelect`/
+`ScenarioCard`/`ScenarioCardLarge`)から選んで`StartSession`する形になった。
+経緯(P3.5完了後の見直しで案として出た)は
 [tasks/plans/post-p3.5-replanning-decisions.md](../tasks/plans/post-p3.5-replanning-decisions.md)
-Q2): 依頼(遊べるシナリオ)の選択を、CardWirthの「張り紙」のようなカードUIで
-行いたい。
+Q2を参照(将来要望としてのこの節の役目は終えた)。
 
-現状: シナリオ選択機能自体が未実装(apps/webは`simple-hunt`固定で起動する)。
-[design/ui-visual-design.md](../design/ui-visual-design.md)「カードの
-ビジュアル方針」で決定したカード自体の見た目(白銀比・既定アイコン・
-2サイズ)は[tasks/projects/phase6/task.md](../tasks/projects/phase6/task.md)
-で実装するが、依頼選択画面(複数シナリオからの選択UI)はシナリオ選択機能の
-新規実装を要するため P6 のスコープ外とした(2026-08-12)。
+残る要望(本節の対象):
+- **依頼カードに難易度目安を表示する**: P7 C2着手前の確認で見送った
+  (`ScenarioMeta`には`title`/`summary`のみ追加。判定システム未実装の
+  現状では「難易度」の裏付けとなる数値指標が無いため時期尚早と判断)。
+  判定システム(次版で送る事項、domain-model.md参照)の実装後、改めて検討する
 
-**先送り分は [tasks/projects/phase7/task.md](../tasks/projects/phase7/task.md)
-(P7、計画中)として起票済み(2026-08-12)**。サイクル未設計。範囲はソロプレイの
-シナリオ選択に限定し、GMのセッション募集(下記・非同期マルチプレイ前提)とは
-切り離す。
-
-現行モデルへの影響: 小(表示層の話。シナリオ選択機能自体は§1の
-「セッション募集」との関連が強いが、P7はソロプレイ範囲に限定するため
-P4非依存で進められる)。
+現行モデルへの影響: 小(`ScenarioMeta`への追加フィールドのみ。判定システム
+実装が前提)。
 
 ## 12. ロール制(PCの種別によってできることを分ける)
 

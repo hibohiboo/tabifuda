@@ -84,8 +84,13 @@ GMのセッション募集(GMが複数シナリオをストック・カスタマ
 
 - `apps/web`に依頼選択画面を新設(`shared/scenarios/`を`import.meta.glob`で
   動的検出し、選択画面用の最小情報をzodスキーマで検証)
-- 張り紙カードUI(P6の`Card`/`CardLarge`を流用したグリッド表示。
-  rdra/screens.yaml「依頼選択」のワイヤーフレームに従う)
+- 張り紙カードUI(グリッド表示。rdra/screens.yaml「依頼選択」のワイヤー
+  フレームに従う)。**着手時の確認で当初想定から変更**: `ScenarioMeta`
+  (id/title/summary)は`CardDef`と型が異なるため、P6の`Card`/`CardLarge`を
+  直接流用せず、`ScenarioMeta`専用の新規コンポーネント(`ScenarioCard`/
+  `ScenarioCardLarge`)を`packages/ui`に作り、`.tf-card`系CSS(白銀比・
+  2サイズ)のみ流用した(2026-09-12、c2-checklist.md「着手前に確認した
+  実装方針」)
 - 選択確定で該当`Scenario`を`StartSession`へそのまま渡す配線
 - apps/webのPlaywrightスモークを更新(複数シナリオからの選択→開始を確認)
 - `docs/rdra/screens.yaml`の`scenario-select`エントリの`status`を
@@ -94,8 +99,8 @@ GMのセッション募集(GMが複数シナリオをストック・カスタマ
 ## 完了条件
 
 - 複数シナリオ(テスト用ダミー含め2本以上)から選んで `StartSession` できる
-- 選択画面が張り紙カードのUI(P6のカードコンポーネント)で表示され、
-  シナリオ名・概要が確認できる
+- 選択画面が張り紙カードのUI(`packages/ui`の`ScenarioSelect`系
+  コンポーネント)で表示され、シナリオ名・概要が確認できる
 - 既存のPlaywrightスモークが通る(選択画面経由のフローを含む)
 
 ## やらないこと
