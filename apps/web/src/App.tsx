@@ -1,6 +1,7 @@
 import {
   ErrorBanner,
   GmJudgePanel,
+  ScenarioSelect,
   SceneView,
   Timeline,
   findSceneDef,
@@ -9,14 +10,18 @@ import {
 } from "@tabifuda/ui";
 import { createSoloCharacter, SOLO_ACTOR, SOLO_CHARACTER_ID } from "./session/soloParty";
 import { useGameSession } from "./session/useGameSession";
-import { simpleHunt } from "./scenario/simpleHunt";
+import { scenarios } from "./scenario/loadScenarios";
 
 function App() {
   const { events, session, error, dispatch } = useGameSession(SOLO_ACTOR);
 
-  const handleStart = () => {
+  const handleSelect = (id: string) => {
+    // ScenarioSelectはidの存在するものしか通知しない(scenariosから
+    // 生成した一覧を渡しているため)。見つからない場合は何もしない。
+    const selected = scenarios.find((scenario) => scenario.id === id);
+    if (selected === undefined) return;
     dispatch({
-      StartSession: { scenario: simpleHunt, party: [createSoloCharacter()] },
+      StartSession: { scenario: selected.scenario, party: [createSoloCharacter()] },
     });
   };
 
@@ -44,11 +49,13 @@ function App() {
 
   return (
     <main>
-      <h1>{simpleHunt.meta.title}</h1>
-      {session === null && (
-        <button type="button" onClick={handleStart}>
-          はじめる
-        </button>
+      {session === null ? (
+        <>
+          <h1>依頼を選ぶ</h1>
+          <ScenarioSelect scenarios={scenarios} onSelect={handleSelect} />
+        </>
+      ) : (
+        <h1>{session.scenario.meta.title}</h1>
       )}
       {session !== null && session.status === "Running" && (
         <SceneView

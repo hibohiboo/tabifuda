@@ -9,6 +9,7 @@ import {
   GmJudgePanel,
   Hand,
   ProposalForm,
+  ScenarioSelect,
   SceneView,
   Timeline,
 } from "@tabifuda/ui";
@@ -21,6 +22,7 @@ import {
   sampleHand,
   sampleProposal,
   sampleScenario,
+  sampleScenarioOptions,
 } from "./componentCatalogData";
 
 const noop = () => {};
@@ -127,6 +129,12 @@ export default function ComponentsView() {
           </CatalogItem>
           <CatalogItem title="ProposalForm" description="プレイヤーがGMへ提案するためのフォーム。">
             <ProposalForm onPropose={noop} />
+          </CatalogItem>
+          <CatalogItem
+            title="ScenarioSelect"
+            description="依頼(シナリオ)選択の一覧(張り紙。グリッド表示)。タップするとScenarioCardLargeをモーダル展開し、確認してから始める(クリックして試せます)。"
+          >
+            <ScenarioSelect scenarios={sampleScenarioOptions} onSelect={noop} />
           </CatalogItem>
           <CatalogItem
             title="SceneView"
