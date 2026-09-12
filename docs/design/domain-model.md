@@ -118,6 +118,8 @@ struct ScenarioMeta {
     id: ScenarioId,
     title: BoundedString<200>,
     author: BoundedString<200>,
+    summary: BoundedString<400>,  // 依頼選択画面向けの概要(1〜2行)。
+                                   // P7決定(下記「決定の経緯」参照)
     forked_from: Option<ScenarioId>,
 }
 
@@ -211,6 +213,9 @@ scene: climax_battle (kind: Battle)
   `SceneDef.narration`)は2000文字。実行時の自由入力より小さいのは、
   作者データは一括投入されるコンテンツでありDoS面の切実さが実行時入力
   ほど高くないためだが、無制限にはしない
+- `ScenarioMeta.summary`(依頼選択画面向けの概要)は400文字。識別的短文
+  (200)と説明的長文(2000)の中間(1〜2行の紹介文であり`title`より長いが
+  `CardDef.text`ほどの分量は想定しない)
 - `BoundedString` はJSON上は素の文字列としてシリアライズされるため、
   シナリオデータの形式には現れない(型レベルの検証が増えるのみ)
 
@@ -683,7 +688,8 @@ Running` がそのまま担う。コアの変更は不要で、以下はtabifuda
 
 ```rust
 struct SaveFile {
-    format_version: u32,  // 現在1。Event enumは#[non_exhaustive]で
+    format_version: u32,  // 現在2(P7 C1でScenarioMeta.summary追加により2へ)。
+                           // Event enumは#[non_exhaustive]で
                            // 追加前提のため、旧形式の読込可否を区別する
     events: Vec<Event>,
 }
@@ -773,6 +779,7 @@ struct SaveFile {
 | 実行時索引の HashMap→BTreeMap 化・セッションの保存と再開 | tasks/projects/phase3/plans/wasm-boundary-decisions.md 論点1 / tasks/projects/phase3.5/task.md C1 |
 | パーティファイル・操作対象キャラの決定 | tasks/projects/phase3.5/task.md C2 |
 | 持ち出し可否(portable)・セッション終了処理(finalize) | future-requirements.md旧§3(2026-07-20決定) / tasks/projects/phase3.5/task.md C3 |
+| `ScenarioMeta.summary`追加(依頼選択画面向け) | tasks/projects/phase7/task.md C1(2026-09-12、grillingスキルでの確認) |
 
 ### 旧節名との対応(過去文書からの参照用)
 

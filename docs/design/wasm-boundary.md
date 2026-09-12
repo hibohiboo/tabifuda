@@ -110,10 +110,17 @@ wasm-bindgen-testの型往復テストはこの内部関数に対しても書け
      `RuleError`/`PatchError`/`ScenarioPatch`/`LintFinding`(core)、
      `WasmError`(wasmクレート)。依存する下位の型(`CardDef`/`Effect`等)は
      ts-rsが依存解決で自動的にbindings/へ書き出す
-   - **生成コマンド**: `cargo test -p tabifuda-core --features ts
+   - **生成コマンド**: `TS_RS_EXPORT_DIR`環境変数を`crates/tabifuda-wasm/bindings`
+     の絶対パスに設定した上で`cargo test -p tabifuda-core --features ts
      export_bindings` → `cargo test -p tabifuda-wasm --features ts
      export_bindings`(2回に分かれるのは`WasmError`が依存する`RuleError`/
-     `PatchError`をcore側が先に生成しないため。両方実行すれば全ファイルが揃う)
+     `PatchError`をcore側が先に生成しないため。両方実行すれば全ファイルが揃う)。
+     **環境変数を設定し忘れてもテストはexit 0で成功する**が、生成物は
+     `crates/tabifuda-wasm/bindings/`ではなく各クレート内のデフォルト出力先
+     (`crates/tabifuda-core/bindings/`等、gitで未追跡)へ書き出されてしまう。
+     実行後は`git status`で正しい場所に反映されたか(意図しない新規
+     ディレクトリができていないか)を必ず確認する(2026-09-12、P7 C1で
+     発生。agent-journal.md参照)
    - **落とし穴(発生・対処済み)**: `BoundedString<const MAX: usize>`は
      custom `Serialize`/`Deserialize`のため`derive(TS)`が付かず、
      `impl<const MAX: usize> TS for BoundedString<MAX>`(`string`として
