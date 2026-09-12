@@ -3,6 +3,7 @@
 // 依頼選択でも踏襲するが、表示対象がScenarioMeta(id/title/summary)で
 // CardDefとは型が異なるため別コンポーネントにする(2026-09-12決定)。
 // 自由入力欄は持たない(依頼選択に自由入力は無い)。
+import { useState } from "react";
 import { SCENARIO_CARD_COLOR, ScenarioIcon } from "./scenarioIcon";
 import "./Card.css";
 import { useAutoFitTitle } from "./useAutoFitTitle";
@@ -20,6 +21,10 @@ export function ScenarioCardLarge({
 }) {
   // 基準1.1rem(=17.6px)。CardLarge.tsxと同じ基準値(2026-09-12)。
   const { ref, fontSize } = useAutoFitTitle(title, 17.6, 11);
+  // セッション開始という一回性操作のため連打を防ぐ(edge-case-reviewerで
+  // 指摘、2026-09-12)。onConfirm後は呼び出し側がモーダルごと閉じる想定だが、
+  // 閉じるまでの一瞬の間の連打をここで塞ぐ。
+  const [confirming, setConfirming] = useState(false);
 
   return (
     <div className="tf-card-expand">
@@ -36,7 +41,16 @@ export function ScenarioCardLarge({
         </div>
       </div>
       <div className="tf-card-expand__actions">
-        <button type="button" className="tf-card-expand__button" onClick={onConfirm}>
+        <button
+          type="button"
+          className="tf-card-expand__button"
+          disabled={confirming}
+          onClick={() => {
+            if (confirming) return;
+            setConfirming(true);
+            onConfirm();
+          }}
+        >
           これで始める
         </button>
         <button type="button" className="tf-card-expand__button" onClick={onCancel}>
