@@ -1,5 +1,15 @@
-import type { CardDef, CardInstance, Event, HandCard, Proposal, Scenario, WasmError } from "@tabifuda/ui";
+import type {
+  CardDef,
+  CardInstance,
+  Event,
+  HandCard,
+  Proposal,
+  Scenario,
+  ScenarioOption,
+  WasmError,
+} from "@tabifuda/ui";
 import raw from "../../../../shared/scenarios/simple-hunt.json";
+import lostCatRaw from "../../../../shared/scenarios/lost-cat.json";
 
 // コンポーネントカタログの表示用サンプルデータ。実プレイの状態遷移を厳密に
 // 再現するものではなく、各コンポーネントを1例ずつ見せるための静的な値。
@@ -61,6 +71,13 @@ export const sampleCardsLargeByKind: CardDef[] = [
   sampleCard("sample-large-item", "傷薬", "Item", "傷を癒やす軟膏。使うと体力を少し回復する。"),
   sampleCard("sample-large-marker", "依頼受諾", "Marker", "依頼を受けたことを示す印。"),
 ];
+
+// ScenarioSelect(P7 C2)用。複数依頼から選ぶ体裁を見せるため、同梱
+// テンプレシナリオ2本(simple-hunt/lost-cat)のScenarioMetaを流用する。
+const sampleLostCat = lostCatRaw as Scenario;
+export const sampleScenarioOptions: ScenarioOption[] = [sampleScenario, sampleLostCat].map(
+  ({ meta }) => ({ id: meta.id, title: meta.title, summary: meta.summary }),
+);
 
 export const sampleEvents: Event[] = [
   {
