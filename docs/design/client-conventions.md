@@ -73,8 +73,9 @@ component-catalogタスク(tools/docs-siteにコンポーネントカタログ�
   `session/gmResponse.ts`)
 - **対象外(apps/webに残す)**: `core/wasmClient.ts`(wasmモジュールの実ロード)、
   `session/useGameSession.ts`(wasmClient配線)、`session/soloParty.ts`
-  (ソロプレイ固有の配線)、`scenario/simpleHunt.ts`(このアプリのシナリオ
-  読込)。packages/uiは**wasmランタイムに依存しない**ことが要件
+  (ソロプレイ固有の配線)、`scenario/loadScenarios.ts`(このアプリの
+  シナリオ動的読込。P7 C2で`scenario/simpleHunt.ts`から置き換え)。
+  packages/uiは**wasmランタイムに依存しない**ことが要件
   (tools/docs-siteのコンポーネントカタログが、wasm32ツールチェーン無しで
   静的サンプルデータからコンポーネントを描画できるようにするため)
 - **ビルドレス**: packages/uiは`dist`ビルドを持たず、`src/`をソースのまま
@@ -99,6 +100,26 @@ component-catalogタスク(tools/docs-siteにコンポーネントカタログ�
   値」を割り当てると、実在しない設計をカタログという規範に近い見本に
   紛れ込ませうる(P6 C2で`CardKind::Proposal`に実在しない具体的な提案
   カードを割り当てた実例。docs/retrospectives/phase6.md参照)
+
+## シナリオの動的検出とランタイム検証(zod、P7 C2決定)
+
+`shared/scenarios/`配下の複数シナリオを1シナリオ1ファイルのまま扱うため、
+`apps/web/src/scenario/loadScenarios.ts`が`import.meta.glob`(ビルド時の
+静的解決。手動indexを持たない)でJSONを動的に検出する。
+
+- **zodの検証範囲は最小限に絞る**: `Scenario`型はts-rs生成(SSoT。
+  `crates/tabifuda-wasm/bindings/`)であり、zodスキーマで全体を検証すると
+  正が2箇所になる(CLAUDE.md最重要ルール5)。依頼選択画面が表示する
+  最小情報(`meta.id`/`meta.title`/`meta.summary`)のみをzodで検証し、
+  それ以外(`card_defs`/`phases`等)はts-rs生成の型へ`as`キャストで委ねる。
+  壊れていても実際にプレイを始めた時点でcoreの`decide`が拒否する既存の
+  安全網がある
+- **1件の不備で一覧全体を壊さない**: 検証に失敗したファイルはコンソール
+  警告を出した上でその1件だけ一覧から除外する(残りのシナリオは選択可能な
+  ままにする)
+- **依存の置き場**: `zod`は`apps/web`のみに追加する(`packages/ui`は
+  wasmランタイム非依存の原則と同様、シナリオ読込ロジック自体を持たない。
+  「UIコンポーネントの置き場」節の対象外(apps/webに残す)と同じ整理)
 
 ## 手札表示からの Marker 除外
 

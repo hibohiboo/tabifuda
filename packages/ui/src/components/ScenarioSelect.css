@@ -1,0 +1,26 @@
+/* 依頼(シナリオ)選択の一覧(張り紙。グリッド表示。
+   docs/rdra/screens.yaml「依頼選択」)。Hand.css(横スクロール)とは異なり、
+   選ぶまで並べて見せる一覧のためグリッドにする。 */
+.tf-scenario-select {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, max-content));
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.tf-scenario-select li {
+  display: flex;
+  justify-content: center;
+}
+
+/* ScenarioCardをボタンでラップする際、既定のbutton装飾を消して
+   カード自体の見た目だけを見せる(Hand.tsxの.tf-hand__card-buttonと同じ)。 */
+.tf-scenario-select__card-button {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: block;
+}
