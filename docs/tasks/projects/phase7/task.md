@@ -1,12 +1,14 @@
 ---
 status: planned
+cycles:
+  C1: todo
+  C2: todo
 ---
 
 # Phase 7 実装タスク: 依頼(シナリオ)選択画面
 
-**サイクル未設計**。本タスクは「先送りにして忘れないための入れ物」として
-起票した(2026-08-12)。着手時にサイクルを設計し、本 frontmatter に
-`cycles:` を追加する(docs/tasks/README.md「進捗 frontmatter」)。
+実行モデル: Sonnet 5。1サイクル=1セッション=1PR。
+**開始前の儀式(全フェーズ共通)**: CLAUDE.md と docs/design/ の関連文書を読む。
 
 ## 経緯
 
@@ -43,19 +45,63 @@ GMのセッション募集(GMが複数シナリオをストック・カスタマ
 - 画面の想定は [docs/rdra/screens.yaml](../../../rdra/screens.yaml) の
   「依頼選択」(`status: future`)
 
-## 未検討事項(着手時に決める)
+## 着手前の検討結果(2026-09-12、grillingスキルで確定)
 
-- シナリオを複数持たせる方法(ローカルファイル列挙 / ビルド時取り込み等)
-- `StartSession` コマンド自体を変更するか、選択→起動の配線をクライアント側
-  だけで完結させるか
-- 依頼(張り紙)カードに載せる情報(シナリオ名・概要・難易度目安 等)
+- **シナリオを複数持たせる方法**: 1シナリオ1ファイル(`shared/scenarios/{id}.json`
+  の既存配置を維持)。一覧への集約は`import.meta.glob`等でのビルド時動的検出
+  とし、ファイルを置くだけで一覧に反映される形にする(手動indexは持たない)
+- **型安全性の補完**: 動的検出で失われる型の弱さは、依頼選択画面が表示する
+  最小限の情報(`meta.id`/`meta.title`/`meta.summary`)のみをzodスキーマで
+  検証することで補う。`Scenario`型全体はts-rs生成が正(SSoT)であり、
+  `card_defs`/`phases`等はzod化せず既存型へ`as`キャストで委ねる(壊れていれば
+  プレイ開始時にcoreの`decide`が拒否する既存の安全網に委ねる)。zodは新規依存
+  追加(現状未導入。導入時にclient-conventions.mdへ実装パターンとして追記する)
+- **`StartSession`コマンドの変更要否**: 変更しない。選択画面はクライアント側で
+  保持する複数`Scenario`オブジェクトから1つを選び、そのまま`dispatch`する
+  だけで配線できる(coreの型・Event/Commandの追加なし)
+- **依頼(張り紙)カードに載せる情報**: `title` + `summary`(概要、1〜2行)。
+  `ScenarioMeta`に`summary: BoundedString<400>`を新規追加する(domain-model.md
+  改訂+ts-rs bindings再生成を伴う)。難易度目安は見送り
+  (判定システム未実装のため裏付けとなる指標が無く時期尚早。
+  future-requirements.mdへ送る)
+- **テスト用シナリオ**: 複数シナリオからの選択を確認するため、簡単なダミー
+  シナリオを1本新規に追加する(既存の`simple-hunt-fork.json`はフォーク出力の
+  テスト成果物であり転用しない)
 
-## 完了条件(叩き台。着手時に精査する)
+## サイクル
 
-- 複数シナリオから選んで `StartSession` できる
-- 選択画面が張り紙カードのUI(P6のカードコンポーネント)で表示される
+### C1: `ScenarioMeta.summary`追加
+
+- domain-model.mdの`ScenarioMeta`定義に`summary: BoundedString<400>`を追加
+  (「文字列の長さ上限」節の一覧にも追記)
+- `crates/tabifuda-core`の`ScenarioMeta`へ`summary`フィールドを追加
+- `ts-rs` bindings再生成(`crates/tabifuda-wasm/bindings/`)
+- `shared/scenarios/simple-hunt.json`へ`summary`を追記
+- テスト用ダミーシナリオ(`shared/scenarios/{id}.json`、1〜2シーン程度の
+  最小構成)を1本新規追加し、`summary`込みで作成する
+
+### C2: 依頼選択画面の実装
+
+- `apps/web`に依頼選択画面を新設(`shared/scenarios/`を`import.meta.glob`で
+  動的検出し、選択画面用の最小情報をzodスキーマで検証)
+- 張り紙カードUI(P6の`Card`/`CardLarge`を流用したグリッド表示。
+  rdra/screens.yaml「依頼選択」のワイヤーフレームに従う)
+- 選択確定で該当`Scenario`を`StartSession`へそのまま渡す配線
+- apps/webのPlaywrightスモークを更新(複数シナリオからの選択→開始を確認)
+- `docs/rdra/screens.yaml`の`scenario-select`エントリの`status`を
+  `implemented`へ更新
+
+## 完了条件
+
+- 複数シナリオ(テスト用ダミー含め2本以上)から選んで `StartSession` できる
+- 選択画面が張り紙カードのUI(P6のカードコンポーネント)で表示され、
+  シナリオ名・概要が確認できる
+- 既存のPlaywrightスモークが通る(選択画面経由のフローを含む)
 
 ## やらないこと
 
 - GMのセッション募集(非同期マルチプレイ前提。future-requirements.md §1)
 - P4(バックエンド)の再開・凍結解除の判断
+- 難易度目安の表示(判定システム未実装のため時期尚早。future-requirements.mdへ)
+- ロール制(future-requirements.md §12。判定・戦闘同様、枠組みの検討のみで
+  実装は別途)
