@@ -10,7 +10,8 @@
     "typecheck": "pnpm run wasm:build && tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@tabifuda/ui": "workspace:*",
@@ -26,6 +27,7 @@
     "@vitejs/plugin-react": "^6.0.4",
     "eslint": "^10.8.0",
     "typescript": "~6.0.3",
-    "vite": "^8.1.5"
+    "vite": "^8.1.5",
+    "vitest": "^5.0.0"
   }
 }

@@ -113,6 +113,12 @@ Command/Event/型名をそのまま含めるため関数名の先頭が大文字
 (tools/docs-site)での目視確認で担保する。ロジックを持つ純粋関数
 (`session/scenarioLookup.ts`等)は対象外(通常の単体テスト対象)。
 
+**TS側の単体テストランナーは`vitest`**(`apps/web`、P7 C2、2026-09-12導入。
+`pnpm --filter @tabifuda/web test:unit`)。対象は上記の「ロジックを持つ
+純粋関数」のみ(`loadScenarios.ts`が最初の例)。表示コンポーネントの単体
+テストを書く目的では導入しない(既定方針は変えない)。書き方の詳細は
+`.claude/rules/testing.md`(対象パスに触れる際に自動適用)。
+
 ## 重複を作らないためのルール
 
 1. ルール分岐のテストは core のみ。外側の層に if 分岐が生えたら設計の警告

@@ -25,15 +25,7 @@ export interface LoadedScenario {
   scenario: Scenario;
 }
 
-// 非再帰(サブディレクトリは対象外)。サブディレクトリに置いたシナリオは
-// パターン自体が一致せず警告も無いまま一覧から漏れる点に注意
-// (edge-case-reviewerで指摘、2026-09-12)。現状の運用(shared/scenarios/
-// 直下へのフラット配置)ではこの制約は問題にならない。
-const modules = import.meta.glob("../../../../shared/scenarios/*.json", {
-  eager: true,
-}) as Record<string, { default: unknown }>;
-
-function loadScenario(path: string, mod: { default: unknown }): LoadedScenario | null {
+export function loadScenario(path: string, mod: { default: unknown }): LoadedScenario | null {
   const raw = mod.default as { meta?: unknown } | undefined;
   const parsed = scenarioMetaSchema.safeParse(raw?.meta);
   if (!parsed.success) {
@@ -44,22 +36,41 @@ function loadScenario(path: string, mod: { default: unknown }): LoadedScenario |
   return { ...parsed.data, scenario: raw as Scenario };
 }
 
-// ファイルシステムの列挙順は保証されないため、id順に揃えて表示順を決定的にする。
-const loaded = Object.entries(modules)
-  .map(([path, mod]) => loadScenario(path, mod))
-  .filter((s): s is LoadedScenario => s !== null)
-  .sort((a, b) => a.id.localeCompare(b.id));
+/**
+ * `import.meta.glob`の戻り値(パス→モジュール)から表示用一覧を組み立てる。
+ * `import.meta.glob`本体をテスト対象にできない(ビルド時静的解決のため)ため
+ * この関数を切り出してテストする(loadScenarios.test.ts)。
+ */
+export function buildScenarioList(
+  modules: Record<string, { default: unknown }>,
+): LoadedScenario[] {
+  // ファイルシステムの列挙順は保証されないため、id順に揃えて表示順を決定的にする。
+  const loaded = Object.entries(modules)
+    .map(([path, mod]) => loadScenario(path, mod))
+    .filter((s): s is LoadedScenario => s !== null)
+    .sort((a, b) => a.id.localeCompare(b.id));
 
-// idが重複するファイルが存在する場合、`find(id)`が常に先頭側だけを返し
-// 2件目以降のカードを選んでも1件目の中身が開始されてしまう(発番元が
-// 作者データのためcoreの一意性検証を経由しない。edge-case-reviewerで
-// 指摘、2026-09-12)。id順ソート後の先頭を残し、以降を除外・警告する。
-const seenIds = new Set<string>();
-export const scenarios: LoadedScenario[] = loaded.filter((s) => {
-  if (seenIds.has(s.id)) {
-    console.warn(`シナリオIDが重複しています。2件目以降を除外しました: ${s.id}`);
-    return false;
-  }
-  seenIds.add(s.id);
-  return true;
-});
+  // idが重複するファイルが存在する場合、`find(id)`が常に先頭側だけを返し
+  // 2件目以降のカードを選んでも1件目の中身が開始されてしまう(発番元が
+  // 作者データのためcoreの一意性検証を経由しない。edge-case-reviewerで
+  // 指摘、2026-09-12)。id順ソート後の先頭を残し、以降を除外・警告する。
+  const seenIds = new Set<string>();
+  return loaded.filter((s) => {
+    if (seenIds.has(s.id)) {
+      console.warn(`シナリオIDが重複しています。2件目以降を除外しました: ${s.id}`);
+      return false;
+    }
+    seenIds.add(s.id);
+    return true;
+  });
+}
+
+// 非再帰(サブディレクトリは対象外)。サブディレクトリに置いたシナリオは
+// パターン自体が一致せず警告も無いまま一覧から漏れる点に注意
+// (edge-case-reviewerで指摘、2026-09-12)。現状の運用(shared/scenarios/
+// 直下へのフラット配置)ではこの制約は問題にならない。
+const modules = import.meta.glob("../../../../shared/scenarios/*.json", {
+  eager: true,
+}) as Record<string, { default: unknown }>;
+
+export const scenarios: LoadedScenario[] = buildScenarioList(modules);
