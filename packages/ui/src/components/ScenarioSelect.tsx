@@ -31,25 +31,38 @@ export function ScenarioSelect({
 
   return (
     <>
-      <ul className="tf-scenario-select" ref={listRef} tabIndex={-1}>
-        {scenarios.map((scenario) => (
-          <li key={scenario.id}>
-            <button
-              type="button"
-              className="tf-scenario-select__card-button"
-              onClick={() => setSelected(scenario.id)}
-            >
-              <ScenarioCard title={scenario.title} />
-            </button>
-          </li>
-        ))}
-      </ul>
+      {scenarios.length === 0 ? (
+        // シナリオ検証が全滅した場合等、依頼が1件も無いと「何も起きていない
+        // 白い画面」に見える(edge-case-reviewerで指摘、2026-09-12)。
+        <p>選べる依頼がありません。</p>
+      ) : (
+        <ul className="tf-scenario-select" ref={listRef} tabIndex={-1}>
+          {scenarios.map((scenario) => (
+            <li key={scenario.id}>
+              <button
+                type="button"
+                className="tf-scenario-select__card-button"
+                onClick={() => setSelected(scenario.id)}
+              >
+                <ScenarioCard title={scenario.title} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {selectedScenario !== undefined && (
         <Modal onClose={() => setSelected(null)} restoreFocusFallbackRef={listRef}>
           <ScenarioCardLarge
             title={selectedScenario.title}
             summary={selectedScenario.summary}
-            onConfirm={() => onSelect(selectedScenario.id)}
+            onConfirm={() => {
+              // Hand.tsxと同じく、成否によらずモーダルを閉じる(StartSessionが
+              // 拒否された場合、閉じないままだとModalのオーバーレイが画面全体を
+              // 覆いErrorBannerが隠れて見えなくなる。edge-case-reviewerで指摘、
+              // 2026-09-12)。
+              onSelect(selectedScenario.id);
+              setSelected(null);
+            }}
             onCancel={() => setSelected(null)}
           />
         </Modal>
