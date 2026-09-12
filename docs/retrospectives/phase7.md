@@ -20,11 +20,11 @@
 | サイクル | 日付 | 成果物 |
 |---|---|---|
 | C1 | 2026-09-12 | `ScenarioMeta`に`summary: BoundedString<400>`を追加(domain-model.md改訂+core実装+ts-rs bindings再生成)。`FORMAT_VERSION`を2へ更新。既存の`ScenarioMeta{..}`リテラル(テスト・fixture含む12箇所)を追従。`shared/scenarios/lost-cat.json`(ダミーシナリオ)を新規追加 |
-| C2 | 2026-09-12 | `packages/ui`に`ScenarioCard`/`ScenarioCardLarge`/`ScenarioSelect`(張り紙アイコン・縁取り色`#8b6b4a`)を新設。`apps/web`に`loadScenarios.ts`(`import.meta.glob`+zod検証)を新設し`scenario/simpleHunt.ts`を統合廃止。`App.tsx`をシナリオ選択→`StartSession`配線に変更。edge-case-reviewer指摘を受け、モーダルを成否によらず閉じる修正・id/titleの空文字禁止・同一id重複検出・空一覧メッセージを追加。コンポーネントカタログに追加。`docs/rdra/screens.yaml`の`scenario-select`を`implemented`へ更新 |
+| C2 | 2026-09-12 | `packages/ui`に`ScenarioCard`/`ScenarioCardLarge`/`ScenarioSelect`(張り紙アイコン・縁取り色`#8b6b4a`)を新設。`apps/web`に`loadScenarios.ts`(`import.meta.glob`+zod検証)を新設し`scenario/simpleHunt.ts`を統合廃止。`App.tsx`をシナリオ選択→`StartSession`配線に変更。edge-case-reviewer指摘を受け、モーダルを成否によらず閉じる修正・id/titleの空文字禁止・同一id重複検出・空一覧メッセージ・多重クリック防止を追加。`vitest`を新規導入し`loadScenarios.ts`の異常系を単体テストで固定。コンポーネントカタログに追加。`docs/rdra/screens.yaml`の`scenario-select`を`implemented`へ更新 |
 
 このフェーズはC1が`crates/`・C2が`apps/web`・`packages/ui`・`tools/docs-site`という形で、サイクルごとに変更対象がRust側/TS側に明確に分かれていた。
 
-テスト件数: `cargo test --workspace`は186件(cli 33件+core 153件)全件パスを確認した。P7ではRust側の新規テストケース追加は無い(既存テストの`ScenarioMeta`リテラルへ`summary`フィールドを補う機械的な追従のみ)。`lost-cat.json`の妥当性は既存の`scenario_lint.rs`(shared/scenarios/配下の全ファイルを自動走査する1テスト)がそのまま検証している。TS側は`packages/ui`の新規コンポーネント3点(`ScenarioCard`/`ScenarioCardLarge`/`ScenarioSelect`)・`loadScenarios.ts`に単体テストは追加していない(P6ふりかえりでtest-strategy.mdに記録した「表示コンポーネントはPlaywrightスモーク+目視確認で担保」方針の適用。ただし`loadScenarios.ts`はロジックを持つ純粋関数であり同方針の対象外の可能性がある。下記「課題」参照)。
+テスト件数: `cargo test --workspace`は186件(cli 33件+core 153件)全件パスを確認した。P7ではRust側の新規テストケース追加は無い(既存テストの`ScenarioMeta`リテラルへ`summary`フィールドを補う機械的な追従のみ)。`lost-cat.json`の妥当性は既存の`scenario_lint.rs`(shared/scenarios/配下の全ファイルを自動走査する1テスト)がそのまま検証している。TS側は`packages/ui`の新規コンポーネント3点(`ScenarioCard`/`ScenarioCardLarge`/`ScenarioSelect`)には単体テストを追加していない(P6ふりかえりでtest-strategy.mdに記録した「表示コンポーネントはPlaywrightスモーク+目視確認で担保」方針の適用)。一方`loadScenarios.ts`(ロジックを持つ純粋関数)はedge-case-reviewer指摘を受けてvitestを新規導入し、5件の単体テスト(zod検証失敗・id/title空文字・同一id重複・0件時)を追加した(下記「気づきと対応」参照)。
 
 ## うまくいったこと
 
@@ -53,4 +53,5 @@
 | future-requirements.md §11(依頼選択UI)が「先送り分は起票済み・サイクル未設計」という古い記述のままP7完了に至っていた。同§で言及していた「難易度目安の表示は時期尚早のためfuture-requirements.mdへ送る」も未追記だった | §11を「実装済み」の記録に書き換え、残る要望として難易度目安の表示を追記した(同PRで反映) | [future-requirements.md](../requirements/future-requirements.md)§11 |
 | `shared/scenarios/README.md`が、このディレクトリが`apps/web`の依頼選択画面から動的検出される対象になったこと・`simple-hunt-fork.json`の重複表示を許容する判断を記録していなかった。次にこのディレクトリへファイルを追加する人が同じ調査を再度行うおそれがあった | 動的検出の対象であること・id重複時の挙動・フォーク出力サンプルが混ざりうることを追記した(同PRで反映) | [shared/scenarios/README.md](../../shared/scenarios/README.md) |
 | P7の課題4件中3件が「環境状態(ブランチ実在性・bindings出力先・稼働中プロセス)を確認せず文書やコマンドの成否だけを信じた」という同根の傾向を持つ | 対応見送り。各事象は個別に該当箇所(wasm-boundary.md等)へ反映済みで、共通原則として抽象化するほどの実害増大は確認できていない。同種の事象が今後も繰り返されるようであれば、phase-cycleスキル等への一般原則追記を再検討する | 対応なし(観察事項として記録に留める) |
-| `loadScenarios.ts`(zod検証・id重複除去等のロジックを持つ純粋関数)に単体テストが無い。test-strategy.mdの「ロジックを持つ純粋関数は単体テスト対象」という原則とは厳密には整合しないが、プロジェクトにvitest等の単体テストランナーが未導入のため、新規導入を伴う判断になる | 対応見送り(このふりかえりの時点でユーザー確認前)。テストランナー導入の要否は次にTS側の純粋関数ロジックが増えるサイクルで改めて判断する | 対応なし(観察事項として記録に留める) |
+| `loadScenarios.ts`(zod検証・id重複除去等のロジックを持つ純粋関数)に単体テストが無かった(edge-case-reviewer指摘) | ユーザー確認の上でvitestを導入し、`buildScenarioList`関数として切り出して単体テストを追加(zod検証失敗・id/title空文字・同一id重複・0件時の5ケース)。`.claude/rules/testing.md`・test-strategy.mdへ反映 | [test-strategy.md](../design/test-strategy.md)「5. E2E/スモーク」、`.claude/rules/testing.md` |
+| 「これで始める」ボタンに多重クリック防御が無かった(edge-case-reviewerで指摘。連打でStartSessionが二重dispatchされうる) | ユーザー確認の上で対応。`ScenarioCardLarge`にconfirming状態を持たせ、確定操作後はボタンをdisabled化した | [ScenarioCardLarge.tsx](../../packages/ui/src/components/ScenarioCardLarge.tsx) |
