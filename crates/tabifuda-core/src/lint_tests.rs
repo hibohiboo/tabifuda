@@ -24,6 +24,9 @@ fn short(s: &str) -> BoundedString<200> {
 fn long(s: &str) -> BoundedString<2000> {
     BoundedString::try_new(s).unwrap()
 }
+fn summary(s: &str) -> BoundedString<400> {
+    BoundedString::try_new(s).unwrap()
+}
 
 fn card_def(id: &str) -> CardDef {
     CardDef {
@@ -53,6 +56,7 @@ fn scenario(card_defs: Vec<CardDef>, phases: Vec<PhaseDef>) -> Scenario {
             id: crate::ids::ScenarioId("scenario1".to_string()),
             title: short(""),
             author: short(""),
+            summary: summary(""),
             forked_from: None,
         },
         card_defs,

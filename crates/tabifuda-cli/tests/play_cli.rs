@@ -379,7 +379,7 @@ fn CharacterId重複のパーティファイルは拒否される() {
 /// カードが無いため、finalize(RewardsGranted)を実際に発火させるには
 /// 専用の最小シナリオが要る(shared/scenarios/は汚さない)。
 const PORTABLE_TEST_SCENARIO: &str = r##"{
-  "meta": {"id": "portable-test", "title": "t", "author": "t", "forked_from": null},
+  "meta": {"id": "portable-test", "title": "t", "author": "t", "summary": "t", "forked_from": null},
   "card_defs": [
     {"id": "loot", "name": "宝物", "kind": "Item", "text": "", "tags": ["#portable"], "effects": [], "requires": []},
     {"id": "finish", "name": "終える", "kind": "Dialogue", "text": "", "tags": [], "effects": [{"EndSession": "Victory"}], "requires": []}

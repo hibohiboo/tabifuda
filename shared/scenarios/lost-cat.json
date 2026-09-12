@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "id": "lost-cat",
+    "title": "迷い猫探し",
+    "author": "tabifuda",
+    "summary": "村の子供が可愛がっていた猫が行方不明になった。すぐに見つかりそうな、気軽な依頼。",
+    "forked_from": null
+  },
+  "card_defs": [
+    {
+      "id": "found",
+      "name": "猫を見つける",
+      "kind": "Dialogue",
+      "text": "物置の陰で丸くなっている猫を見つけた。",
+      "tags": [],
+      "effects": [{ "EndSession": "Victory" }],
+      "requires": []
+    }
+  ],
+  "phases": [
+    {
+      "phase": "Opening",
+      "scenes": [
+        {
+          "id": "op_search",
+          "kind": "Conversation",
+          "narration": "「うちの猫がいなくなってしまったんです」と少女が涙目で訴えた。",
+          "deals": [{ "card": "found", "to": "Party" }],
+          "exits": []
+        }
+      ]
+    }
+  ]
+}

@@ -11,7 +11,10 @@ use tabifuda_core::Event;
 
 /// セーブファイルのフォーマットversion。Event enumは`#[non_exhaustive]`で
 /// 追加前提のため、不一致は警告なしで拒否する(P3.5 C1決定)。
-pub const FORMAT_VERSION: u32 = 1;
+/// `SessionStarted`が持つ`ScenarioSnapshot`の形が変わる変更(型の
+/// フィールド追加等)ではこの値を上げ、旧バージョンのセーブファイルを
+/// 読み込み拒否の対象にする。
+pub const FORMAT_VERSION: u32 = 2;
 
 #[derive(Serialize, Deserialize)]
 struct SaveFile {

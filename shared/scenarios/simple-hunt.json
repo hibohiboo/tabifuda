@@ -3,6 +3,7 @@
     "id": "simple-hunt",
     "title": "単純討伐",
     "author": "tabifuda",
+    "summary": "村を悩ませる獣を討伐する、旅の始まりにふさわしい依頼。",
     "forked_from": null
   },
   "card_defs": [

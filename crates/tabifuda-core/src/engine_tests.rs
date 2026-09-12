@@ -42,6 +42,9 @@ fn short(s: &str) -> BoundedString<200> {
 fn long(s: &str) -> BoundedString<2000> {
     BoundedString::try_new(s).unwrap()
 }
+fn summary(s: &str) -> BoundedString<400> {
+    BoundedString::try_new(s).unwrap()
+}
 
 fn card_def(id: &str, kind: CardKind, effects: Vec<Effect>, requires: Vec<Condition>) -> CardDef {
     CardDef {
@@ -79,6 +82,7 @@ fn fixture_scenario() -> Scenario {
             id: ScenarioId("scenario1".to_string()),
             title: short("テスト用シナリオ"),
             author: short("test"),
+            summary: summary("テスト用の概要"),
             forked_from: None,
         },
         card_defs: vec![
@@ -288,6 +292,7 @@ fn StartSessionはシーンが無いシナリオでは拒否される() {
             id: ScenarioId("empty".to_string()),
             title: short(""),
             author: short(""),
+            summary: summary(""),
             forked_from: None,
         },
         card_defs: vec![],
@@ -1491,6 +1496,7 @@ fn removal_test_scenario() -> Scenario {
             id: ScenarioId("removal-test".to_string()),
             title: short(""),
             author: short(""),
+            summary: summary(""),
             forked_from: None,
         },
         card_defs: vec![

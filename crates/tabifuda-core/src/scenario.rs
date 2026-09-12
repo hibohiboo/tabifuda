@@ -89,6 +89,8 @@ pub struct ScenarioMeta {
     pub id: ScenarioId,
     pub title: BoundedString<200>,
     pub author: BoundedString<200>,
+    /// 依頼選択画面向けの概要(1〜2行)。domain-model.md「文字列の長さ上限」参照。
+    pub summary: BoundedString<400>,
     pub forked_from: Option<ScenarioId>,
 }
 

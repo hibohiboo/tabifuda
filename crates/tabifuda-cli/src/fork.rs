@@ -77,6 +77,7 @@ mod tests {
                 id: ScenarioId("orig".to_string()),
                 title: short("題"),
                 author: short("a"),
+                summary: short(""),
                 forked_from: None,
             },
             card_defs: vec![CardDef {
