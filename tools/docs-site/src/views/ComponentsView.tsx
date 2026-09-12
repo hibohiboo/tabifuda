@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import {
+  CARD_KIND_COLORS,
+  CARD_KIND_ICONS,
   Card,
+  CardLarge,
   ErrorBanner,
   FreeTextInput,
   GmJudgePanel,
@@ -12,6 +15,7 @@ import {
 import { sourceUrl } from "../model";
 import {
   sampleCardsByKind,
+  sampleCardsLargeByKind,
   sampleError,
   sampleEvents,
   sampleHand,
@@ -57,12 +61,52 @@ export default function ComponentsView() {
         <h2 className="layer__title">コンポーネント一覧</h2>
         <div className="task-list catalog">
           <CatalogItem
+            title="CardKind一覧"
+            description="CardKind(6種)と既定アイコン・縁取り色の対応(cardIcons.tsx・cardColors.ts)。"
+          >
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+              {sampleCardsByKind.map((def) => {
+                const Icon = CARD_KIND_ICONS[def.kind];
+                return (
+                  <div
+                    key={def.id}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <Icon
+                      style={{
+                        width: "32px",
+                        aspectRatio: "74 / 94",
+                        color: CARD_KIND_COLORS[def.kind],
+                      }}
+                    />
+                    <code>{def.kind}</code>
+                  </div>
+                );
+              })}
+            </div>
+          </CatalogItem>
+          <CatalogItem
             title="Card"
-            description="CardKind種類別の既定アイコンを持つカード(白銀比縦長・小サイズ)。CardKind全6種の見本。"
+            description="CardKind種類別の既定アイコン・縁取り色を持つカード(白銀比縦長・小サイズ)。CardKind全6種の見本。"
           >
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
               {sampleCardsByKind.map((def) => (
                 <Card key={def.id} name={def.name} kind={def.kind} />
+              ))}
+            </div>
+          </CatalogItem>
+          <CatalogItem
+            title="CardLarge"
+            description="大サイズカード(カード名・本文まで表示)。Dialogue/Proposalは自由入力欄を内蔵する。CardKind全6種の見本。"
+          >
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {sampleCardsLargeByKind.map((def) => (
+                <CardLarge key={def.id} def={def} onConfirm={noop} onCancel={noop} />
               ))}
             </div>
           </CatalogItem>
@@ -75,7 +119,10 @@ export default function ComponentsView() {
           >
             <FreeTextInput maxLength={200} placeholder="自由入力の例" submitLabel="出す" onSubmit={noop} />
           </CatalogItem>
-          <CatalogItem title="Hand" description="手札の一覧。Dialogueカードは自由入力欄を挟んでから出す。">
+          <CatalogItem
+            title="Hand"
+            description="手札の一覧。カードをタップするとCardLargeをモーダル展開し、確認してから出す(クリックして試せます)。"
+          >
             <Hand cards={sampleHand} onPlay={noop} />
           </CatalogItem>
           <CatalogItem title="ProposalForm" description="プレイヤーがGMへ提案するためのフォーム。">

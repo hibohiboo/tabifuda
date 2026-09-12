@@ -49,8 +49,9 @@ crates/(コア)側の規約は core-invariants スキルを参照(役割が異�
 ### 実行コマンド
 
 - [ ] 変更したワークスペースに対して `pnpm --filter <pkg> typecheck` /
-      `pnpm --filter <pkg> lint --if-present` / 必要なら `build` を実行したか
-      (`--if-present`でlintスクリプト未定義のパッケージでも失敗しない。
-      事前にpackage.jsonのscriptsを確認する手間を省く)
+      `pnpm --filter <pkg> run --if-present lint` / 必要なら `build` を実行したか
+      (`--if-present`は`run`の直後に置く。スクリプト名の後だとlintへの引数に
+      なり未定義時にエラー終了する。正しく置けばlintスクリプト未定義の
+      パッケージでも失敗せず、事前にpackage.jsonのscriptsを確認する手間を省ける)
 - [ ] crates/を変更していないサイクルでcargo系コマンドを実行していないか
       (意味のない実行はしない)

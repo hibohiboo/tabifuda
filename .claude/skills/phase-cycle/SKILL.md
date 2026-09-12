@@ -42,6 +42,13 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
 
 ## 2. 実装
 
+- **着手前に人間へ質問する**: 仕様判断・トレードオフを伴う論点は、
+  チェックリスト化するより先に人間へ質問し尽くす(依頼文サンプルは
+  prompt-sample.md「1. チェックリストの作成(インタビュー式)」)。
+  技術面・エッジケース・トレードオフについて、答えにくい質問ほど価値が
+  ある。質問の答えをチェックリストに反映してから実装に入る(2026-09-11:
+  P6 C1でこの質問を省いて実装したため、完了後に4点を事後確認する手戻りが
+  発生した教訓。docs/agent-journal.md参照)
 - **着手前にチェックリスト化する**: サイクルで行うタスクをTodoWrite等で
   洗い出し、`docs/tasks/projects/phaseN/plans/<cycle>-checklist.md`
   (`<cycle>` は小文字。例: `c2-checklist.md`。フェーズ横断/ハーネス改良は
@@ -89,8 +96,10 @@ docs/tasks/projects/phaseN/task.md の1サイクルを、このリポジトリ�
      `cargo clippy --workspace -- -D warnings` / `cargo fmt --all` を通す
    - TS側(`apps/`・`packages/`・`tools/`)に変更がある場合、変更のあった
      ワークスペースに対して `pnpm --filter <pkg> typecheck` /
-     `pnpm --filter <pkg> lint --if-present`(lintスクリプト未定義でも
-     失敗しない)/ 必要なら `build` を通す
+     `pnpm --filter <pkg> run --if-present lint`(`--if-present`は`run`の
+     直後に置く。スクリプト名の後に置くとlintへの引数として渡ってしまい
+     未定義時にエラー終了する。lintスクリプト未定義でも失敗しないのが
+     正しい形)/ 必要なら `build` を通す
    - 両方に変更があれば両方実行する(2026-08-12: TS変更のみのサイクルで
      cargo fmtを無条件実行し、存在しないdocs-site lintを実行してエラーに
      した教訓。docs/agent-journal.md参照)

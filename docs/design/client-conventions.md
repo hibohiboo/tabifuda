@@ -25,7 +25,7 @@ wasm-boundary.md方針3の実装。`Event`/`Command`は`#[non_exhaustive]`な
   種別を黙って無視しない」要求を型で満たす)
 - 「明示的に扱うが描画・処理しない」場合はキー自体は書いた上で`null`等の
   no-op値を返す(キーを省略するのではない)。例:
-  `apps/web/src/chronicle/eventRenderers.tsx`の`CardRemoved: () => null`
+  `packages/ui/src/chronicle/eventRenderers.tsx`の`CardRemoved: () => null`
 
 ## 冒険記(Web版タイムライン)のCardRemoved
 
@@ -55,6 +55,9 @@ CLI版`chronicle.rs`はイベントを1パスで畳み込みながら`ScenarioPa
 CardIdを使い、`ApplyPatch{ops:[AddCardDef{...,kind:Scenario,...},
 DealCard{card,to:Party}], note}`を発行する。一意性検証はCLIと同様
 `decide`内の`validate`が担い、TS側はルール分岐を持たない。
+`c`のフォームは入力中のカード名を小`Card`(`kind: "Scenario"`固定)で
+リアルタイムプレビューする(P6 C3、2026-09-12。CLIには無いWeb版独自の
+UI補助であり、CLIパリティの対象外)。
 
 ## UIコンポーネントの置き場(packages/ui、2026-08-01決定)
 
@@ -88,6 +91,14 @@ component-catalogタスク(tools/docs-siteにコンポーネントカタログ�
   には独自クラス(`.card`系等)が既にあるため、`packages/ui`から追加する
   クラス名は無関係な既存クラスと衝突しないプレフィックスを付ける
   (前例: カードコンポーネントの`tf-card`)
+- **列挙型の網羅サンプルを作る際の確認事項**(P6ふりかえり、2026-09-12):
+  `CardKind`のような列挙型の全バリアントを1つずつカタログに並べる
+  サンプルデータ(`componentCatalogData.ts`等)を作る際、各バリアントが
+  実装(core の decide/apply・CLI・UI)のどこで実際に生成・消費されるかを
+  1つずつ確認する。確認せず名前の見た目の一貫性だけで「もっともらしい
+  値」を割り当てると、実在しない設計をカタログという規範に近い見本に
+  紛れ込ませうる(P6 C2で`CardKind::Proposal`に実在しない具体的な提案
+  カードを割り当てた実例。docs/retrospectives/phase6.md参照)
 
 ## 手札表示からの Marker 除外
 

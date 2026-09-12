@@ -1,0 +1,22 @@
+/* 冒険記(Timeline)でカードが登場するイベントの行レイアウト
+   (P6 C3、2026-09-12)。小Cardを文章の左に添える(client-conventions.md
+   「クラス名の衝突回避」に倣いtf-プレフィックス)。 */
+.tf-chronicle-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* 複数枚(RewardsGranted/CardsDiscarded)は折り返して並べる。
+   max-widthで明示的に折り返しの契機を与える(小Card2枚分+gap程度)。
+   flex-shrink: 0のままだと、このコンテナ自体は「必要な幅(カード枚数分)」
+   を要求し続けてしまい、親.tf-chronicle-eventがnowrapのため実際には
+   折り返さずに画面幅をはみ出す(edge-case-reviewerで指摘、2026-09-12。
+   RewardsGranted/CardsDiscardedはシナリオ次第で3枚以上になりうる)。 */
+.tf-chronicle-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex-shrink: 0;
+  max-width: 180px;
+}

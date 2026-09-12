@@ -360,7 +360,9 @@ fn decide(state: Option<&Session>, actor: &UserId, cmd: Command)
 enum Command {
     StartSession { scenario: Scenario, party: Vec<Character> },
     PlayCard { by: CharacterId, card: CardInstanceId,
-               free_text: Option<BoundedString<4096>> },   // Dialogueの自由入力
+               free_text: Option<BoundedString<4096>> },   // Dialogue/Proposalの自由入力
+                                                            // (coreはkindを問わず受け付ける。
+                                                            // UI側の表示要否はui-visual-design.md)
     Propose { by: CharacterId, text: BoundedString<4096> }, // → Paused へ遷移
     ApplyPatch { patch: ScenarioPatch },       // GM。Paused中のみ
     JudgeProposal { proposal: ProposalId, accepted: bool }, // GM裁定 → Running へ
