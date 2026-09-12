@@ -1,7 +1,7 @@
 ---
 status: planned
 cycles:
-  C1: todo
+  C1: done
   C2: todo
 ---
 
