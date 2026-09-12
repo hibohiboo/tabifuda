@@ -20,6 +20,9 @@ fn short(s: &str) -> BoundedString<200> {
 fn long(s: &str) -> BoundedString<2000> {
     BoundedString::try_new(s).unwrap()
 }
+fn summary(s: &str) -> BoundedString<400> {
+    BoundedString::try_new(s).unwrap()
+}
 
 fn write_temp_json(name: &str, scenario: &Scenario) -> std::path::PathBuf {
     let mut path = std::env::temp_dir();
@@ -59,6 +62,7 @@ fn minimal_valid_scenario() -> Scenario {
             id: ScenarioId("scenario1".to_string()),
             title: short(""),
             author: short(""),
+            summary: summary(""),
             forked_from: None,
         },
         card_defs: vec![end_card],
@@ -85,6 +89,7 @@ fn broken_scenario_with_unknown_card_ref() -> Scenario {
             id: ScenarioId("scenario1".to_string()),
             title: short(""),
             author: short(""),
+            summary: summary(""),
             forked_from: None,
         },
         card_defs: vec![],

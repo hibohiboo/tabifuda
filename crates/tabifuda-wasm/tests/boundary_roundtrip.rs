@@ -18,6 +18,9 @@ fn short(s: &str) -> BoundedString<200> {
 fn long(s: &str) -> BoundedString<2000> {
     BoundedString::try_new(s).unwrap()
 }
+fn summary(s: &str) -> BoundedString<400> {
+    BoundedString::try_new(s).unwrap()
+}
 
 fn fixture_scenario() -> Scenario {
     Scenario {
@@ -25,6 +28,7 @@ fn fixture_scenario() -> Scenario {
             id: ScenarioId("boundary-test".into()),
             title: short("境界テスト"),
             author: short("test"),
+            summary: summary(""),
             forked_from: None,
         },
         card_defs: vec![],

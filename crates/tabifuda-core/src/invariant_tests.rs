@@ -214,6 +214,7 @@ fn small_scenario_strategy() -> impl Strategy<Value = Scenario> {
                     id: ScenarioId("scenario".to_string()),
                     title: BoundedString::try_new("").unwrap(),
                     author: BoundedString::try_new("").unwrap(),
+                    summary: BoundedString::try_new("").unwrap(),
                     forked_from: None,
                 },
                 card_defs,

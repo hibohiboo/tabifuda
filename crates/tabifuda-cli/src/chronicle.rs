@@ -177,6 +177,7 @@ mod tests {
                 id: ScenarioId("s".to_string()),
                 title: BoundedString::try_new("題").unwrap(),
                 author: BoundedString::try_new("a").unwrap(),
+                summary: BoundedString::try_new("").unwrap(),
                 forked_from: None,
             },
             card_defs: vec![],
