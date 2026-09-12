@@ -16,7 +16,13 @@ async function playCard(page: import("@playwright/test").Page, name: string) {
 test("単純討伐を勝利まで1本通す", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "はじめる" }).click();
+  // 依頼選択(P7 C2): 依頼カードをタップ→ScenarioCardLargeを確認→
+  // 「これで始める」で選択確定(Hand.tsxと同じタップ→展開→確定の2段階)。
+  // shared/scenarios/にはCLIフォーク出力のデモ用サンプル
+  // (simple-hunt-fork.json)も同名タイトル「単純討伐」で存在するため
+  // `.first()`(id順ソートの先頭=simple-hunt)で一意に選ぶ。
+  await page.getByRole("button", { name: "単純討伐", exact: true }).first().click();
+  await page.getByRole("button", { name: "これで始める" }).click();
 
   await playCard(page, "依頼を受ける");
 
