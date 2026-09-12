@@ -1,8 +1,8 @@
 ---
-status: planned
+status: done
 cycles:
   C1: done
-  C2: todo
+  C2: done
 ---
 
 # Phase 7 実装タスク: 依頼(シナリオ)選択画面

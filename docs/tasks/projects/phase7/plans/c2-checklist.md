@@ -21,62 +21,62 @@ docs/design/client-conventions.md。
 
 ## packages/ui
 
-- [ ] `components/scenarioIcon.tsx`: 依頼カード専用アイコン(張り紙イメージ)を
+- [x] `components/scenarioIcon.tsx`: 依頼カード専用アイコン(張り紙イメージ)を
       1種追加(`CARD_KIND_ICONS`とは別。CardKindの網羅マップに無関係な
-      概念を混ぜない)
-- [ ] `components/ScenarioCard.tsx`(小): `{ title: string }`を受け取り
+      概念を混ぜない)。縁取り色`SCENARIO_CARD_COLOR`(`#8b6b4a`)も同ファイルに
+- [x] `components/ScenarioCard.tsx`(小): `{ title: string }`を受け取り
       `Card`と同じ`.tf-card--small`の見た目で表示
-- [ ] `components/ScenarioCardLarge.tsx`(大): `{ title: string; summary:
+- [x] `components/ScenarioCardLarge.tsx`(大): `{ title: string; summary:
       string; onConfirm: () => void; onCancel: () => void }`。
       `.tf-card--large`を流用し、本文位置にsummaryを表示
-- [ ] `components/ScenarioSelect.tsx`: `{ scenarios: ScenarioOption[];
+- [x] `components/ScenarioSelect.tsx`: `{ scenarios: ScenarioOption[];
       onSelect: (id: string) => void }`。`ScenarioOption = { id: string;
       title: string; summary: string }`を同ファイルでexport。
       Hand.tsxと同じ構造(小一覧+タップで大をModal展開+確定)
-- [ ] `index.ts`に上記のexportを追加
-- [ ] コンポーネントカタログ(tools/docs-site `#/components`)に追加
+- [x] `index.ts`に上記のexportを追加
+- [x] コンポーネントカタログ(tools/docs-site `#/components`)に追加
+      (simple-hunt/lost-catのScenarioMetaをサンプルに使用)
 
 ## apps/web
 
-- [ ] `zod`を依存追加(最新安定版)
-- [ ] `scenario/loadScenarios.ts`: `import.meta.glob("../../../../shared/
-      scenarios/*.json", { eager: true })`で動的検出。各シナリオの`meta`
-      部分を`zod`スキーマ(`id`/`title`/`summary`の3フィールドのみ)で検証し、
-      検証済みのものだけ一覧に含める(壊れたシナリオはコンソール警告+
-      除外。落とすのは全体ではなく該当1件のみ)。`Scenario`全体は
-      ts-rs生成の型へ`as`キャストで委ねる(task.md「着手前の検討結果」の
-      zod限定案)
-- [ ] 既存の`scenario/simpleHunt.ts`は削除し、`loadScenarios.ts`に統合する
-      (1シナリオ1ファイルの読込口を二重に持たない)
-- [ ] `App.tsx`: `session === null`時、選択済みシナリオが無ければ
-      `ScenarioSelect`を表示。`onSelect`で対応する`Scenario`を見つけ
-      `StartSession`をdispatch(選択確定=開始。パーティは既存の
+- [x] `zod`(^4.6.2)を依存追加
+- [x] `scenario/loadScenarios.ts`: `import.meta.glob`で動的検出。各シナリオの
+      `meta`部分を`zod`スキーマ(`id`/`title`/`summary`の3フィールドのみ)で
+      検証し、検証済みのものだけ一覧に含める(壊れたシナリオはコンソール
+      警告+除外。落とすのは全体ではなく該当1件のみ)。`Scenario`全体は
+      ts-rs生成の型へ`as`キャストで委ねる(zod限定案)。id順ソートで
+      表示順を決定的にする
+- [x] 既存の`scenario/simpleHunt.ts`は削除し、`loadScenarios.ts`に統合
+- [x] `App.tsx`: `session === null`時に`ScenarioSelect`を表示。`onSelect`で
+      対応する`Scenario`を見つけ`StartSession`をdispatch(パーティは既存の
       `createSoloCharacter()`のまま変更なし)
-- [ ] `e2e/simple-hunt.spec.ts`: 冒頭の`はじめる`ボタン操作を、依頼カード
-      (「単純討伐」)をタップ→確定する操作に置き換える
+- [x] `e2e/simple-hunt.spec.ts`: 冒頭の`はじめる`ボタン操作を、依頼カード
+      (「単純討伐」)をタップ→「これで始める」で確定する操作に置き換え
 
 ## 設計文書・カタログ側の反映
 
-- [ ] `docs/rdra/screens.yaml`の`scenario-select`エントリの`status`を
+- [x] `docs/rdra/screens.yaml`の`scenario-select`エントリの`status`を
       `future`から`implemented`へ更新
-- [ ] `docs/design/client-conventions.md`にzod導入を実装パターンとして追記
-      (置き場・検証範囲の方針。次サイクルが同じ調査を繰り返さないため)
+- [x] `docs/design/client-conventions.md`にzod導入を実装パターンとして追記
+- [x] `docs/design/ui-visual-design.md`に依頼カード縁取り色(`#8b6b4a`)を追記
 
 ## 検証
 
-- [ ] `pnpm --filter @tabifuda/ui typecheck`
-- [ ] `pnpm --filter @tabifuda/web typecheck`
-- [ ] `pnpm --filter @tabifuda/web run --if-present lint`
-- [ ] `pnpm --filter @tabifuda/web test:e2e`(Playwrightスモーク)
-- [ ] `pnpm --filter @tabifuda/web build`
-- [ ] `pnpm -r typecheck`(docs-site含む全体。コンポーネントカタログへの
-      追加を反映)
+- [x] `pnpm --filter @tabifuda/ui typecheck`
+- [x] `pnpm --filter @tabifuda/web typecheck`
+- [x] `pnpm --filter @tabifuda/web run --if-present lint`
+- [x] `pnpm --filter @tabifuda/web test:e2e`(Playwrightスモーク。全1件パス)
+- [x] `pnpm --filter @tabifuda/web build`
+- [x] `pnpm -r typecheck`(全体通過)
 
 ## 終わり方
 
-- [ ] design-syncで乖離チェック
-- [ ] `run`スキールで実際に動かし目視確認(表示崩れ・選択→開始のフロー)
-- [ ] agent-journal.mdへの追記要否を確認
+- [x] design-syncで乖離チェック(コードコメントに`docs/tasks/`参照が
+      混入していた1件を発見しその場で修正。それ以外は乖離ゼロ)
+- [x] `run`スキルで実際に動かし目視確認(vite preview起動+Playwright操作+
+      スクリーンショット。表示崩れ無し、コンソールエラー無し)
+- [x] agent-journal.mdへ2件追記(既存デモ用サンプルとの重複表示に
+      気づけなかった件・stale previewサーバーによるテスト誤判定)
 - [ ] フェーズ最終サイクル: docs/agent-operations.md「フェーズ完了時の
       ふりかえり」に従いふりかえりを作成(retrospectiveエージェント)
 - [ ] `/code-review ultra`をユーザーに提案(フェーズ最終サイクルのため)
